@@ -36,7 +36,7 @@ function calcScore(leftResult, selfRight, oppRight) {
     return leftResult === 1 || leftResult === 0 ? 1 : 0;
   }
 
-  // ドライブ（右手=2）
+  // ドライブ（右手=2）(勝ちのみ)
   if (selfRight === RIGHT.DRIVE) {
     return leftResult === 1 ? 2 : 0;
   }
