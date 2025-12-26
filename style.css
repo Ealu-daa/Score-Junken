@@ -26,12 +26,25 @@ h2 {
 }
 
 /* ===== ボタンエリア ===== */
-.hands {
+.hand-area {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 10px 0;
+  justify-content: space-between;
+  gap: 30px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.hands {
+  flex: 1;
+  text-align: center;
+}
+
+.hand.left {
+  align-items: flex-start;
+}
+
+.hand.right {
+  align-items: flex-end;
 }
 
 button {

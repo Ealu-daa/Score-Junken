@@ -12,20 +12,27 @@
 
   <h1>スコアジャンケン</h1>
 
+  <div class="hand-area">
   <!-- 左手選択 -->
-  <h2>左手</h2>
-  <div class="hands">
-    <button onclick="selectLeft(0)">グー</button>
-    <button onclick="selectLeft(1)">チョキ</button>
-    <button onclick="selectLeft(2)">パー</button>
-  </div>
+  
+    <div class="hand left">
+      <h2>左手</h2>
+      <div class="hands">
+        <button onclick="selectLeft(0)">グー</button>
+        <button onclick="selectLeft(1)">チョキ</button>
+        <button onclick="selectLeft(2)">パー</button>
+      </div>
+    </div>
 
   <!-- 右手選択 -->
-  <h2>右手</h2>
-  <div class="hands">
-    <button data-right="1" onclick="selectRight(1)">ライト</button>
-    <button data-right="2" onclick="selectRight(2)">ドライブ</button>
-    <button data-right="3" onclick="selectRight(3)">カウンター</button>
+    <div class="hand right">
+      <h2>右手</h2>
+      <div class="hands">
+        <button onclick="selectRight(1)">ライト</button>
+        <button onclick="selectRight(2)">ドライブ</button>
+        <button onclick="selectRight(3)">カウンター</button>
+      </div>
+    </div>
   </div>
 
   <!-- スコア表示 -->
