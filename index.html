@@ -74,6 +74,10 @@
 
       selectedLeft = null;
       selectedRight = null;
+
+      document
+        .querySelectorAll(".hands button")
+        .forEach(btn => btn.classList.remove("selected"));
     }
 
     function handName(v) {
