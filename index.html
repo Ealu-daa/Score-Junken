@@ -102,20 +102,20 @@
       document.getElementById("pScore").textContent = result.score.player;
       document.getElementById("cScore").textContent = result.score.cpu;
 
-      // ログ更新
-      document.getElementById("log").textContent =
+      // ログに追記
+      const logEl = document.getElementById("log");
+      logEl.textContent += 
         `ラウンド ${round} 結果:\n` +
         `あなた：${handName(result.player.left)} / ${rightName(result.player.right)}  (${format(result.player.gain)})\n` +
-        `CPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)}  (${format(result.cpu.gain)})`;
+        `CPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)}  (${format(result.cpu.gain)})\n\n`;
 
-      round++;
+      // 自動スクロール（最新ラウンドに移動）
+      logEl.scrollTop = logEl.scrollHeight;
 
-      // ラウンド表示
+      // ラウンド表示更新
       document.getElementById("round").textContent = round;
 
-      
-
-      
+      round++;
 
       // 最大ラウンド到達 → ゲーム終了
       if (round > maxRound) {
@@ -127,23 +127,6 @@
       selectedLeft = null;
       selectedRight = null;
       document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
-    }
-
-    function handName(v) {
-      return ["グー", "チョキ", "パー"][v];
-    }
-
-    function rightName(v) {
-      return {
-        1: "ライト",
-        2: "ドライブ",
-        3: "カウンター"
-      }[v];
-    }
-
-    function format(n) {
-      if (n > 0) return "+" + n;
-      return n.toString();
     }
   </script>
 

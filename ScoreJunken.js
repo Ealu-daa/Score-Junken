@@ -140,6 +140,7 @@ function endGame() {
   // リセットボタン追加
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "もう一度プレイ";
+  resetBtn.classList.add("reset-btn"); // ← クラス追加
   resetBtn.onclick = resetGame;
   document.body.appendChild(resetBtn);
 }
@@ -158,7 +159,7 @@ function resetGame() {
   document.querySelectorAll(".hands button").forEach(btn => btn.disabled = false);
 
   // リセットボタン削除
-  document.querySelector("button:last-child").remove();
+  document.querySelector(".reset-btn").remove();
 }
 
 // =========================

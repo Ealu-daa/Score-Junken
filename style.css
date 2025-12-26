@@ -169,6 +169,7 @@ button[data-right="3"] {
 .log {
   margin: 20px auto;
   max-width: 420px;
+  max-height: 200px;       /* 表示領域の高さを固定 */
   padding: 12px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
@@ -176,6 +177,7 @@ button[data-right="3"] {
   line-height: 1.6;
   text-align: left;
   white-space: pre-line;
+  overflow-y: auto;        /* 縦スクロールを可能にする */
 }
 
 /* ===== スマホ対応 ===== */
