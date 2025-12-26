@@ -2,7 +2,7 @@
    Score Junken Core Logic
    ========================= */
 
-window.addEventListener("load", () => console.log("ver0.1.3"));
+window.addEventListener("load", () => console.log("ver0.1.4"));
 
 // ===== 左手・右手 定義 =====
 const HAND = { ROCK:0, SCISSORS:1, PAPER:2 };
