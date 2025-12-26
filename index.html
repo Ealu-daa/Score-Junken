@@ -62,10 +62,11 @@
 
   <!-- スコア表示 -->
   <div class="score">
+    ラウンド: <span id="round">1</span> / 10<br>
     あなた: <span id="pScore">0</span>
-    
     CPU: <span id="cScore">0</span>
   </div>
+  
 
   <!-- ログ -->
   <div class="log" id="log">
@@ -97,19 +98,31 @@
 
       const result = playTurn(selectedLeft, selectedRight);
 
+      // スコア表示
       document.getElementById("pScore").textContent = result.score.player;
       document.getElementById("cScore").textContent = result.score.cpu;
 
+      // ラウンド表示
+      document.getElementById("round").textContent = round;
+
+      // ログ更新
       document.getElementById("log").textContent =
+        `ラウンド ${round} 結果:\n` +
         `あなた：${handName(result.player.left)} / ${rightName(result.player.right)}  (${format(result.player.gain)})\n` +
         `CPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)}  (${format(result.cpu.gain)})`;
 
+      round++;
+
+      // 最大ラウンド到達 → ゲーム終了
+      if (round > maxRound) {
+        endGame();
+        return;
+      }
+
+      // 選択状態リセット
       selectedLeft = null;
       selectedRight = null;
-
-      document
-        .querySelectorAll(".hands button")
-        .forEach(btn => btn.classList.remove("selected"));
+      document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
     }
 
     function handName(v) {

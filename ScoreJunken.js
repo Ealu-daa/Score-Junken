@@ -95,6 +95,8 @@ function cpuRight(playerHistory) {
 let playerScore = 0;
 let cpuScore = 0;
 let history = [];
+let round = 1;
+const maxRound = 10;
 
 // =========================
 // 1ターン進行
@@ -122,6 +124,41 @@ function playTurn(playerLeft, playerRight) {
     cpu: { left: cpuL, right: cpuR, gain: cGain },
     score: { player: playerScore, cpu: cpuScore }
   };
+}
+
+function endGame() {
+  let winner;
+  if (playerScore > cpuScore) winner = "あなたの勝ち！🎉";
+  else if (playerScore < cpuScore) winner = "CPUの勝ち！💻";
+  else winner = "引き分け！🤝";
+
+  document.getElementById("log").textContent += `\n\n=== ゲーム終了 ===\n${winner}`;
+
+  // ボタンを無効化
+  document.querySelectorAll(".hands button").forEach(btn => btn.disabled = true);
+
+  // リセットボタン追加
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "もう一度プレイ";
+  resetBtn.onclick = resetGame;
+  document.body.appendChild(resetBtn);
+}
+
+function resetGame() {
+  round = 1;
+  playerScore = 0;
+  cpuScore = 0;
+  history = [];
+
+  document.getElementById("pScore").textContent = 0;
+  document.getElementById("cScore").textContent = 0;
+  document.getElementById("round").textContent = 1;
+  document.getElementById("log").textContent = "左手と右手を選んでください";
+
+  document.querySelectorAll(".hands button").forEach(btn => btn.disabled = false);
+
+  // リセットボタン削除
+  document.querySelector("button:last-child").remove();
 }
 
 // =========================
