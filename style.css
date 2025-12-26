@@ -47,6 +47,18 @@ h2 {
   align-items: flex-end;
 }
 
+.hand-item {
+  display: flex;
+  flex-direction: column; /* ボタンの下に画像 */
+  align-items: center;
+}
+
+.hand-item img {
+  margin-top: 6px;
+  width: 48px;   /* 好きなサイズに調整 */
+  height: auto;
+}
+
 button {
   min-width: 90px;
   padding: 12px 16px;
