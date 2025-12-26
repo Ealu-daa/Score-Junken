@@ -102,9 +102,6 @@
       document.getElementById("pScore").textContent = result.score.player;
       document.getElementById("cScore").textContent = result.score.cpu;
 
-      // ラウンド表示
-      document.getElementById("round").textContent = round;
-
       // ログ更新
       document.getElementById("log").textContent =
         `ラウンド ${round} 結果:\n` +
@@ -112,6 +109,13 @@
         `CPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)}  (${format(result.cpu.gain)})`;
 
       round++;
+
+      // ラウンド表示
+      document.getElementById("round").textContent = round;
+
+      
+
+      
 
       // 最大ラウンド到達 → ゲーム終了
       if (round > maxRound) {
