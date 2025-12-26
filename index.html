@@ -31,7 +31,7 @@
   <!-- スコア表示 -->
   <div class="score">
     あなた: <span id="pScore">0</span>
-    　
+    
     CPU: <span id="cScore">0</span>
   </div>
 
@@ -50,11 +50,13 @@
 
     function selectLeft(v) {
       selectedLeft = v;
+      highlight(".hands:nth-of-type(1) button", v);
       tryPlay();
     }
 
     function selectRight(v) {
       selectedRight = v;
+      highlight(".hands:nth-of-type(2) button", v - 1);
       tryPlay();
     }
 

@@ -123,3 +123,13 @@ function playTurn(playerLeft, playerRight) {
     score: { player: playerScore, cpu: cpuScore }
   };
 }
+
+// =========================
+// UI周り
+// =========================
+function highlight(groupSelector, index) {
+  const buttons = document.querySelectorAll(groupSelector);
+  buttons.forEach((btn, i) => {
+    btn.classList.toggle("selected", i === index);
+  });
+}
