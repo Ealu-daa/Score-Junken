@@ -89,6 +89,21 @@ function playTurn(playerLeft, playerRight){
   };
 }
 
+function playTurnOnline(pLeft, pRight, cLeft, cRight) {
+  const pResult = judgeLeft(pLeft, cLeft);
+  const cResult = -pResult;
+
+  const pGain = calcScore(pResult, pRight, cRight);
+  const cGain = calcScore(cResult, cRight, pRight);
+
+  return {
+    player: { gain: pGain },
+    cpu: { gain: cGain },
+    playerScore: pGain,
+    cpuScore: cGain
+  };
+}
+
 // ===== UI補助 =====
 function handName(v){ return ["グー","チョキ","パー"][v]; }
 function rightName(v){ return {1:"ライト",2:"ドライブ",3:"カウンター"}[v]; }
@@ -199,6 +214,8 @@ function resetGame(){
 }
 
 // =====Firestore=====
+import { getFirestore, doc, updateDoc, setDoc, onSnapshot } 
+  from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 let playerId = null;
 
@@ -218,7 +235,7 @@ onSnapshot(gameRef, async (docSnap) => {
 
   if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
     // 勝敗計算
-    const result = playTurn(p.left, p.right, c.left, c.right);
+    const result = playTurnOnline(p.left, p.right, c.left, c.right);
 
     // Firestore にスコア反映
     await updateDoc(gameRef, {
