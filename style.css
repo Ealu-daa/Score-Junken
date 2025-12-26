@@ -49,14 +49,15 @@ h2 {
 
 .hand-item {
   display: flex;
-  flex-direction: column; /* ボタンの下に画像 */
+  flex-direction: column;
   align-items: center;
 }
 
 .hand-item img {
-  margin-top: 6px;
-  width: 48px;   /* 好きなサイズに調整 */
+  display: block;
+  width: 48px;        /* ← 必ず指定 */
   height: auto;
+  margin-top: 6px;
 }
 
 button {
