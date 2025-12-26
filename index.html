@@ -10,6 +10,50 @@
 </head>
 <body>
 
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDwZQfWkf_h-Dc219uJpTtJNJElZ5l-0Ok",
+      authDomain: "score-junken-online.firebaseapp.com",
+      projectId: "score-junken-online",
+      storageBucket: "score-junken-online.firebasestorage.app",
+      messagingSenderId: "656405933288",
+      appId: "1:656405933288:web:122a765c95d61b0a0ded5d",
+      measurementId: "G-5SDM8HE1N1"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    // --- 書き込みテスト ---
+    document.getElementById("writeBtn").addEventListener("click", () => {
+      db.collection("test").doc("ping").set({ time: Date.now() })
+        .then(() => console.log("書き込み成功！"))
+        .catch(err => console.error("書き込みエラー:", err));
+    });
+
+    // --- 読み込みテスト ---
+    document.getElementById("readBtn").addEventListener("click", () => {
+      db.collection("test").doc("ping").get()
+        .then(doc => {
+          if (doc.exists) {
+            console.log("読み込み成功:", doc.data());
+          } else {
+            console.log("ドキュメントが存在しません");
+          }
+        })
+        .catch(err => console.error("読み込みエラー:", err));
+    });
+  </script>
+
   <h1>スコアジャンケン</h1>
 
   <div class="hand-area">
@@ -113,7 +157,7 @@
       logEl.scrollTop = logEl.scrollHeight;
       
       round++;
-      
+
       // ラウンド表示更新
       document.getElementById("round").textContent = round;
 
