@@ -1,6 +1,10 @@
 /* =========================
-   Score Junken Core Logic - 最強CPU対応
+   Score Junken Core Logic
    ========================= */
+
+  window.addEventListener("load", function() {
+  console.log("ver0.1.0");
+});
 
 // 左手
 const HAND = { ROCK:0, SCISSORS:1, PAPER:2 };
@@ -37,7 +41,7 @@ function calcScore(leftResult, selfRight, oppRight){
 }
 
 // =========================
-// 最強CPUロジック
+// CPUロジック
 // =========================
 
 // 左手：プレイヤー傾向読み
