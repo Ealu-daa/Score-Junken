@@ -209,15 +209,6 @@ function setPlayer(id) {
   console.log("あなたは", playerId);
 }
 
-const roomId = "room001";
-
-async function chooseHand(handType, value) {
-  const gameRef = doc(db, "games", roomId);
-  const updateObj = {};
-  updateObj[`${playerId}.${handType}`] = value;
-  await updateDoc(gameRef, updateObj);
-}
-
 const gameRef = doc(db, "games", roomId);
 
 onSnapshot(gameRef, async (docSnap) => {
