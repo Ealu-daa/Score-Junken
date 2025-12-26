@@ -3,7 +3,7 @@
    ========================= */
 
   window.addEventListener("load", function() {
-  console.log("ver0.1.0");
+  console.log("ver0.1.1");
 });
 
 // 左手
@@ -137,9 +137,11 @@ function tryPlay(){
   logEl.textContent += `ラウンド ${round} 結果:\nあなた：${handName(result.player.left)} / ${rightName(result.player.right)} (${format(result.player.gain)})\nCPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)} (${format(result.cpu.gain)})\n\n`;
   logEl.scrollTop = logEl.scrollHeight;
 
+  //どんな事があってもラウンドをインクリメントしてからテキストを更新する
+  round++;
+
   document.getElementById("round").textContent = round;
 
-  round++;
   if(round>maxRound){ endGame(); return; }
 
   selectedLeft=null;
