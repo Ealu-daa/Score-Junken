@@ -14,8 +14,14 @@
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-    import { getFirestore, doc, updateDoc, setDoc, onSnapshot } 
-  from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      updateDoc,
+      onSnapshot,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
     // TODO: Add SDKs for Firebase products that you want to use
     // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -34,17 +40,9 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
-    const db = getFirestore(app);
-
-    async function chooseHand(handType, value) {
-      const roomId = "room001";
-      const playerId = "player1"; // ここはボタンで切り替える
-      const gameRef = doc(db, "games", roomId); // ← これで doc が使える
-      const updateObj = {};
-      updateObj[`${playerId}.${handType}`] = value;
-      await updateDoc(gameRef, updateObj);
-    }
+    const db = getFirestore(app); // Firestore を使えるようにする
   </script>
+
 
   <div id="player-select">
     <p>あなたはどちらですか？</p>

@@ -2,7 +2,7 @@
    Score Junken Core Logic
    ========================= */
 
-window.addEventListener("load", () => console.log("ver0.1.4"));
+window.addEventListener("load", () => console.log("ver0.1.5"));
 
 // ===== 左手・右手 定義 =====
 const HAND = { ROCK:0, SCISSORS:1, PAPER:2 };
@@ -182,7 +182,7 @@ function endGameOnline(pScore, cScore) {
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "もう一度プレイ";
   resetBtn.onclick = async () => {
-    await setDoc(doc(db, "games", roomId), {
+    await setDoc(doc(db, "games", room001), {
       player1: { left: null, right: null, score: 0 },
       player2: { left: null, right: null, score: 0 },
       round: 1,
@@ -214,7 +214,12 @@ function resetGame(){
 }
 
 // =====Firestore=====
-
+await setDoc(doc(db, "games", "room001"), {
+  player1: { left: null, right: null, score: 0 },
+  player2: { left: null, right: null, score: 0 },
+  round: 1,
+  status: "playing"
+});
 
 let playerId = null;
 
@@ -225,7 +230,7 @@ function setPlayer(id) {
   console.log("あなたは", playerId);
 }
 
-const gameRef = doc(db, "games", roomId);
+const gameRef = doc(db, "games", room001);
 
 onSnapshot(gameRef, async (docSnap) => {
   const data = docSnap.data();
