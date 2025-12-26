@@ -111,11 +111,13 @@
 
       // 自動スクロール（最新ラウンドに移動）
       logEl.scrollTop = logEl.scrollHeight;
-
+      
+      round++;
+      
       // ラウンド表示更新
       document.getElementById("round").textContent = round;
 
-      round++;
+      
 
       // 最大ラウンド到達 → ゲーム終了
       if (round > maxRound) {
