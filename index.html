@@ -32,72 +32,67 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
-
-    // --- 書き込みテスト ---
-    document.getElementById("writeBtn").addEventListener("click", () => {
-      db.collection("test").doc("ping").set({ time: Date.now() })
-        .then(() => console.log("書き込み成功！"))
-        .catch(err => console.error("書き込みエラー:", err));
-    });
-
-    // --- 読み込みテスト ---
-    document.getElementById("readBtn").addEventListener("click", () => {
-      db.collection("test").doc("ping").get()
-        .then(doc => {
-          if (doc.exists) {
-            console.log("読み込み成功:", doc.data());
-          } else {
-            console.log("ドキュメントが存在しません");
-          }
-        })
-        .catch(err => console.error("読み込みエラー:", err));
-    });
   </script>
 
-  <h1>スコアジャンケン</h1>
+  <script type="module">
+    import { getFirestore, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    // Firebase 初期化（すでにあるなら再利用）
+    const db = getFirestore(app);
+  </script>
+
+  <div id="player-select">
+    <p>あなたはどちらですか？</p>
+    <button onclick="setPlayer('player1')">Player 1</button>
+    <button onclick="setPlayer('player2')">Player 2</button>
+  </div>
+
+  <div id="game-area" style="display:none;">
+    <!-- ゲームUIここに置く -->
+     <h1>スコアジャンケン</h1>
 
   <div class="hand-area">
-    <!-- 左手選択 -->
+    <!-- 左手 -->
     <div class="hand left">
       <h2>左手</h2>
       <div class="hands">
 
         <div class="hand-item">
           <img src="img/gu.png" alt="グー">
-          <button onclick="selectLeft(0)">グー</button>
+          <button data-hand="0" onclick="chooseHand('left',0)">グー</button>
         </div>
 
         <div class="hand-item">
           <img src="img/choki.png" alt="チョキ">
-          <button onclick="selectLeft(1)">チョキ</button>
+          <button data-hand="1" onclick="chooseHand('left',1)">チョキ</button>
         </div>
 
         <div class="hand-item">
           <img src="img/pa.png" alt="パー">
-          <button onclick="selectLeft(2)">パー</button>
+          <button data-hand="2" onclick="chooseHand('left',2)">パー</button>
         </div>
 
       </div>
     </div>
 
-    <!-- 右手選択 -->
+    <!-- 右手 -->
     <div class="hand right">
       <h2>右手</h2>
       <div class="hands">
 
         <div class="hand-item">
           <img src="img/light.png" alt="ライト">
-          <button onclick="selectRight(1)">ライト</button>
+          <button data-right="1" onclick="chooseHand('right',1)">ライト</button>
         </div>
 
         <div class="hand-item">
           <img src="img/drive.png" alt="ドライブ">
-          <button onclick="selectRight(2)">ドライブ</button>
+          <button data-right="2" onclick="chooseHand('right',2)">ドライブ</button>
         </div>
 
         <div class="hand-item">
           <img src="img/counter.png" alt="カウンター">
-          <button onclick="selectRight(3)">カウンター</button>
+          <button data-right="3" onclick="chooseHand('right',3)">カウンター</button>
         </div>
 
       </div>
@@ -107,10 +102,8 @@
   <!-- スコア表示 -->
   <div class="score">
     ラウンド: <span id="round">1</span> / 10<br>
-    あなた: <span id="pScore">0</span>
-    CPU: <span id="cScore">0</span>
+    あなた: <span id="pScore">0</span> / CPU: <span id="cScore">0</span>
   </div>
-  
 
   <!-- ログ -->
   <div class="log" id="log">
@@ -122,9 +115,6 @@
 
   <!-- UI制御 -->
   <script>
-    let selectedLeft = null;
-    let selectedRight = null;
-
     function selectLeft(v) {
       selectedLeft = v;
       highlight(".hands:nth-of-type(1) button", v);
@@ -192,6 +182,7 @@
       return n.toString();
     }
   </script>
+  </div>
 
 </body>
 </html>
