@@ -214,12 +214,18 @@ function resetGame(){
 }
 
 // =====Firestore=====
-await setDoc(doc(db, "games", "room001"), {
-  player1: { left: null, right: null, score: 0 },
-  player2: { left: null, right: null, score: 0 },
-  round: 1,
-  status: "playing"
-});
+(async function initFirestore(){
+  try{
+    await setDoc(doc(db, "games", "room001"), {
+      player1: { left: null, right: null, score: 0 },
+      player2: { left: null, right: null, score: 0 },
+      round: 1,
+      status: "playing"
+    });
+  }catch(e){
+    console.error("Firestore init failed:", e);
+  }
+})();
 
 let playerId = null;
 
