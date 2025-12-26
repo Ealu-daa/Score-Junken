@@ -214,8 +214,7 @@ function resetGame(){
 }
 
 // =====Firestore=====
-import { getFirestore, doc, updateDoc, setDoc, onSnapshot } 
-  from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
 
 let playerId = null;
 
