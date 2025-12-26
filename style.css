@@ -55,8 +55,8 @@ h2 {
 
 .hand-item img {
   display: block;
-  width: auto;        /* ← 必ず指定 */
-  height: 48px;
+  height: 60px;    /* 固定高さ */
+  width: auto;     /* 横幅は自動調整 */
   margin-bottom: 12px;
 }
 
