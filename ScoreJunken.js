@@ -27,13 +27,13 @@ function judgeLeft(player, opponent) {
 }
 
 // =========================
-// スコア計算（最新版ルール）
+// スコア計算
 // =========================
 function calcScore(leftResult, selfRight, oppRight) {
 
-  // ライト
+  // ライト(勝ちorあいこ)
   if (selfRight === RIGHT.LIGHT) {
-    return leftResult === 1 ? 1 : 0;
+    return leftResult === 1 || leftResult === 0 ? 1 : 0;
   }
 
   // ドライブ（右手=2）
@@ -50,7 +50,7 @@ function calcScore(leftResult, selfRight, oppRight) {
     if (leftResult === -1) {
       if (oppRight === RIGHT.DRIVE) return 3;
       if (oppRight === RIGHT.LIGHT) return 2;
-      return 2; // 相手もカウンター（暫定）
+      return 0; // 相手もカウンター（暫定）
     }
   }
 
@@ -89,6 +89,40 @@ function cpuRight(playerHistory) {
   return Math.random() < 0.7 ? RIGHT.LIGHT : RIGHT.DRIVE;
 }
 
+// =========================
+// ゲーム状態
+// =========================
+let playerScore = 0;
+let cpuScore = 0;
+let history = [];
+
+// =========================
+// 1ターン進行
+// =========================
+function playTurn(playerLeft, playerRight) {
+  const cpuL = cpuLeft(history.at(-1)?.left ?? null);
+  const cpuR = cpuRight(history);
+
+  const pResult = judgeLeft(playerLeft, cpuL);
+  const cResult = -pResult;
+
+  const pGain = calcScore(pResult, playerRight, cpuR);
+  const cGain = calcScore(cResult, cpuR, playerRight);
+
+  playerScore += pGain;
+  cpuScore += cGain;
+
+  history.push({
+    left: playerLeft,
+    right: playerRight
+  });
+
+  return {
+    player: { left: playerLeft, right: playerRight, gain: pGain },
+    cpu: { left: cpuL, right: cpuR, gain: cGain },
+    score: { player: playerScore, cpu: cpuScore }
+  };
+}
 // =========================
 // ゲーム状態
 // =========================
