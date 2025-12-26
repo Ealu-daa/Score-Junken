@@ -32,13 +32,16 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
-  </script>
-
-  <script type="module">
-    import { getFirestore, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-
-    // Firebase 初期化（すでにあるなら再利用）
     const db = getFirestore(app);
+
+    async function chooseHand(handType, value) {
+      const roomId = "room001";
+      const playerId = "player1"; // ここはボタンで切り替える
+      const gameRef = doc(db, "games", roomId); // ← これで doc が使える
+      const updateObj = {};
+      updateObj[`${playerId}.${handType}`] = value;
+      await updateDoc(gameRef, updateObj);
+    }
   </script>
 
   <div id="player-select">
