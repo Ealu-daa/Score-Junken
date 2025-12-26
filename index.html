@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Score Junken</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>スコアジャンケン</h1>
+
+  <!-- 左手選択 -->
+  <h2>左手</h2>
+  <div class="hands">
+    <button onclick="selectLeft(0)">グー</button>
+    <button onclick="selectLeft(1)">チョキ</button>
+    <button onclick="selectLeft(2)">パー</button>
+  </div>
+
+  <!-- 右手選択 -->
+  <h2>右手</h2>
+  <div class="hands">
+    <button data-right="1" onclick="selectRight(1)">ライト</button>
+    <button data-right="2" onclick="selectRight(2)">ドライブ</button>
+    <button data-right="3" onclick="selectRight(3)">カウンター</button>
+  </div>
+
+  <!-- スコア表示 -->
+  <div class="score">
+    あなた: <span id="pScore">0</span>
+    　
+    CPU: <span id="cScore">0</span>
+  </div>
+
+  <!-- ログ -->
+  <div class="log" id="log">
+    左手と右手を選んでください
+  </div>
+
+  <!-- ゲームロジック -->
+  <script src="ScoreJunken.js"></script>
+
+  <!-- UI制御 -->
+  <script>
+    let selectedLeft = null;
+    let selectedRight = null;
+
+    function selectLeft(v) {
+      selectedLeft = v;
+      tryPlay();
+    }
+
+    function selectRight(v) {
+      selectedRight = v;
+      tryPlay();
+    }
+
+    function tryPlay() {
+      if (selectedLeft === null || selectedRight === null) return;
+
+      const result = playTurn(selectedLeft, selectedRight);
+
+      document.getElementById("pScore").textContent = result.score.player;
+      document.getElementById("cScore").textContent = result.score.cpu;
+
+      document.getElementById("log").textContent =
+        `あなた：${handName(result.player.left)} / ${rightName(result.player.right)}  (${format(result.player.gain)})\n` +
+        `CPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)}  (${format(result.cpu.gain)})`;
+
+      selectedLeft = null;
+      selectedRight = null;
+    }
+
+    function handName(v) {
+      return ["グー", "チョキ", "パー"][v];
+    }
+
+    function rightName(v) {
+      return {
+        1: "ライト",
+        2: "ドライブ",
+        3: "カウンター"
+      }[v];
+    }
+
+    function format(n) {
+      if (n > 0) return "+" + n;
+      return n.toString();
+    }
+  </script>
+
+</body>
+</html>
