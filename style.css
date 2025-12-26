@@ -74,14 +74,12 @@ button[data-right="3"] {
   font-size: 16px;
   cursor: pointer;
   border: 2px solid #888;
-  background: #fff;
   border-radius: 6px;
   transition: 0.15s;
 }
 
 .hands button.selected {
   border-color: #ff9800;
-  background: #fff3e0;
   box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
   transform: scale(1.05);
 }

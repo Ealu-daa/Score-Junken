@@ -127,6 +127,7 @@ function playTurn(playerLeft, playerRight) {
 // =========================
 // UI周り
 // =========================
+
 function highlight(groupSelector, index) {
   const buttons = document.querySelectorAll(groupSelector);
   buttons.forEach((btn, i) => {
