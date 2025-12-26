@@ -55,9 +55,9 @@ h2 {
 
 .hand-item img {
   display: block;
-  width: 48px;        /* ← 必ず指定 */
-  height: auto;
-  margin-bottom: 6px;
+  width: auto;        /* ← 必ず指定 */
+  height: 48px;
+  margin-bottom: 12px;
 }
 
 button {
