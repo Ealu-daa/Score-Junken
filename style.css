@@ -57,7 +57,7 @@ h2 {
   display: block;
   width: 48px;        /* ← 必ず指定 */
   height: auto;
-  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 button {
