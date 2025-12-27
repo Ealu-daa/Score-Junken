@@ -398,6 +398,7 @@ document.getElementById("cpu-btn").addEventListener("click", () => {
   gameArea.style.display = "block";
   // CPU戦モードフラグ
   window.isOnline = false;
+  console.log("対CPU")
 });
 
 document.getElementById("online-btn").addEventListener("click", async () => {
@@ -408,5 +409,6 @@ document.getElementById("online-btn").addEventListener("click", async () => {
 
   await checkAndInitRoom();
   await assignPlayer();
+  console.log("対人")
 });
 
