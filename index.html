@@ -10,20 +10,29 @@
 </head>
 <body>
 
+  <h1>スコアジャンケン</h1>
+
   <!-- ゲームロジック -->
   <script type="module" src="ScoreJunken.js"></script>
 
-  <div id="start-screen">
-    <h1>Score Junken</h1>
-    <div>CPU対戦</div>
-    <button id="cpu-btn">CPU対戦</button>
-    <div>オンライン対戦</div>
-    <button id="online-btn">オンライン対戦</button>
+  <div id="start-screen" style="display: flex; justify-content: center; gap: 20px;">
+    <!-- CPU対戦 -->
+    <div style="text-align: center;">
+      <div>CPU対戦</div> <!-- ボタンの上の文字 -->
+      <button id="cpu-btn">CPU対戦</button>
+    </div>
+
+    <!-- オンライン対戦 -->
+    <div style="text-align: center;">
+      <div>オンライン対戦</div> <!-- ボタンの上の文字 -->
+      <button id="online-btn-room001">room001</button>
+      <button id="online-btn-room002">room002</button>
+    </div>
   </div>
 
   <div id="game-area" style="display: none;">
     <!-- ゲームUIここに置く -->
-    <h1>スコアジャンケン</h1>
+    
 
     <div class="hand-area">
       <!-- 左手 -->
