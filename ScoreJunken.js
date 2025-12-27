@@ -65,6 +65,7 @@ window.addEventListener("load", async () => {
   }
 });
 
+/*
 async function getRate(uid) {
   const rateDoc = doc(db, "ratings", uid);
   const snapshot = await getDoc(rateDoc);
@@ -74,7 +75,7 @@ async function getRate(uid) {
   }
   return snapshot.data().rate;
 }
-
+*/
 
 // ===== 左手・右手 定義 =====
 const HAND = { ROCK:0, SCISSORS:1, PAPER:2 };
@@ -213,7 +214,7 @@ onSnapshot(gameRef, (docSnap) => {
   }
 
   // ここで左下レート表示を更新
-  updateRateDisplay(window.currentUID, window.opponentUID);
+  //updateRateDisplay(window.currentUID, window.opponentUID);
 });
 
 // ===== 手の選択 =====
@@ -326,11 +327,13 @@ function endGame(){
 }
 
 function endGameOnline(pScore, cScore) {
+  /*
   if(window.currentUID && window.opponentUID){
   updateRateAfterMatch(window.currentUID, window.opponentUID,
     (p.score || 0) + pGain, (c.score || 0) + cGain);
   updateRateDisplay(window.currentUID, window.opponentUID);
   }
+  */
   
 
   const logEl = document.getElementById("log");
@@ -466,7 +469,7 @@ document.getElementById("online-btn-room001").addEventListener("click", async ()
 
     await checkAndInitRoom();
     await assignPlayer();
-    await updateRateDisplay(window.currentUID, window.opponentUID);
+    //await updateRateDisplay(window.currentUID, window.opponentUID);
     console.log("対人")
   }
 });
@@ -479,7 +482,7 @@ document.getElementById("online-btn-room002").addEventListener("click", async ()
   // オンライン戦モードフラグ
   roomId = "room002"
   window.isOnline = true;
-  await updateRateDisplay(window.currentUID, window.opponentUID);
+  //await updateRateDisplay(window.currentUID, window.opponentUID);
 
   await checkAndInitRoom();
   await assignPlayer();
@@ -513,6 +516,7 @@ roomIds.forEach(roomId => {
 });
 
 //rating
+/*
 async function getRateOrDefault(uid) {
   if (!uid) return 1500; // UID自体が null/undefined なら 1500
   const rateDoc = doc(db, "ratings", uid);
@@ -561,3 +565,4 @@ async function updateRateDisplay(myUID, oppUID = null) {
 }
 
 await updateRateDisplay(window.currentUID);
+*/
