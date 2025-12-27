@@ -36,6 +36,7 @@ h2 {
 
 .hands {
   flex: 1;
+  flex-direction: column;
   text-align: center;
 }
 

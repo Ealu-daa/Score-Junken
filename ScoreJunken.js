@@ -39,7 +39,7 @@ const db = getFirestore(app); // Firestore を使えるようにする
 
 let playerId = null; // "player1" or "player2"
 let roomId = "room001";
-const maxRound = 10;
+const maxRound = 15;
 
 /*
 import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
@@ -81,7 +81,15 @@ async function getRate(uid) {
 
 // ===== 左手・右手 定義 =====
 const HAND = { ROCK:0, SCISSORS:1, PAPER:2 };
-const RIGHT = { LIGHT:1, DRIVE:2, COUNTER:3 };
+const RIGHT = {
+  BLOCK: 0,
+  LIGHT: 1,
+  DRIVE: 2,
+  COUNTER: 3,
+  TRICK: 4,
+  REVERSAL: 5,
+  COSMIC: 6
+};
 
 // ===== 勝敗判定 (左手) =====
 function judgeLeft(player, opponent){
@@ -89,51 +97,184 @@ function judgeLeft(player, opponent){
   return ((player + 1) % 3 === opponent) ? 1 : -1;
 }
 
-// ===== スコア計算 (右手) =====
-function calcScore(leftResult, selfRight, oppRight){
-  if(leftResult === 0 && selfRight === oppRight)
+// ===== スコア計算=====
+
+/*
+ラウンド数15
+  [右手アクション定義]
+
+  数字 | 名前         | 勝   | あいこ | 負   | 役割
+  ------------------------------------------------
+   0   | ブロック     | -10* | -10    | -10   | 逃げ／準備
+   1   | ライト       | +10   |  0     |  0    | 安定
+   2   | ドライブ     | +25   |  0     | -10   | 攻め
+   3   | カウンター   | -15   | -10    | +35   | 読み
+   4   | トリック     |  0    | +25    | -20   | 攪乱
+   5   | リバーサル   | +50   |  0     | -50   | 逆転
+
+  ※ 特殊ルール
+  ・相手がブロックの場合、自分の得点は常に 0
+  ・相手がカウンターの場合、自分の得点は常に 0
+  ・*ブロックは1回目：-10,2回目：-20,3回目：-30,4回目以降：使用不可
+  ・残り3ラウンドでは：
+    ・ライト 勝+15
+    ・トリック あいこ+35
+  ・リバーサルは1試合1回のみ
+*/
+function calcScore(leftResult, selfRight, oppRight, blockCount = 0, isEndGame = false) {
+
+  // 相手がブロック or カウンター → 自分の得点は常に0
+  if (oppRight === RIGHT.BLOCK || oppRight === RIGHT.COUNTER) {
     return 0;
-  if(selfRight === RIGHT.LIGHT) 
-    return (leftResult >= 0 ? 1 : 0);
-  if(selfRight === RIGHT.DRIVE) 
-    return (leftResult === 1 ? 2 : 0);
-  if(selfRight === RIGHT.COUNTER){
-    if(leftResult === 1) return -1;
-    if(leftResult === 0) return 0;
-    if(leftResult === -1){
-      if(oppRight === RIGHT.DRIVE) return 3;
-      if(oppRight === RIGHT.LIGHT) return 2;
-      return 2;
+  }
+
+  if (oppRight === selfRight && leftResult === 0) {
+    return 0;
+  }
+
+  switch (selfRight) {
+
+    // 0｜ブロック
+    case RIGHT.BLOCK: {
+      // 使用回数によるペナルティ
+      const penalty = -(blockCount + 1) * 10;
+      return penalty;
+    }
+
+    // 1｜ライト
+    case RIGHT.LIGHT: {
+      if (leftResult === 1) return isEndGame ? 15 : 10;
+      return 0;
+    }
+
+    // 2｜ドライブ
+    case RIGHT.DRIVE: {
+      if (leftResult === 1) return 25;
+      if (leftResult === -1) return -10;
+      return 0;
+    }
+
+    // 3｜カウンター
+    case RIGHT.COUNTER: {
+      if (leftResult === 1) return -15;
+      if (leftResult === 0) return -10;
+      if (leftResult === -1) return 35;
+      return 0;
+    }
+
+    // 4｜トリック
+    case RIGHT.TRICK: {
+      if (leftResult === 0) return isEndGame ? 35 : 25;
+      if (leftResult === -1) return -20;
+      return 0;
+    }
+
+    // 5｜リバーサル（1試合1回管理は外で）
+    case RIGHT.REVERSAL: {
+      if (leftResult === 1) return 50;
+      if (leftResult === -1) return -50;
+      return 0;
+    }
+
+    // 6｜コズミック
+    case RIGHT.REVERSAL: {
+      if (leftResult === 1) return 9999;
+      if (leftResult === -1) return -9999;
+      return 0;
     }
   }
+
   return 0;
 }
 
 // ===== CPUロジック =====
-// 左手: プレイヤー傾向読み
 function cpuLeft(playerHistory){
-  if(!playerHistory.length) return Math.floor(Math.random()*3);
+  if(playerHistory.length < 3)
+    return Math.floor(Math.random() * 3);
+
   const counts = [0,0,0];
   for(const h of playerHistory) counts[h.left]++;
-  const maxIndex = counts.indexOf(Math.max(...counts));
-  return (maxIndex+1)%3;
+
+  const max = Math.max(...counts);
+  const likely = counts.indexOf(max);
+
+  // 70%で読む、30%で外す
+  return Math.random() < 0.7
+    ? (likely + 1) % 3
+    : Math.floor(Math.random() * 3);
 }
 
 // 右手: スコア依存
-function cpuRight(playerHistory, cpuLeftChoice){
-  const last = playerHistory.at(-1);
-  const leftResult = last ? judgeLeft(cpuLeftChoice, last.left) : null;
-
-  if(cpuScore >= playerScore){
-    // CPU勝ち → 安全運転
-    return Math.random()<0.7 ? RIGHT.LIGHT : RIGHT.DRIVE;
-  } else {
-    // CPU負け → 攻撃的
-    if(leftResult === 1) return RIGHT.DRIVE;
-    if(leftResult === 0) return RIGHT.LIGHT;
-    if(leftResult === -1) return last && last.right === RIGHT.DRIVE ? RIGHT.COUNTER : RIGHT.DRIVE;
+function estimateLeftProb(leftResult){
+  switch(leftResult){
+    case  1: return { win:0.5, draw:0.3, lose:0.2 };
+    case  0: return { win:0.3, draw:0.4, lose:0.3 };
+    case -1: return { win:0.2, draw:0.3, lose:0.5 };
+    default: return { win:0.33, draw:0.34, lose:0.33 };
   }
-  return RIGHT.LIGHT;
+}
+
+const RIGHT_SCORE = {
+  [RIGHT.BLOCK]:    { win:-10, draw:-10, lose:-10 },
+  [RIGHT.LIGHT]:    { win: 10, draw:  0, lose:  0 },
+  [RIGHT.DRIVE]:    { win: 25, draw:  0, lose:-10 },
+  [RIGHT.COUNTER]:  { win:-15, draw:-10, lose: 35 },
+  [RIGHT.TRICK]:    { win:  0, draw: 25, lose:-20 },
+  [RIGHT.REVERSAL]: { win: 50, draw:  0, lose:-50 }
+};
+
+function calcEV(right, leftResult){
+  const p = estimateLeftProb(leftResult);
+  const s = RIGHT_SCORE[right];
+
+  return (
+    p.win  * s.win +
+    p.draw * s.draw +
+    p.lose * s.lose
+  );
+}
+
+function cpuRight(
+  playerHistory,
+  cpuLeftChoice,
+  round,
+  maxRound,
+  reversalUsed,
+  blockCount
+){
+  const last = playerHistory.at(-1);
+  const leftResult = last ? judgeLeft(cpuLeftChoice, last.left) : 0;
+
+  // ---- 使用可能な右手 ----
+  const candidates = [
+    RIGHT.LIGHT,
+    RIGHT.DRIVE,
+    RIGHT.COUNTER,
+    RIGHT.TRICK
+  ];
+
+  // ブロック制限
+  if(blockCount < 4)
+    candidates.push(RIGHT.BLOCK);
+
+  // リバーサル制限
+  if(!reversalUsed)
+    candidates.push(RIGHT.REVERSAL);
+
+  // ---- 期待値計算 ----
+  const scored = candidates.map(r => ({
+    right: r,
+    ev: calcEV(r, leftResult)
+  }));
+
+  // ---- ソート ----
+  scored.sort((a,b)=>b.ev - a.ev);
+
+  // ---- 人間らしい揺らぎ ----
+  const r = Math.random();
+  if(r < 0.75) return scored[0].right;
+  if(r < 0.95) return scored[1]?.right ?? scored[0].right;
+  return scored[Math.floor(Math.random()*scored.length)].right;
 }
 
 // ===== ゲーム状態 =====
