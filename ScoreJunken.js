@@ -110,54 +110,65 @@ let selectedLeft = null;
 let selectedRight = null;
 
 // ===== ルーム初期化（存在しなければ作る） =====
-async function initRoom() {
+async function checkAndInitRoom() {
   const gameRef = doc(db, "games", roomId);
   const docSnap = await getDoc(gameRef);
 
   if (!docSnap.exists()) {
-    resetRoom();
-    console.log("新規ルーム作成");
-  } else {
-    console.log("既存ルーム参加");
-  }
-
-async function resetRoom() {
-  const gameRef = doc(db, "games", roomId);
-  const docSnap = await getDoc(gameRef);
-
-  await setDoc(gameRef, {
+    // まだ部屋がなければ新規作成
+    await setDoc(gameRef, {
       player1: { join: false, left: null, right: null, score: 0 },
       player2: { join: false, left: null, right: null, score: 0 },
       round: 1,
       status: "playing"
     });
-  
-}
+    console.log("新規ルーム作成");
+    return;
+  }
 
+  const data = docSnap.data() || {};
+
+  // 誰もいなければ初期化
+  const p1Empty = !data.player1?.join;
+  const p2Empty = !data.player2?.join;
+
+  if (p1Empty && p2Empty) {
+    await setDoc(gameRef, {
+      player1: { join: false, left: null, right: null, score: 0 },
+      player2: { join: false, left: null, right: null, score: 0 },
+      round: 1,
+      status: "playing"
+    });
+    console.log("誰もいなかったので部屋を初期化しました");
+  }
+}
   
-  // プレイヤー自動割り当て
-  if (!playerId) { // playerId がまだセットされていない場合のみ自動割り当て
-    const data = docSnap.data() || {};
-    if (data.player1.join === false) 
-    {
+async function assignPlayer() {
+  const gameRef = doc(db, "games", roomId);
+  const docSnap = await getDoc(gameRef);
+  const data = docSnap.data() || {};
+
+  if (!playerId) {
+    if (!data.player1?.join) {
       playerId = "player1";
-      await updateDoc(gameRef, {
-        "player1.join": true,
-      });
-    }
-    else if (data.player2.join === false) 
-    {
+      await updateDoc(gameRef, {"player1.join": true});
+    } else if (!data.player2?.join) {
       playerId = "player2";
-      await updateDoc(gameRef, {
-        "player2.join": true,
-      });
+      await updateDoc(gameRef, {"player2.join": true});
+    } else {
+      playerId = Math.random() < 0.5 ? "player1" : "player2";
     }
-    else playerId = Math.random() < 0.5 ? "player1" : "player2"; // どちらも埋まってたらランダム
     console.log("自動割り当て:", playerId);
   } else {
     console.log("ボタンで選択済み:", playerId);
   }
 }
+
+// 初期化 + 割り当て
+(async () => {
+  await checkAndInitRoom();
+  await assignPlayer();
+})();
 
 // ===== 手の選択 =====
 window.chooseHand = async function(handType, value) {
@@ -327,7 +338,7 @@ function resetGame(){
 const gameRef = doc(db, "games", "room001");
 
 // ===== ラウンド処理（累積スコア更新版） =====
-onSnapshot(doc(db, "games", roomId), async (docSnap) => {
+onSnapshot(doc(db, "games", roomId), (docSnap) => {
   const data = docSnap.data();
   if (!data) return;
 
@@ -344,7 +355,7 @@ onSnapshot(doc(db, "games", roomId), async (docSnap) => {
     const cGain = calcScore(cResult, c.right, p.right);
 
     // Firestore に累積加算で更新
-    await updateDoc(doc(db, "games", roomId), {
+    updateDoc(doc(db, "games", roomId), {
       "player1.score": (p.score || 0) + pGain,
       "player2.score": (c.score || 0) + cGain,
       "round": data.round + 1,
@@ -387,19 +398,4 @@ window.addEventListener("beforeunload", async (event) => {
   }
 });
 
-// ===== 初期化呼び出し =====
-onSnapshot(doc(db, "games", roomId), (docSnap) => {
-  const data = docSnap.data();
-  if (!data) return;
 
-  const p1Empty = data.player1.join === false;
-  const p2Empty = data.player2.join === false;
-
-  if (p1Empty && p2Empty) {
-    // 誰もいなければ初期化
-    resetRoom();
-    console.log("部屋を初期化します");
-  }
-});
-
-initRoom();
