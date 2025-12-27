@@ -187,10 +187,24 @@ async function assignPlayer() {
     [`${playerId}.uid`]: window.currentUID,
     [`${playerId}.join`]: true
   });
-
-  if (playerId === "player1") window.opponentUID = data.player2?.uid || null;
-  else window.opponentUID = data.player1?.uid || null;
 }
+
+const gameRef = doc(db, "games", roomId);
+
+onSnapshot(gameRef, (docSnap) => {
+  const data = docSnap.data();
+  if (!data) return;
+
+  // 自分の playerId に応じて相手UIDを更新
+  if (playerId === "player1") {
+    window.opponentUID = data.player2?.uid || null;
+  } else if (playerId === "player2") {
+    window.opponentUID = data.player1?.uid || null;
+  }
+
+  // ここで左下レート表示を更新
+  updateRateDisplay(window.currentUID, window.opponentUID);
+});
 
 // ===== 手の選択 =====
 window.chooseHand = async function(handType, value) {
