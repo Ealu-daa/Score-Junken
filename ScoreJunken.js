@@ -115,16 +115,24 @@ async function initRoom() {
   const docSnap = await getDoc(gameRef);
 
   if (!docSnap.exists()) {
-    await setDoc(gameRef, {
+    resetRoom();
+    console.log("新規ルーム作成");
+  } else {
+    console.log("既存ルーム参加");
+  }
+
+async function resetRoom() {
+  const gameRef = doc(db, "games", roomId);
+  const docSnap = await getDoc(gameRef);
+
+  await setDoc(gameRef, {
       player1: { join: false, left: null, right: null, score: 0 },
       player2: { join: false, left: null, right: null, score: 0 },
       round: 1,
       status: "playing"
     });
-    console.log("新規ルーム作成");
-  } else {
-    console.log("既存ルーム参加");
-  }
+  
+}
 
   
   // プレイヤー自動割り当て
@@ -389,7 +397,7 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
 
   if (p1Empty && p2Empty) {
     // 誰もいなければ初期化
-    initRoom();
+    resetRoom();
     console.log("部屋を初期化します");
   }
 });
