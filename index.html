@@ -17,6 +17,25 @@
 
   <button id="google-login">Googleでログイン</button>
 
+  <!-- ゲーム画面の左下に固定表示 -->
+  <div id="rate-display" style="
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: sans-serif;
+    font-size: 14px;
+    z-index: 1000;
+  ">
+    レート: <span id="my-rate">1500</span>
+    <span id="opp-rate-container" style="display:none;">
+      | 相手: <span id="opp-rate">1500</span>
+    </span>
+  </div>
+
   <div id="start-screen" style="display: flex; justify-content: center; gap: 20px;">
     <!-- CPU対戦 -->
     <div style="text-align: center;">
@@ -94,6 +113,8 @@
     <div class="log" id="log">
       左手と右手を選んでください
     </div>
+
+    
 
 
   </div>

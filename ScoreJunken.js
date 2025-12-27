@@ -173,10 +173,8 @@ async function assignPlayer() {
   if (!playerId) {
     if (!data.player1?.join) {
       playerId = "player1";
-      await updateDoc(gameRef, {"player1.join": true});
     } else if (!data.player2?.join) {
       playerId = "player2";
-      await updateDoc(gameRef, {"player2.join": true});
     } else {
       playerId = Math.random() < 0.5 ? "player1" : "player2";
     }
@@ -184,6 +182,14 @@ async function assignPlayer() {
   } else {
     console.log("ボタンで選択済み:", playerId);
   }
+
+  await updateDoc(gameRef, {
+    [`${playerId}.uid`]: window.currentUID,
+    [`${playerId}.join`]: true
+  });
+
+  if (playerId === "player1") window.opponentUID = data.player2?.uid || null;
+  else window.opponentUID = data.player1?.uid || null;
 }
 
 // ===== 手の選択 =====
@@ -296,6 +302,13 @@ function endGame(){
 }
 
 function endGameOnline(pScore, cScore) {
+  if(window.currentUID && window.opponentUID){
+  updateRateAfterMatch(window.currentUID, window.opponentUID,
+    (p.score || 0) + pGain, (c.score || 0) + cGain);
+  updateRateDisplay(window.currentUID, window.opponentUID);
+  }
+  
+
   const logEl = document.getElementById("log");
   let winner = "";
   if (pScore > cScore) winner = "あなたの勝ち！🎉";
@@ -429,6 +442,7 @@ document.getElementById("online-btn-room001").addEventListener("click", async ()
 
     await checkAndInitRoom();
     await assignPlayer();
+    await updateRateDisplay(window.currentUID, window.opponentUID);
     console.log("対人")
   }
 });
@@ -441,6 +455,7 @@ document.getElementById("online-btn-room002").addEventListener("click", async ()
   // オンライン戦モードフラグ
   roomId = "room002"
   window.isOnline = true;
+  await updateRateDisplay(window.currentUID, window.opponentUID);
 
   await checkAndInitRoom();
   await assignPlayer();
@@ -474,19 +489,51 @@ roomIds.forEach(roomId => {
 });
 
 //rating
-async function getRate(uid) {
+async function getRateOrDefault(uid) {
+  if (!uid) return 1500; // UID自体が null/undefined なら 1500
   const rateDoc = doc(db, "ratings", uid);
   const snapshot = await getDoc(rateDoc);
   if (!snapshot.exists()) {
-    await setDoc(rateDoc, { rate: 1500 }); // 初期レート
+    // ドキュメントがなければ作って 1500
+    await setDoc(rateDoc, { rate: 1500 });
     return 1500;
   }
-  return snapshot.data().rate;
+  return snapshot.data().rate || 1500; // rate が undefined の場合も 1500
 }
 
-// レート更新
-async function updateRate(uid, diff) {
-  const rateDoc = doc(db, "ratings", uid);
-  const currentRate = await getRate(uid);
-  await updateDoc(rateDoc, { rate: currentRate + diff });
+getRate();
+
+async function updateRateAfterMatch(uidA, uidB, scoreA, scoreB) {
+  const rateA = await getRateOrDefault(uidA);
+  const rateB = await getRateOrDefault(uidB);
+
+  let S_A, S_B;
+  if(scoreA > scoreB) { S_A = 1; S_B = 0; }
+  else if(scoreA < scoreB) { S_A = 0; S_B = 1; }
+  else { S_A = 0.5; S_B = 0.5; }
+
+  const K = 32;
+  const E_A = 1 / (1 + 10 ** ((rateB - rateA)/400));
+  const E_B = 1 / (1 + 10 ** ((rateA - rateB)/400));
+
+  if(uidA) await updateDoc(doc(db, "ratings", uidA), { rate: Math.round(rateA + K*(S_A-E_A)) });
+  if(uidB) await updateDoc(doc(db, "ratings", uidB), { rate: Math.round(rateB + K*(S_B-E_B)) });
 }
+
+async function updateRateDisplay(myUID, oppUID = null) {
+  // 自分のレート取得
+  const myRate = await getRateOrDefault(myUID);
+  document.getElementById("my-rate").textContent = myRate;
+
+  if(oppUID) {
+    // 相手UIDがあれば表示
+    const oppRate = await getRateOrDefault(oppUID);
+    document.getElementById("opp-rate").textContent = oppRate;
+    document.getElementById("opp-rate-container").style.display = "inline";
+  } else {
+    // CPU戦やオフライン戦なら非表示
+    document.getElementById("opp-rate-container").style.display = "none";
+  }
+}
+
+await updateRateDisplay(window.currentUID);
