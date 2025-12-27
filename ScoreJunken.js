@@ -2,7 +2,9 @@
    Score Junken Core Logic
    ========================= */
 
-window.addEventListener("load", () => console.log("ver0.1.6"));
+window.addEventListener("load", () => {
+  console.log("ver0.1.6");
+});
 
 // ===== Firebase 初期化 =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
@@ -225,18 +227,6 @@ function tryPlay() {
   selectedLeft = null;
   selectedRight = null;
   document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
-}
-
-function handName(v) {
-  return ["グー", "チョキ", "パー"][v];
-}
-
-function rightName(v) {
-  return {
-    1: "ライト",
-    2: "ドライブ",
-    3: "カウンター"
-  }[v];
 }
 
 function format(n) {
