@@ -203,8 +203,6 @@ function playTurn(playerLeft, playerRight){
 
   history.push({left:playerLeft, right:playerRight});
 
-  clearAllHighlights();
-
   return {
     player:{left:playerLeft, right:playerRight, gain:pGain},
     cpu:{left:cpuL, right:cpuR, gain:cGain},
@@ -223,10 +221,26 @@ function highlight(groupSelector,index){
   });
 }
 
-function clearAllHighlights() {
-  document.querySelectorAll(".hands button").forEach(btn => {
-    btn.classList.remove("selected");
-  });
+function updateGameUI(result) {
+  // スコア表示
+  document.getElementById("pScore").textContent = result.score.player;
+  document.getElementById("cScore").textContent = result.score.cpu;
+
+  // ログに追記
+  const logEl = document.getElementById("log");
+  logEl.textContent += 
+    `ラウンド ${round} 結果:\n` +
+    `あなた：${handName(result.player.left)} / ${rightName(result.player.right)}  (${format(result.player.gain)})\n` +
+    `CPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)}  (${format(result.cpu.gain)})\n\n`;
+
+  logEl.scrollTop = logEl.scrollHeight;
+  
+  round++;
+  document.getElementById("round").textContent = round;
+
+  if (round > maxRound) {
+    endGame();
+  }
 }
 
 // ===== ゲーム進行 =====
@@ -245,33 +259,14 @@ function selectRight(v) {
 function tryPlay() {
   if (selectedLeft === null || selectedRight === null) return;
 
-  const result = playTurn(selectedLeft, selectedRight);
-
-  // スコア表示
-  document.getElementById("pScore").textContent = result.score.player;
-  document.getElementById("cScore").textContent = result.score.cpu;
-
-  // ログに追記
-  const logEl = document.getElementById("log");
-  logEl.textContent += 
-    `ラウンド ${round} 結果:\n` +
-    `あなた：${handName(result.player.left)} / ${rightName(result.player.right)}  (${format(result.player.gain)})\n` +
-    `CPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)}  (${format(result.cpu.gain)})\n\n`;
-
-  // 自動スクロール（最新ラウンドに移動）
-  logEl.scrollTop = logEl.scrollHeight;
-  
-  round++;
-
-  // ラウンド表示更新
-  document.getElementById("round").textContent = round;
-
-  
-
-  // 最大ラウンド到達 → ゲーム終了
-  if (round > maxRound) {
-    endGame();
-    return;
+  if (window.isOnline) {
+    // オンライン戦: Firestore に手を送信
+    chooseHand("left", selectedLeft);
+    chooseHand("right", selectedRight);
+  } else {
+    // CPU戦: 既存の CPU ロジックで処理
+    const result = playTurn(selectedLeft, selectedRight);
+    updateGameUI(result);
   }
 
   // 選択状態リセット
@@ -413,4 +408,24 @@ window.addEventListener("beforeunload", async (event) => {
   }
 });
 
+//スタート画面
+const startScreen = document.getElementById("start-screen");
+const gameArea = document.getElementById("game-area");
+
+document.getElementById("cpu-btn").addEventListener("click", () => {
+  startScreen.style.display = "none";
+  gameArea.style.display = "block";
+  // CPU戦モードフラグ
+  window.isOnline = false;
+});
+
+document.getElementById("online-btn").addEventListener("click", async () => {
+  startScreen.style.display = "none";
+  gameArea.style.display = "block";
+  // オンライン戦モードフラグ
+  window.isOnline = true;
+
+  await checkAndInitRoom();
+  await assignPlayer();
+});
 
