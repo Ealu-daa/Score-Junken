@@ -10,39 +10,8 @@
 </head>
 <body>
 
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      updateDoc,
-      onSnapshot,
-      getDoc
-    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyDwZQfWkf_h-Dc219uJpTtJNJElZ5l-0Ok",
-      authDomain: "score-junken-online.firebaseapp.com",
-      projectId: "score-junken-online",
-      storageBucket: "score-junken-online.firebasestorage.app",
-      messagingSenderId: "656405933288",
-      appId: "1:656405933288:web:122a765c95d61b0a0ded5d",
-      measurementId: "G-5SDM8HE1N1"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const db = getFirestore(app); // Firestore を使えるようにする
-  </script>
-
+  <!-- ゲームロジック -->
+  <script type="module" src="ScoreJunken.js"></script>
 
   <div id="player-select">
     <p>あなたはどちらですか？</p>
@@ -113,78 +82,7 @@
     左手と右手を選んでください
   </div>
 
-  <!-- ゲームロジック -->
-  <script src="ScoreJunken.js"></script>
-
-  <!-- UI制御 -->
-  <script>
-    function selectLeft(v) {
-      selectedLeft = v;
-      highlight(".hands:nth-of-type(1) button", v);
-      tryPlay();
-    }
-
-    function selectRight(v) {
-      selectedRight = v;
-      highlight(".hands:nth-of-type(2) button", v - 1);
-      tryPlay();
-    }
-
-    function tryPlay() {
-      if (selectedLeft === null || selectedRight === null) return;
-
-      const result = playTurn(selectedLeft, selectedRight);
-
-      // スコア表示
-      document.getElementById("pScore").textContent = result.score.player;
-      document.getElementById("cScore").textContent = result.score.cpu;
-
-      // ログに追記
-      const logEl = document.getElementById("log");
-      logEl.textContent += 
-        `ラウンド ${round} 結果:\n` +
-        `あなた：${handName(result.player.left)} / ${rightName(result.player.right)}  (${format(result.player.gain)})\n` +
-        `CPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)}  (${format(result.cpu.gain)})\n\n`;
-
-      // 自動スクロール（最新ラウンドに移動）
-      logEl.scrollTop = logEl.scrollHeight;
-      
-      round++;
-
-      // ラウンド表示更新
-      document.getElementById("round").textContent = round;
-
-      
-
-      // 最大ラウンド到達 → ゲーム終了
-      if (round > maxRound) {
-        endGame();
-        return;
-      }
-
-      // 選択状態リセット
-      selectedLeft = null;
-      selectedRight = null;
-      document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
-    }
-
-    function handName(v) {
-      return ["グー", "チョキ", "パー"][v];
-    }
-
-    function rightName(v) {
-      return {
-        1: "ライト",
-        2: "ドライブ",
-        3: "カウンター"
-      }[v];
-    }
-
-    function format(n) {
-      if (n > 0) return "+" + n;
-      return n.toString();
-    }
-  </script>
+  
   </div>
 
 </body>

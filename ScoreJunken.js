@@ -2,7 +2,44 @@
    Score Junken Core Logic
    ========================= */
 
-window.addEventListener("load", () => console.log("ver0.1.5"));
+window.addEventListener("load", () => console.log("ver0.1.6"));
+
+// ===== Firebase 初期化 =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  updateDoc,
+  onSnapshot,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDwZQfWkf_h-Dc219uJpTtJNJElZ5l-0Ok",
+  authDomain: "score-junken-online.firebaseapp.com",
+  projectId: "score-junken-online",
+  storageBucket: "score-junken-online.firebasestorage.app",
+  messagingSenderId: "656405933288",
+  appId: "1:656405933288:web:122a765c95d61b0a0ded5d",
+  measurementId: "G-5SDM8HE1N1"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app); // Firestore を使えるようにする
+
+let playerId = null; // "player1" or "player2"
+const roomId = "room001";
+const maxRound = 10;
+
+
 
 // ===== 左手・右手 定義 =====
 const HAND = { ROCK:0, SCISSORS:1, PAPER:2 };
@@ -62,9 +99,48 @@ let playerScore = 0;
 let cpuScore = 0;
 let history = [];
 let round = 1;
-const maxRound = 10;
 let selectedLeft = null;
 let selectedRight = null;
+
+// ===== ルーム初期化（存在しなければ作る） =====
+async function initRoom() {
+  const gameRef = doc(db, "games", roomId);
+  const docSnap = await getDoc(gameRef);
+
+  if (!docSnap.exists()) {
+    await setDoc(gameRef, {
+      player1: { left: null, right: null, score: 0 },
+      player2: { left: null, right: null, score: 0 },
+      round: 1,
+      status: "playing"
+    });
+    console.log("新規ルーム作成");
+  } else {
+    console.log("既存ルーム参加");
+  }
+
+  
+  // プレイヤー自動割り当て
+  if (!playerId) { // playerId がまだセットされていない場合のみ自動割り当て
+    const data = docSnap.data() || {};
+    if (!data.player1 || (data.player1 && data.player1.left === undefined)) playerId = "player1";
+    else if (!data.player2 || (data.player2 && data.player2.left === undefined)) playerId = "player2";
+    else playerId = Math.random() < 0.5 ? "player1" : "player2"; // どちらも埋まってたらランダム
+    console.log("自動割り当て:", playerId);
+  } else {
+    console.log("ボタンで選択済み:", playerId);
+  }
+}
+
+// ===== 手の選択 =====
+window.chooseHand = async function(handType, value) {
+  if (!playerId) return alert("プレイヤーが未割り当てです");
+
+  const gameRef = doc(db, "games", roomId);
+  const updateObj = {};
+  updateObj[`${playerId}.${handType}`] = value;
+  await updateDoc(gameRef, updateObj);
+}
 
 // ===== 1ターン進行 =====
 function playTurn(playerLeft, playerRight){
@@ -89,21 +165,6 @@ function playTurn(playerLeft, playerRight){
   };
 }
 
-function playTurnOnline(pLeft, pRight, cLeft, cRight) {
-  const pResult = judgeLeft(pLeft, cLeft);
-  const cResult = -pResult;
-
-  const pGain = calcScore(pResult, pRight, cRight);
-  const cGain = calcScore(cResult, cRight, pRight);
-
-  return {
-    player: { gain: pGain },
-    cpu: { gain: cGain },
-    playerScore: pGain,
-    cpuScore: cGain
-  };
-}
-
 // ===== UI補助 =====
 function handName(v){ return ["グー","チョキ","パー"][v]; }
 function rightName(v){ return {1:"ライト",2:"ドライブ",3:"カウンター"}[v]; }
@@ -116,34 +177,72 @@ function highlight(groupSelector,index){
 }
 
 // ===== ゲーム進行 =====
-function tryPlay(){
-  if(selectedLeft === null || selectedRight === null) return;
+function selectLeft(v) {
+  selectedLeft = v;
+  highlight(".hands:nth-of-type(1) button", v);
+  tryPlay();
+}
+
+function selectRight(v) {
+  selectedRight = v;
+  highlight(".hands:nth-of-type(2) button", v - 1);
+  tryPlay();
+}
+
+function tryPlay() {
+  if (selectedLeft === null || selectedRight === null) return;
 
   const result = playTurn(selectedLeft, selectedRight);
 
-  // スコア更新
+  // スコア表示
   document.getElementById("pScore").textContent = result.score.player;
   document.getElementById("cScore").textContent = result.score.cpu;
 
-  // ログ更新＆スクロール
+  // ログに追記
   const logEl = document.getElementById("log");
-  logEl.textContent += `ラウンド ${round} 結果:\nあなた：${handName(result.player.left)} / ${rightName(result.player.right)} (${format(result.player.gain)})\nCPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)} (${format(result.cpu.gain)})\n\n`;
-  logEl.scrollTop = logEl.scrollHeight;
+  logEl.textContent += 
+    `ラウンド ${round} 結果:\n` +
+    `あなた：${handName(result.player.left)} / ${rightName(result.player.right)}  (${format(result.player.gain)})\n` +
+    `CPU：${handName(result.cpu.left)} / ${rightName(result.cpu.right)}  (${format(result.cpu.gain)})\n\n`;
 
-  // ラウンド更新
+  // 自動スクロール（最新ラウンドに移動）
+  logEl.scrollTop = logEl.scrollHeight;
+  
   round++;
+
+  // ラウンド表示更新
   document.getElementById("round").textContent = round;
 
-  if(round > maxRound){ endGame(); return; }
+  
 
+  // 最大ラウンド到達 → ゲーム終了
+  if (round > maxRound) {
+    endGame();
+    return;
+  }
+
+  // 選択状態リセット
   selectedLeft = null;
   selectedRight = null;
   document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
 }
 
-// ===== 左右手選択 =====
-function selectLeft(v){ selectedLeft=v; highlight(".hand.left .hands button", v); tryPlay(); }
-function selectRight(v){ selectedRight=v; highlight(".hand.right .hands button", v-1); tryPlay(); }
+function handName(v) {
+  return ["グー", "チョキ", "パー"][v];
+}
+
+function rightName(v) {
+  return {
+    1: "ライト",
+    2: "ドライブ",
+    3: "カウンター"
+  }[v];
+}
+
+function format(n) {
+  if (n > 0) return "+" + n;
+  return n.toString();
+}
 
 // ===== ゲーム終了 =====
 function endGame(){
@@ -214,20 +313,7 @@ function resetGame(){
 }
 
 // =====Firestore=====
-async function initGame() {
-  await setDoc(doc(db, "games", "room001"), {
-    player1: { left: null, right: null, score: 0 },
-    player2: { left: null, right: null, score: 0 },
-    round: 1,
-    status: "playing"
-  });
-}
-
-initGame(); // 初期化
-
-let playerId = null;
-
-function setPlayer(id) {
+window.setPlayer = function(id){
   playerId = id;
   document.getElementById("player-select").style.display = "none";
   document.getElementById("game-area").style.display = "block";
@@ -236,19 +322,27 @@ function setPlayer(id) {
 
 const gameRef = doc(db, "games", "room001");
 
-onSnapshot(gameRef, async (docSnap) => {
+// ===== ラウンド処理（累積スコア更新版） =====
+onSnapshot(doc(db, "games", roomId), async (docSnap) => {
   const data = docSnap.data();
+  if (!data) return;
+
   const p = data.player1;
   const c = data.player2;
 
+  // 両プレイヤーが手を出したらラウンド処理
   if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
-    // 勝敗計算
-    const result = playTurnOnline(p.left, p.right, c.left, c.right);
+    // 勝敗判定
+    const pResult = judgeLeft(p.left, c.left);
+    const cResult = -pResult;
 
-    // Firestore にスコア反映
-    await updateDoc(gameRef, {
-      "player1.score": result.playerScore,
-      "player2.score": result.cpuScore,
+    const pGain = calcScore(pResult, p.right, c.right);
+    const cGain = calcScore(cResult, c.right, p.right);
+
+    // Firestore に累積加算で更新
+    await updateDoc(doc(db, "games", roomId), {
+      "player1.score": (p.score || 0) + pGain,
+      "player2.score": (c.score || 0) + cGain,
       "round": data.round + 1,
       "player1.left": null,
       "player1.right": null,
@@ -256,19 +350,22 @@ onSnapshot(gameRef, async (docSnap) => {
       "player2.right": null
     });
 
-    // ログ更新
+    // UI更新
     const logEl = document.getElementById("log");
-    logEl.textContent += `ラウンド ${data.round} 結果:\nあなた：${handName(p.left)} / ${rightName(p.right)} (${result.player.gain})\nCPU：${handName(c.left)} / ${rightName(c.right)} (${result.cpu.gain})\n\n`;
+    logEl.textContent += `ラウンド ${data.round} 結果:\n` +
+                         `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
+                         `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n\n`;
     logEl.scrollTop = logEl.scrollHeight;
 
-    // ラウンド表示
     document.getElementById("round").textContent = data.round + 1;
-    document.getElementById("pScore").textContent = result.playerScore;
-    document.getElementById("cScore").textContent = result.cpuScore;
+    document.getElementById("pScore").textContent = (p.score || 0) + pGain;
+    document.getElementById("cScore").textContent = (c.score || 0) + cGain;
 
-    // 10ラウンドで終了
-    if (data.round + 1 > 10) {
-      endGameOnline(result.playerScore, result.cpuScore);
+    if (data.round + 1 > maxRound) {
+      endGameOnline((p.score || 0) + pGain, (c.score || 0) + cGain);
     }
   }
 });
+
+// ===== 初期化呼び出し =====
+initRoom();
