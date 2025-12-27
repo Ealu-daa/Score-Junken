@@ -94,9 +94,17 @@ function calcScore(leftResult, selfRight, oppRight){
   if(leftResult === 0 && selfRight === oppRight)
     return 0;
   if(selfRight === RIGHT.LIGHT) 
-    return (leftResult >= 0 ? 1 : 0);
+    if (leftResult >= 0)
+       if (oppRight === RIGHT.COUNTER)
+          return 0
+       else 
+          return 1
   if(selfRight === RIGHT.DRIVE) 
-    return (leftResult === 1 ? 2 : 0);
+    if (leftResult >= 1)
+       if (oppRight === RIGHT.COUNTER)
+          return 0
+       else 
+          return 1
   if(selfRight === RIGHT.COUNTER){
     if(leftResult === 1) return -1;
     if(leftResult === 0) return 0;
