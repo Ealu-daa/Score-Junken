@@ -41,18 +41,25 @@ let playerId = null; // "player1" or "player2"
 let roomId = "room001";
 const maxRound = 10;
 
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
-document.getElementById("google-login").addEventListener("click", async () => {
+document.getElementById("google-login").addEventListener("click", () => {
+  signInWithRedirect(auth, provider); // ポップアップではなくリダイレクト
+});
+
+window.addEventListener("load", async () => {
   try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    console.log("ログイン成功", user.uid, user.displayName);
-    // ここで UID を保存してオンライン対戦に使える
-    window.currentUID = user.uid;
+    const result = await getRedirectResult(auth);
+    if (result) {
+      const user = result.user;
+      console.log("ログイン成功", user.uid, user.displayName);
+      window.currentUID = user.uid;
+      // 必要ならUI更新
+      document.getElementById("google-login").textContent = `こんにちは、${user.displayName}`;
+    }
   } catch (error) {
     console.error("ログイン失敗", error);
   }
