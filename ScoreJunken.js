@@ -41,6 +41,7 @@ let playerId = null; // "player1" or "player2"
 let roomId = "room001";
 const maxRound = 10;
 
+/*
 import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const auth = getAuth();
@@ -64,6 +65,7 @@ window.addEventListener("load", async () => {
     console.error("ログイン失敗", error);
   }
 });
+*/
 
 /*
 async function getRate(uid) {
@@ -477,16 +479,16 @@ document.getElementById("online-btn-room001").addEventListener("click", async ()
 document.getElementById("online-btn-room002").addEventListener("click", async () => {
   if(playerCount.room002 < 2)
   {
-  startScreen.style.display = "none";
-  gameArea.style.display = "block";
-  // オンライン戦モードフラグ
-  roomId = "room002"
-  window.isOnline = true;
-  //await updateRateDisplay(window.currentUID, window.opponentUID);
+    startScreen.style.display = "none";
+    gameArea.style.display = "block";
+    // オンライン戦モードフラグ
+    roomId = "room002"
+    window.isOnline = true;
+    //await updateRateDisplay(window.currentUID, window.opponentUID);
 
-  await checkAndInitRoom();
-  await assignPlayer();
-  console.log("対人")
+    await checkAndInitRoom();
+    await assignPlayer();
+    console.log("対人")
   }
 });
 
