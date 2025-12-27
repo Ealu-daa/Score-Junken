@@ -181,10 +181,23 @@ window.chooseHand = async function(handType, value) {
     highlight(".hands:nth-of-type(2) button", value - 1); // rightは1からスタートしてるので-1
   }
 
-  const gameRef = doc(db, "games", roomId);
-  const updateObj = {};
-  updateObj[`${playerId}.${handType}`] = value;
-  await updateDoc(gameRef, updateObj);
+  if (window.isOnline) {
+    // オンライン戦: Firestore に送信
+    const gameRef = doc(db, "games", roomId);
+    const updateObj = {};
+    updateObj[`${playerId}.${handType}`] = value;
+    await updateDoc(gameRef, updateObj);
+  } else {
+    // CPU戦: 両手が揃ったらターン進行
+    if (selectedLeft !== null && selectedRight !== null) {
+      const result = playTurn(selectedLeft, selectedRight);
+      updateGameUI(result);
+      // 選択状態リセット
+      selectedLeft = null;
+      selectedRight = null;
+      document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+    }
+  }
 }
 
 // ===== 1ターン進行 =====
@@ -241,38 +254,6 @@ function updateGameUI(result) {
   if (round > maxRound) {
     endGame();
   }
-}
-
-// ===== ゲーム進行 =====
-function selectLeft(v) {
-  selectedLeft = v;
-  highlight(".hands:nth-of-type(1) button", v);
-  tryPlay();
-}
-
-function selectRight(v) {
-  selectedRight = v;
-  highlight(".hands:nth-of-type(2) button", v - 1);
-  tryPlay();
-}
-
-function tryPlay() {
-  if (selectedLeft === null || selectedRight === null) return;
-
-  if (window.isOnline) {
-    // オンライン戦: Firestore に手を送信
-    chooseHand("left", selectedLeft);
-    chooseHand("right", selectedRight);
-  } else {
-    // CPU戦: 既存の CPU ロジックで処理
-    const result = playTurn(selectedLeft, selectedRight);
-    updateGameUI(result);
-  }
-
-  // 選択状態リセット
-  selectedLeft = null;
-  selectedRight = null;
-  document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
 }
 
 // ===== ゲーム終了 =====
