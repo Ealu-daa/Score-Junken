@@ -96,15 +96,15 @@ function calcScore(leftResult, selfRight, oppRight){
   if(selfRight === RIGHT.LIGHT) 
     if (leftResult >= 0)
        if (oppRight === RIGHT.COUNTER)
-          return 0
+          return 0;
        else 
-          return 1
+          return 1;
   if(selfRight === RIGHT.DRIVE) 
     if (leftResult >= 1)
        if (oppRight === RIGHT.COUNTER)
-          return 0
+          return 0;
        else 
-          return 1
+          return 2;
   if(selfRight === RIGHT.COUNTER){
     if(leftResult === 1) return -1;
     if(leftResult === 0) return 0;
