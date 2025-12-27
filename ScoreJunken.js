@@ -91,6 +91,14 @@ const RIGHT = {
   COSMIC: 6
 };
 
+// ===== ゲーム状態 =====
+let playerScore = 0;
+let cpuScore = 0;
+let history = [];
+let round = 1;
+let selectedLeft = null;
+let selectedRight = null;
+
 // ===== 勝敗判定 (左手) =====
 function judgeLeft(player, opponent){
   if(player === opponent) return 0;
@@ -105,7 +113,7 @@ function judgeLeft(player, opponent){
 
   数字 | 名前         | 勝   | あいこ | 負   | 役割
   ------------------------------------------------
-   0   | ブロック     | -10* | -10    | -10   | 逃げ／準備
+   0   | ブロック     | -10*  | -10    | -10   | 逃げ／準備
    1   | ライト       | +10   |  0     |  0    | 安定
    2   | ドライブ     | +25   |  0     | -10   | 攻め
    3   | カウンター   | -15   | -10    | +35   | 読み
@@ -188,6 +196,7 @@ function calcScore(leftResult, selfRight, oppRight, blockCount = 0, isEndGame = 
 }
 
 // ===== CPUロジック =====
+// 左手CPU
 function cpuLeft(playerHistory){
   if(playerHistory.length < 3)
     return Math.floor(Math.random() * 3);
@@ -204,7 +213,7 @@ function cpuLeft(playerHistory){
     : Math.floor(Math.random() * 3);
 }
 
-// 右手: スコア依存
+// 左手の結果ごとの勝ち/あいこ/負け確率
 function estimateLeftProb(leftResult){
   switch(leftResult){
     case  1: return { win:0.5, draw:0.3, lose:0.2 };
@@ -214,26 +223,46 @@ function estimateLeftProb(leftResult){
   }
 }
 
+// 右手スコア（特殊ラウンド考慮なし）
 const RIGHT_SCORE = {
   [RIGHT.BLOCK]:    { win:-10, draw:-10, lose:-10 },
-  [RIGHT.LIGHT]:    { win: 10, draw:  0, lose:  0 },
-  [RIGHT.DRIVE]:    { win: 25, draw:  0, lose:-10 },
-  [RIGHT.COUNTER]:  { win:-15, draw:-10, lose: 35 },
-  [RIGHT.TRICK]:    { win:  0, draw: 25, lose:-20 },
-  [RIGHT.REVERSAL]: { win: 50, draw:  0, lose:-50 }
+  [RIGHT.LIGHT]:    { win:10, draw:0, lose:0 },
+  [RIGHT.DRIVE]:    { win:25, draw:0, lose:-10 },
+  [RIGHT.COUNTER]:  { win:-15, draw:-10, lose:35 },
+  [RIGHT.TRICK]:    { win:0, draw:25, lose:-20 },
+  [RIGHT.REVERSAL]: { win:50, draw:0, lose:-50 }
 };
 
-function calcEV(right, leftResult){
+// 特殊ルール込みで期待値計算
+function calcEV(right, leftResult, oppRight, round, maxRound, blockCount){
   const p = estimateLeftProb(leftResult);
-  const s = RIGHT_SCORE[right];
+  let s = { ...RIGHT_SCORE[right] };
 
-  return (
-    p.win  * s.win +
-    p.draw * s.draw +
-    p.lose * s.lose
-  );
+  // 残り3ラウンドの強化
+  if(maxRound - round <= 3){
+    if(right === RIGHT.LIGHT) s.win += 15;
+    if(right === RIGHT.TRICK) s.draw += 35;
+  }
+
+  // ブロックの使用回数増加反映
+  if(right === RIGHT.BLOCK){
+    if(blockCount === 1) s.win = s.draw = s.lose = -20;
+    if(blockCount === 2) s.win = s.draw = s.lose = -30;
+    if(blockCount >= 3) return -Infinity; // 使用不可
+  }
+
+  // 相手がブロックの場合、自分の得点は常に0
+  if(oppRight === RIGHT.BLOCK) return 0;
+
+  // 相手がカウンターの場合、自分が勝っても得点は0
+  if(oppRight === RIGHT.COUNTER) s.win = 0;
+
+  return p.win  * s.win +
+         p.draw * s.draw +
+         p.lose * s.lose;
 }
 
+// 右手CPU
 function cpuRight(
   playerHistory,
   cpuLeftChoice,
@@ -244,8 +273,9 @@ function cpuRight(
 ){
   const last = playerHistory.at(-1);
   const leftResult = last ? judgeLeft(cpuLeftChoice, last.left) : 0;
+  const oppRight = last ? last.right : null;
 
-  // ---- 使用可能な右手 ----
+  // 使用可能な右手
   const candidates = [
     RIGHT.LIGHT,
     RIGHT.DRIVE,
@@ -254,36 +284,27 @@ function cpuRight(
   ];
 
   // ブロック制限
-  if(blockCount < 4)
-    candidates.push(RIGHT.BLOCK);
+  if(blockCount < 3) candidates.push(RIGHT.BLOCK);
 
   // リバーサル制限
-  if(!reversalUsed)
-    candidates.push(RIGHT.REVERSAL);
+  if(!reversalUsed) candidates.push(RIGHT.REVERSAL);
 
-  // ---- 期待値計算 ----
+  // 期待値計算
   const scored = candidates.map(r => ({
     right: r,
-    ev: calcEV(r, leftResult)
+    ev: calcEV(r, leftResult, oppRight, round, maxRound, blockCount)
   }));
 
-  // ---- ソート ----
+  // ソート
   scored.sort((a,b)=>b.ev - a.ev);
 
-  // ---- 人間らしい揺らぎ ----
+  // 人間らしい揺らぎ
   const r = Math.random();
   if(r < 0.75) return scored[0].right;
   if(r < 0.95) return scored[1]?.right ?? scored[0].right;
   return scored[Math.floor(Math.random()*scored.length)].right;
 }
 
-// ===== ゲーム状態 =====
-let playerScore = 0;
-let cpuScore = 0;
-let history = [];
-let round = 1;
-let selectedLeft = null;
-let selectedRight = null;
 
 // ===== ルーム初期化（存在しなければ作る） =====
 async function checkAndInitRoom() {
@@ -360,6 +381,8 @@ onSnapshot(gameRef, (docSnap) => {
   //updateRateDisplay(window.currentUID, window.opponentUID);
 });
 
+
+
 // ===== 手の選択 =====
 window.chooseHand = async function(handType, value) {
   if (!playerId && window.isOnline) return alert("プレイヤーが未割り当てです");
@@ -369,8 +392,47 @@ window.chooseHand = async function(handType, value) {
     selectedLeft = value;
     highlight(".hands:nth-of-type(1) button", value);
   } else if(handType === "right") {
-    selectedRight = value;
-    highlight(".hands:nth-of-type(2) button", value - 1); // rightは1からスタートしてるので-1
+    //ブロック
+    if (value === 0)
+    {
+      if (window.isOnline && onlinePBlockCount < 3)
+      {
+        selectedRight = value;
+        highlight(".hands:nth-of-type(2) button", value);
+      }
+      if (!window.isOnline && blockCount < 3)
+      {
+        selectedRight = value;
+        highlight(".hands:nth-of-type(2) button", value);
+      }
+      else
+      {
+        console.log("使用回数を超過しました")
+      }
+    }
+    //リバーサル
+    else if (value === 5)
+    {
+      if (window.isOnline && !onlinePReversal)
+      {
+        selectedRight = value;
+        highlight(".hands:nth-of-type(2) button", value);
+      }
+      if (!window.isOnline && !reversalUsed)
+      {
+        selectedRight = value;
+        highlight(".hands:nth-of-type(2) button", value);
+      }
+      else
+      {
+        console.log("使用回数を超過しました")
+      }
+    }
+    else
+    {
+      selectedRight = value;
+      highlight(".hands:nth-of-type(2) button", value);
+    }
   }
 
   if (window.isOnline) {
@@ -382,7 +444,7 @@ window.chooseHand = async function(handType, value) {
   } else {
     // CPU戦: 両手が揃ったらターン進行
     if (selectedLeft !== null && selectedRight !== null) {
-      const result = playTurn(selectedLeft, selectedRight);
+      const result = playTurn(selectedLeft, selectedRight, blockCount);
       updateGameUI(result);
       // 選択状態リセット
       selectedLeft = null;
@@ -393,15 +455,36 @@ window.chooseHand = async function(handType, value) {
 }
 
 // ===== 1ターン進行 =====
-function playTurn(playerLeft, playerRight){
+let endGame = false;
+let cpuBlockCount = 0;
+let cpuReversalUsed = false;
+let blockCount = 0;
+let reversalUsed = false;
+
+function playTurn(playerLeft, playerRight, blockCount){
   const cpuL = cpuLeft(history);
-  const cpuR = cpuRight(history, cpuL);
+  const cpuR = cpuRight(history, cpuL, round, maxRound, cpuReversalUsed, cpuBlockCount);
 
   const pResult = judgeLeft(playerLeft, cpuL);
   const cResult = -pResult;
 
-  const pGain = calcScore(pResult, playerRight, cpuR);
-  const cGain = calcScore(cResult, cpuR, playerRight);
+  if (maxRound - round <= 3)
+    endGame = true;
+
+  if (playerRight === RIGHT.BLOCK)
+    blockCount++;
+
+  if (playerRight === RIGHT.REVERSAL)
+    reversalUsed = true;
+
+  if (cpuR === RIGHT.BLOCK)
+    cpuBlockCount++;
+
+  if (cpuR === RIGHT.REVERSAL)
+    cpuReversalUsed = true;
+
+  const pGain = calcScore(pResult, playerRight, cpuR, blockCount, endGame);
+  const cGain = calcScore(cResult, cpuR, playerRight, cpuBlockCount, endGame);
 
   playerScore += pGain;
   cpuScore += cGain;
@@ -525,6 +608,10 @@ function resetGame(){
   document.querySelector(".reset-btn").remove();
 }
 
+let onlineEndGame = false;
+let onlinePBlockCount = 0;
+let onlinePReversal = false;
+
 // ===== ラウンド処理（累積スコア更新版） =====
 onSnapshot(doc(db, "games", roomId), (docSnap) => {
   const data = docSnap.data();
@@ -535,12 +622,28 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
 
   // 両プレイヤーが手を出したらラウンド処理
   if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
+    //判定
+    if (maxRound - data.round <= 3)
+      onlineEndGame = true;
+
+    if (p.right === 0)
+      onlinePBlockCount++;
+
+    if (p.right === 5)
+      onlinePReversal = true;
+
+    updateDoc(gameRef, {
+      endGame: onlineEndGame,
+      [`${playerId}.blockCount`]: onlinePBlockCount,
+      [`${playerId}.reversalUsed`]: onlinePReversal
+    });
+
     // 勝敗判定
     const pResult = judgeLeft(p.left, c.left);
     const cResult = -pResult;
 
-    const pGain = calcScore(pResult, p.right, c.right);
-    const cGain = calcScore(cResult, c.right, p.right);
+    const pGain = calcScore(pResult, p.right, c.right, onlinePBlockCount, onlineEndGame);
+    const cGain = calcScore(cResult, c.right, p.right, c.blockCount, onlineEndGame);
 
     // Firestore に累積加算で更新
     updateDoc(doc(db, "games", roomId), {

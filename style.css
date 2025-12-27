@@ -147,6 +147,10 @@ button:active {
 }
 
 /* ===== 右手ごとの色 ===== */
+button[data-right="0"] {
+  border: 1px solid #303030;
+}
+
 button[data-right="1"] {
   border: 1px solid #4caf50;
 }
@@ -159,7 +163,13 @@ button[data-right="3"] {
   border: 1px solid #f44336;
 }
 
+button[data-right="4"] {
+  border: 1px solid #7610c9;
+}
 
+button[data-right="5"] {
+  border: 1px solid #000877;
+}
 
 /* ===== スコア ===== */
 .score {
