@@ -4,6 +4,7 @@
 
 window.addEventListener("load", () => {
   console.log("ver0.1.6");
+  document.getElementById("game-area").style.display = "block";
 });
 
 // ===== Firebase 初期化 =====
@@ -133,14 +134,14 @@ async function initRoom() {
     {
       playerId = "player1";
       await updateDoc(gameRef, {
-        "player2.join": true,
+        "player1.join": true,
       });
     }
     else if (data.player2.join === false) 
     {
       playerId = "player2";
       await updateDoc(gameRef, {
-        "player1.join": true,
+        "player2.join": true,
       });
     }
     else playerId = Math.random() < 0.5 ? "player1" : "player2"; // どちらも埋まってたらランダム
