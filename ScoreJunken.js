@@ -229,11 +229,6 @@ function tryPlay() {
   document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
 }
 
-function format(n) {
-  if (n > 0) return "+" + n;
-  return n.toString();
-}
-
 // ===== ゲーム終了 =====
 function endGame(){
   let winner;
