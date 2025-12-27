@@ -117,7 +117,7 @@ async function initRoom() {
   if (!docSnap.exists()) {
     await setDoc(gameRef, {
       player1: { join: false, left: null, right: null, score: 0 },
-      player2: { join: false,left: null, right: null, score: 0 },
+      player2: { join: false, left: null, right: null, score: 0 },
       round: 1,
       status: "playing"
     });
@@ -363,5 +363,32 @@ onSnapshot(doc(db, "games", roomId), async (docSnap) => {
   }
 });
 
+window.addEventListener("beforeunload", async (event) => {
+  if (!playerId) return;
+
+  const gameRef = doc(db, "games", roomId);
+
+  try {
+    // 非同期処理ですが、ブラウザ終了時に完全に反映される保証はありません
+    await updateDoc(gameRef, {
+      [`${playerId}.join`]: false
+    });
+    console.log(`${playerId} が退出しました`);
+  } catch (err) {
+    console.error("退出時の更新に失敗", err);
+  }
+});
+
 // ===== 初期化呼び出し =====
-initRoom();
+onSnapshot(doc(db, "games", roomId), (docSnap) => {
+  const data = docSnap.data();
+  if (!data) return;
+
+  const p1Empty = data.player1.join === false;
+  const p2Empty = data.player2.join === false;
+
+  if (p1Empty && p2Empty) {
+    // 誰もいなければ初期化
+    initRoom();
+  }
+});
