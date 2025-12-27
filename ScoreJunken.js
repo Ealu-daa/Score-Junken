@@ -197,7 +197,7 @@ async function assignPlayer() {
   }
 
   await updateDoc(gameRef, {
-    [`${playerId}.uid`]: window.currentUID,
+    //[`${playerId}.uid`]: window.currentUID,
     [`${playerId}.join`]: true
   });
 }
