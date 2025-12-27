@@ -390,5 +390,6 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
   if (p1Empty && p2Empty) {
     // 誰もいなければ初期化
     initRoom();
+    console.log("部屋を初期化します");
   }
 });
