@@ -4,7 +4,6 @@
 
 window.addEventListener("load", () => {
   console.log("ver0.1.6");
-  document.getElementById("game-area").style.display = "block";
 });
 
 // ===== Firebase 初期化 =====
