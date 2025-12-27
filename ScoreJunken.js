@@ -58,8 +58,6 @@ document.getElementById("google-login").addEventListener("click", async () => {
   }
 });
 
-document.getElementById("google-login").addEventListener("click", loginWithGoogle);
-
 
 // ===== 左手・右手 定義 =====
 const HAND = { ROCK:0, SCISSORS:1, PAPER:2 };
