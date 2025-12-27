@@ -203,6 +203,8 @@ function playTurn(playerLeft, playerRight){
 
   history.push({left:playerLeft, right:playerRight});
 
+  clearAllHighlights();
+
   return {
     player:{left:playerLeft, right:playerRight, gain:pGain},
     cpu:{left:cpuL, right:cpuR, gain:cGain},
@@ -218,6 +220,12 @@ function format(n){ return n>0?"+"+n:n.toString(); }
 function highlight(groupSelector,index){
   document.querySelectorAll(groupSelector).forEach((btn,i)=>{
     btn.classList.toggle("selected", i===index);
+  });
+}
+
+function clearAllHighlights() {
+  document.querySelectorAll(".hands button").forEach(btn => {
+    btn.classList.remove("selected");
   });
 }
 
