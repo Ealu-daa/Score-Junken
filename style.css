@@ -34,6 +34,13 @@ h2 {
   margin: 0 auto;
 }
 
+.right-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+  justify-items: center;
+}
+
 .hands {
   flex: 1;
   flex-direction: column;
