@@ -166,7 +166,7 @@ async function assignPlayer() {
 
 // ===== 手の選択 =====
 window.chooseHand = async function(handType, value) {
-  if (!playerId) return alert("プレイヤーが未割り当てです");
+  if (!playerId && window.isOnline) return alert("プレイヤーが未割り当てです");
 
   // ボタンハイライト
   if(handType === "left") {
