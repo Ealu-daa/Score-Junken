@@ -182,20 +182,12 @@ function endGameOnline(pScore, cScore) {
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "もう一度プレイ";
   resetBtn.onclick = async () => {
-    if (typeof setDoc === "function" && typeof doc === "function" && typeof db !== "undefined") {
-      try{
-        await setDoc(doc(db, "games", "room001"), {
-          player1: { left: null, right: null, score: 0 },
-          player2: { left: null, right: null, score: 0 },
-          round: 1,
-          status: "playing"
-        });
-      }catch(e){
-        console.error("Failed to reset Firestore game:", e);
-      }
-    } else {
-      console.warn("Firestore not available: skip resetting remote game state.");
-    }
+    await setDoc(doc(db, "games", room001), {
+      player1: { left: null, right: null, score: 0 },
+      player2: { left: null, right: null, score: 0 },
+      round: 1,
+      status: "playing"
+    });
     document.querySelectorAll(".hands button").forEach(btn => btn.disabled = false);
     document.getElementById("log").textContent = "左手と右手を選んでください";
     resetBtn.remove();
@@ -222,18 +214,16 @@ function resetGame(){
 }
 
 // =====Firestore=====
-(async function initFirestore(){
-  try{
-    await setDoc(doc(db, "games", "room001"), {
-      player1: { left: null, right: null, score: 0 },
-      player2: { left: null, right: null, score: 0 },
-      round: 1,
-      status: "playing"
-    });
-  }catch(e){
-    console.error("Firestore init failed:", e);
-  }
-})();
+async function initGame() {
+  await setDoc(doc(db, "games", "room001"), {
+    player1: { left: null, right: null, score: 0 },
+    player2: { left: null, right: null, score: 0 },
+    round: 1,
+    status: "playing"
+  });
+}
+
+initGame(); // 初期化
 
 let playerId = null;
 
