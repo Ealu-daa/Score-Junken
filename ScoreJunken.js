@@ -393,3 +393,5 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
     console.log("部屋を初期化します");
   }
 });
+
+initRoom();
