@@ -65,6 +65,16 @@ window.addEventListener("load", async () => {
   }
 });
 
+async function getRate(uid) {
+  const rateDoc = doc(db, "ratings", uid);
+  const snapshot = await getDoc(rateDoc);
+  if (!snapshot.exists()) {
+    await setDoc(rateDoc, { rate: 1500 }); // 初期レート
+    return 1500;
+  }
+  return snapshot.data().rate;
+}
+
 
 // ===== 左手・右手 定義 =====
 const HAND = { ROCK:0, SCISSORS:1, PAPER:2 };
