@@ -41,6 +41,24 @@ let playerId = null; // "player1" or "player2"
 let roomId = "room001";
 const maxRound = 10;
 
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+const auth = getAuth();
+const provider = new GoogleAuthProvider();
+
+document.getElementById("google-login").addEventListener("click", async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    console.log("ログイン成功", user.uid, user.displayName);
+    // ここで UID を保存してオンライン対戦に使える
+    window.currentUID = user.uid;
+  } catch (error) {
+    console.error("ログイン失敗", error);
+  }
+});
+
+document.getElementById("google-login").addEventListener("click", loginWithGoogle);
 
 
 // ===== 左手・右手 定義 =====
@@ -396,18 +414,23 @@ document.getElementById("cpu-btn").addEventListener("click", () => {
 });
 
 document.getElementById("online-btn-room001").addEventListener("click", async () => {
-  startScreen.style.display = "none";
-  gameArea.style.display = "block";
-  // オンライン戦モードフラグ
-  roomId = "room001"
-  window.isOnline = true;
+  if (playerCount.room001 < 2)
+  {
+    startScreen.style.display = "none";
+    gameArea.style.display = "block";
+    // オンライン戦モードフラグ
+    roomId = "room001"
+    window.isOnline = true;
 
-  await checkAndInitRoom();
-  await assignPlayer();
-  console.log("対人")
+    await checkAndInitRoom();
+    await assignPlayer();
+    console.log("対人")
+  }
 });
 
 document.getElementById("online-btn-room002").addEventListener("click", async () => {
+  if(playerCount.room002 < 2)
+  {
   startScreen.style.display = "none";
   gameArea.style.display = "block";
   // オンライン戦モードフラグ
@@ -417,23 +440,48 @@ document.getElementById("online-btn-room002").addEventListener("click", async ()
   await checkAndInitRoom();
   await assignPlayer();
   console.log("対人")
+  }
 });
 
-//スタート画面
+// ルームごとのプレイヤー人数を保存するオブジェクト
+const playerCount = {}; // 空オブジェクトで初期化
+
 const roomIds = ["room001", "room002"];
 
 roomIds.forEach(roomId => {
   const roomRef = doc(db, "games", roomId);
-  
+
   onSnapshot(roomRef, (docSnap) => {
     const data = docSnap.data();
     if (!data) return;
 
-    const playerCount = 
+    // ルームごとの人数をオブジェクトに保存
+    playerCount[roomId] = 
       (data.player1?.join ? 1 : 0) +
       (data.player2?.join ? 1 : 0);
 
+    // ボタンの表示を更新
     const btn = document.getElementById(`online-btn-${roomId}`);
-    if (btn) btn.textContent = `${roomId} ${playerCount}/2`;
+    if (btn) btn.textContent = `${roomId} ${playerCount[roomId]}/2`;
+
+    console.log(playerCount); // 確認用
   });
 });
+
+//rating
+async function getRate(uid) {
+  const rateDoc = doc(db, "ratings", uid);
+  const snapshot = await getDoc(rateDoc);
+  if (!snapshot.exists()) {
+    await setDoc(rateDoc, { rate: 1500 }); // 初期レート
+    return 1500;
+  }
+  return snapshot.data().rate;
+}
+
+// レート更新
+async function updateRate(uid, diff) {
+  const rateDoc = doc(db, "ratings", uid);
+  const currentRate = await getRate(uid);
+  await updateDoc(rateDoc, { rate: currentRate + diff });
+}

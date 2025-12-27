@@ -191,3 +191,21 @@ button[data-right="3"] {
     font-size: 14px;
   }
 }
+
+#google-login {
+  position: fixed;  /* 画面に固定 */
+  bottom: 20px;     /* 下から20px */
+  right: 20px;      /* 右から20px */
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4285F4;  /* Googleブルー */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1000;    /* 他の要素より前面に出す */
+}
+
+#google-login:hover {
+  background-color: #357ae8;
+}
