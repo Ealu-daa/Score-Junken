@@ -182,7 +182,7 @@ function endGameOnline(pScore, cScore) {
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "もう一度プレイ";
   resetBtn.onclick = async () => {
-    await setDoc(doc(db, "games", room001), {
+    await setDoc(doc(db, "games", "room001"), {
       player1: { left: null, right: null, score: 0 },
       player2: { left: null, right: null, score: 0 },
       round: 1,
@@ -234,7 +234,7 @@ function setPlayer(id) {
   console.log("あなたは", playerId);
 }
 
-const gameRef = doc(db, "games", room001);
+const gameRef = doc(db, "games", "room001");
 
 onSnapshot(gameRef, async (docSnap) => {
   const data = docSnap.data();
