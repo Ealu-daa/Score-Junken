@@ -174,6 +174,13 @@ async function assignPlayer() {
 window.chooseHand = async function(handType, value) {
   if (!playerId) return alert("プレイヤーが未割り当てです");
 
+  // ボタンハイライト
+  if(handType === "left") {
+    highlight(".hands:nth-of-type(1) button", value);
+  } else if(handType === "right") {
+    highlight(".hands:nth-of-type(2) button", value - 1); // rightは1からスタートしてるので-1
+  }
+
   const gameRef = doc(db, "games", roomId);
   const updateObj = {};
   updateObj[`${playerId}.${handType}`] = value;
