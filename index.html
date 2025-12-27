@@ -53,88 +53,54 @@
       </div>
   </div>
 
-  <div id="game-area" style="display: none;">
-    <!-- ゲームUIここに置く -->
-    
+    <div id="game-area" style="display: none;">
 
-    <div class="hand-area">
-      <!-- 左手 -->
-      <div class="hand left">
-        <h2>左手</h2>
-        <div class="hands">
-
-          <div class="hand-item">
-            <img src="img/gu.png" alt="グー">
-            <button data-hand="0" onclick="chooseHand('left',0)">グー</button>
+      <!-- 手の選択 UI（上部） -->
+      <div class="hand-area" style="display: flex; justify-content: center; gap: 50px; margin-top: 20px;">
+        
+        <!-- 左手 -->
+        <div class="hand left">
+          <h2>左手</h2>
+          <div class="hands">
+            <div class="hand-item">
+              <img src="img/gu.png" alt="グー">
+              <button data-hand="0" onclick="chooseHand('left',0)">グー</button>
+            </div>
+            <div class="hand-item">
+              <img src="img/choki.png" alt="チョキ">
+              <button data-hand="1" onclick="chooseHand('left',1)">チョキ</button>
+            </div>
+            <div class="hand-item">
+              <img src="img/pa.png" alt="パー">
+              <button data-hand="2" onclick="chooseHand('left',2)">パー</button>
+            </div>
           </div>
+        </div>
 
-          <div class="hand-item">
-            <img src="img/choki.png" alt="チョキ">
-            <button data-hand="1" onclick="chooseHand('left',1)">チョキ</button>
+        <!-- 右手 -->
+        <div class="hand right">
+          <h2>右手</h2>
+          <div class="right-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; justify-items: center;">
+            <div class="hand-item"><img src="img/block.png" alt="ブロック"><button data-right="0" onclick="chooseHand('right',0)">ブロック</button></div>
+            <div class="hand-item"><img src="img/counter.png" alt="カウンター"><button data-right="3" onclick="chooseHand('right',3)">カウンター</button></div>
+            <div class="hand-item"><img src="img/light.png" alt="ライト"><button data-right="1" onclick="chooseHand('right',1)">ライト</button></div>
+            <div class="hand-item"><img src="img/trick.png" alt="トリック"><button data-right="4" onclick="chooseHand('right',4)">トリック</button></div>
+            <div class="hand-item"><img src="img/drive.png" alt="ドライブ"><button data-right="2" onclick="chooseHand('right',2)">ドライブ</button></div>
+            <div class="hand-item"><img src="img/reversal.png" alt="リバーサル"><button data-right="5" onclick="chooseHand('right',5)">リバーサル</button></div>
           </div>
-
-          <div class="hand-item">
-            <img src="img/pa.png" alt="パー">
-            <button data-hand="2" onclick="chooseHand('left',2)">パー</button>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- 右手 -->
-      <div class="hand right">
-      <h2>右手</h2>
-      <div class="right-grid">
-
-        <!-- 左列：0 1 2 -->
-        <div class="hand-item">
-          <img src="img/block.png" alt="ブロック">
-          <button data-right="0" onclick="chooseHand('right',0)">ブロック</button>
-        </div>
-
-        <div class="hand-item">
-          <img src="img/counter.png" alt="カウンター">
-          <button data-right="3" onclick="chooseHand('right',3)">カウンター</button>
-        </div>
-
-        <div class="hand-item">
-          <img src="img/light.png" alt="ライト">
-          <button data-right="1" onclick="chooseHand('right',1)">ライト</button>
-        </div>
-
-        <div class="hand-item">
-          <img src="img/trick.png" alt="トリック">
-          <button data-right="4" onclick="chooseHand('right',4)">トリック</button>
-        </div>
-
-        <div class="hand-item">
-          <img src="img/drive.png" alt="ドライブ">
-          <button data-right="2" onclick="chooseHand('right',2)">ドライブ</button>
-        </div>
-
-        <div class="hand-item">
-          <img src="img/reversal.png" alt="リバーサル">
-          <button data-right="5" onclick="chooseHand('right',5)">リバーサル</button>
         </div>
 
       </div>
+
+      <!-- スコアとログ（画面下） -->
+      <div id="score-log" style="position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; border-radius: 10px; font-family: sans-serif; text-align: center; z-index: 1000;">
+        <div class="score">
+          ラウンド: <span id="round">1</span> / 10<br>
+          あなた: <span id="pScore">0</span> / 相手: <span id="cScore">0</span>
+        </div>
+        <div class="log" id="log">左手と右手を選んでください</div>
+      </div>
     </div>
-
-    <!-- スコア表示 -->
-    <div class="score">
-      ラウンド: <span id="round">1</span> / 10<br>
-      あなた: <span id="pScore">0</span> / 相手: <span id="cScore">0</span>
-    </div>
-
-    <!-- ログ -->
-    <div class="log" id="log">
-      左手と右手を選んでください
-    </div>
-
-    
-
-
   </div>
-
 </body>
 </html>
