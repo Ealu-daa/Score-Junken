@@ -13,12 +13,6 @@
   <!-- ゲームロジック -->
   <script type="module" src="ScoreJunken.js"></script>
 
-  <div id="player-select">
-    <p>あなたはどちらですか？</p>
-    <button onclick="setPlayer('player1')">Player 1</button>
-    <button onclick="setPlayer('player2')">Player 2</button>
-  </div>
-
   <div id="game-area" style="display:none;">
     <!-- ゲームUIここに置く -->
      <h1>スコアジャンケン</h1>
@@ -74,7 +68,7 @@
   <!-- スコア表示 -->
   <div class="score">
     ラウンド: <span id="round">1</span> / 10<br>
-    あなた: <span id="pScore">0</span> / CPU: <span id="cScore">0</span>
+    あなた: <span id="pScore">0</span> / 相手: <span id="cScore">0</span>
   </div>
 
   <!-- ログ -->

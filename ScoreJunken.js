@@ -55,8 +55,12 @@ function judgeLeft(player, opponent){
 
 // ===== スコア計算 (右手) =====
 function calcScore(leftResult, selfRight, oppRight){
-  if(selfRight === RIGHT.LIGHT) return (leftResult >= 0 ? 1 : 0);
-  if(selfRight === RIGHT.DRIVE) return (leftResult === 1 ? 2 : 0);
+  if(leftResult === 0 && selfRight === oppRight)
+    return 0;
+  if(selfRight === RIGHT.LIGHT) 
+    return (leftResult >= 0 ? 1 : 0);
+  if(selfRight === RIGHT.DRIVE) 
+    return (leftResult === 1 ? 2 : 0);
   if(selfRight === RIGHT.COUNTER){
     if(leftResult === 1) return -1;
     if(leftResult === 0) return 0;
@@ -111,8 +115,8 @@ async function initRoom() {
 
   if (!docSnap.exists()) {
     await setDoc(gameRef, {
-      player1: { left: null, right: null, score: 0 },
-      player2: { left: null, right: null, score: 0 },
+      player1: { join: false, left: null, right: null, score: 0 },
+      player2: { join: false,left: null, right: null, score: 0 },
       round: 1,
       status: "playing"
     });
@@ -125,8 +129,20 @@ async function initRoom() {
   // プレイヤー自動割り当て
   if (!playerId) { // playerId がまだセットされていない場合のみ自動割り当て
     const data = docSnap.data() || {};
-    if (!data.player1 || (data.player1 && data.player1.left === undefined)) playerId = "player1";
-    else if (!data.player2 || (data.player2 && data.player2.left === undefined)) playerId = "player2";
+    if (data.player1.join === false) 
+    {
+      playerId = "player1";
+      await updateDoc(gameRef, {
+        "player2.join": true,
+      });
+    }
+    else if (data.player2.join === false) 
+    {
+      playerId = "player2";
+      await updateDoc(gameRef, {
+        "player1.join": true,
+      });
+    }
     else playerId = Math.random() < 0.5 ? "player1" : "player2"; // どちらも埋まってたらランダム
     console.log("自動割り当て:", playerId);
   } else {
@@ -298,12 +314,6 @@ function resetGame(){
 }
 
 // =====Firestore=====
-window.setPlayer = function(id){
-  playerId = id;
-  document.getElementById("player-select").style.display = "none";
-  document.getElementById("game-area").style.display = "block";
-  console.log("あなたは", playerId);
-}
 
 const gameRef = doc(db, "games", "room001");
 
