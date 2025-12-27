@@ -164,20 +164,16 @@ async function assignPlayer() {
   }
 }
 
-// 初期化 + 割り当て
-(async () => {
-  await checkAndInitRoom();
-  await assignPlayer();
-})();
-
 // ===== 手の選択 =====
 window.chooseHand = async function(handType, value) {
   if (!playerId) return alert("プレイヤーが未割り当てです");
 
   // ボタンハイライト
   if(handType === "left") {
+    selectedLeft = value;
     highlight(".hands:nth-of-type(1) button", value);
   } else if(handType === "right") {
+    selectedRight = value;
     highlight(".hands:nth-of-type(2) button", value - 1); // rightは1からスタートしてるので-1
   }
 
@@ -375,6 +371,7 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
 
 window.addEventListener("beforeunload", async (event) => {
   if (!playerId) return;
+  if (window.isOnline === false) return;
 
   const gameRef = doc(db, "games", roomId);
 
@@ -398,6 +395,8 @@ document.getElementById("cpu-btn").addEventListener("click", () => {
   gameArea.style.display = "block";
   // CPU戦モードフラグ
   window.isOnline = false;
+
+  resetGame();
   console.log("対CPU")
 });
 
