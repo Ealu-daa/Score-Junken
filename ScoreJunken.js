@@ -319,10 +319,6 @@ function resetGame(){
   document.querySelector(".reset-btn").remove();
 }
 
-// =====Firestore=====
-
-const gameRef = doc(db, "games", "room001");
-
 // ===== ラウンド処理（累積スコア更新版） =====
 onSnapshot(doc(db, "games", roomId), (docSnap) => {
   const data = docSnap.data();
@@ -399,10 +395,11 @@ document.getElementById("cpu-btn").addEventListener("click", () => {
   console.log("対CPU")
 });
 
-document.getElementById("online-btn").addEventListener("click", async () => {
+document.getElementById("online-btn-room001").addEventListener("click", async () => {
   startScreen.style.display = "none";
   gameArea.style.display = "block";
   // オンライン戦モードフラグ
+  roomId = "room001"
   window.isOnline = true;
 
   await checkAndInitRoom();
@@ -410,3 +407,33 @@ document.getElementById("online-btn").addEventListener("click", async () => {
   console.log("対人")
 });
 
+document.getElementById("online-btn-room002").addEventListener("click", async () => {
+  startScreen.style.display = "none";
+  gameArea.style.display = "block";
+  // オンライン戦モードフラグ
+  roomId = "room002"
+  window.isOnline = true;
+
+  await checkAndInitRoom();
+  await assignPlayer();
+  console.log("対人")
+});
+
+//スタート画面
+const roomIds = ["room001", "room002"];
+
+roomIds.forEach(roomId => {
+  const roomRef = doc(db, "games", roomId);
+  
+  onSnapshot(roomRef, (docSnap) => {
+    const data = docSnap.data();
+    if (!data) return;
+
+    const playerCount = 
+      (data.player1?.join ? 1 : 0) +
+      (data.player2?.join ? 1 : 0);
+
+    const btn = document.getElementById(`online-btn-${roomId}`);
+    if (btn) btn.textContent = `${roomId} ${playerCount}/2`;
+  });
+});
