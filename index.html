@@ -2,107 +2,49 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Score Junken</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+  <title>Firebase Google Login Test</title>
 </head>
 <body>
-
-  <!-- ゲームロジック -->
-  <script type="module" src="ScoreJunken.js"></script>
-
-  <h1>スコアジャンケン</h1>
-
-  
   <button id="google-login">Googleでログイン</button>
-  
+  <div id="status">ログイン状態: 未ログイン</div>
 
-  <!-- ゲーム画面の左下に固定表示 -->
-  <div id="rate-display" style="
-    position: fixed;
-    left: 10px;
-    bottom: 10px;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-family: sans-serif;
-    font-size: 14px;
-    z-index: 1000;
-  ">
-    レート: <span id="my-rate">1500</span>
-    <span id="opp-rate-container" style="display:none;">
-      | 相手: <span id="opp-rate">1500</span>
-    </span>
-  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithRedirect, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-  <div id="start-screen" style="display: flex; justify-content: center; gap: 20px;">
-    <!-- CPU対戦 -->
-    <div style="text-align: center;">
-      <div>CPU対戦</div> <!-- ボタンの上の文字 -->
-      <button id="cpu-btn">CPU対戦</button>
-    </div>
+    // --- Firebase 設定 ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDwZQfWkf_h-Dc219uJpTtJNJElZ5l-0Ok",
+      authDomain: "score-junken-online.firebaseapp.com",
+      projectId: "score-junken-online",
+      storageBucket: "score-junken-online.firebasestorage.app",
+      messagingSenderId: "656405933288",
+      appId: "1:656405933288:web:122a765c95d61b0a0ded5d",
+      measurementId: "G-5SDM8HE1N1"
+    };
 
-    <!-- オンライン対戦 -->
-    <div style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-      <div>オンライン対戦</div>
-        <button id="online-btn-room001">room001</button>
-        <button id="online-btn-room002">room002</button>
-      </div>
-  </div>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
 
-    <div id="game-area" style="display: none;">
+    // 永続化を設定（認証開始前）
+    await setPersistence(auth, browserLocalPersistence);
 
-      <!-- 手の選択 UI（上部） -->
-      <div class="hand-area" style="display: flex; justify-content: center; gap: 50px; margin-top: 20px;">
-        
-        <!-- 左手 -->
-        <div class="hand left">
-          <h2>左手</h2>
-          <div class="hands">
-            <div class="hand-item">
-              <img src="img/gu.png" alt="グー">
-              <button data-hand="0" onclick="chooseHand('left',0)">グー</button>
-            </div>
-            <div class="hand-item">
-              <img src="img/choki.png" alt="チョキ">
-              <button data-hand="1" onclick="chooseHand('left',1)">チョキ</button>
-            </div>
-            <div class="hand-item">
-              <img src="img/pa.png" alt="パー">
-              <button data-hand="2" onclick="chooseHand('left',2)">パー</button>
-            </div>
-          </div>
-        </div>
+    document.getElementById("google-login").addEventListener("click", () => {
+      signInWithRedirect(auth, provider);
+    });
 
-        <!-- 右手 -->
-        <div class="hand right">
-          <h2>右手</h2>
-          <div class="right-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; justify-items: center;">
-            <div class="hand-item"><img src="img/block.png" alt="ブロック"><button data-right="0" onclick="chooseHand('right',0)">ブロック</button></div>
-            <div class="hand-item"><img src="img/counter.png" alt="カウンター"><button data-right="3" onclick="chooseHand('right',3)">カウンター</button></div>
-            <div class="hand-item"><img src="img/light.png" alt="ライト"><button data-right="1" onclick="chooseHand('right',1)">ライト</button></div>
-            <div class="hand-item"><img src="img/trick.png" alt="トリック"><button data-right="4" onclick="chooseHand('right',4)">トリック</button></div>
-            <div class="hand-item"><img src="img/drive.png" alt="ドライブ"><button data-right="2" onclick="chooseHand('right',2)">ドライブ</button></div>
-            <div class="hand-item"><img src="img/reversal.png" alt="リバーサル"><button data-right="5" onclick="chooseHand('right',5)">リバーサル</button></div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- スコアとログ（画面下） -->
-      <div id="score-log" style="position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; border-radius: 10px; font-family: sans-serif; text-align: center; z-index: 1000;">
-        <div class="score">
-          ラウンド: <span id="round">1</span> / 15<br>
-          あなた: <span id="pScore">0</span> / 相手: <span id="cScore">0</span>
-        </div>
-        <div class="log" id="log">左手と右手を選んでください</div>
-      </div>
-
-      <button id="return-start">スタート画面に戻る</button>
-    </div>
-  </div>
+    // ログイン状態監視
+    onAuthStateChanged(auth, user => {
+      const statusEl = document.getElementById("status");
+      if (user) {
+        console.log("ログイン中:", user.uid, user.displayName);
+        statusEl.textContent = `ログイン状態: ${user.displayName}（UID: ${user.uid}）`;
+      } else {
+        console.log("未ログイン");
+        statusEl.textContent = "ログイン状態: 未ログイン";
+      }
+    });
+  </script>
 </body>
 </html>
