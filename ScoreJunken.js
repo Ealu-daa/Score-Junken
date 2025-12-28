@@ -778,35 +778,35 @@ roomIds.forEach(roomId => {
 
 const CHECK_INTERVAL = 3 * 60 * 1000; // 3分
 
-window.addEventListener("load", () => {
-  setInterval(async () => {
-    try {
-      const now = Date.now();
+async function checkTimeout() {
+  const now = Date.now();
 
-      for (const roomId of roomIds) {
-        const gameRef = doc(db, "games", roomId);
-        const gameSnap = await getDoc(gameRef);
-        if (!gameSnap.exists()) continue;
+  for (const roomId of roomIds) {
+    const gameRef = doc(db, "games", roomId);
+    const gameSnap = await getDoc(gameRef);
+    if (!gameSnap.exists()) continue;
 
-        const data = gameSnap.data();
+    const data = gameSnap.data();
 
-        for (const pid of ["player1", "player2"]) {
-          if (data[pid]?.lastActive) {
-            const last = data[pid].lastActive.toMillis();
-            const diff = now - last;
-            console.log(pid, roomId, diff); // デバッグ用
+    for (const pid of ["player1", "player2"]) {
+      if (data[pid]?.lastActive) {
+        const last = data[pid].lastActive.toMillis();
+        const diff = now - last;
+        console.log(`${pid} in ${roomId}, 最終アクティブ: ${diff}ms前`);
 
-            if (diff > CHECK_INTERVAL && data[pid].join) {
-              await updateDoc(gameRef, { [`${pid}.join`]: false });
-              console.log(`${pid} in ${roomId} はタイムアウトで退出扱い`);
-            }
-          }
+        if (diff > CHECK_INTERVAL && data[pid].join) {
+          await updateDoc(gameRef, { [`${pid}.join`]: false });
+          console.log(`${pid} in ${roomId} はタイムアウトで退出扱い`);
         }
       }
-    } catch (err) {
-      console.error("タイムアウトチェックでエラー:", err);
     }
-  }, CHECK_INTERVAL);
+  }
+}
+
+// ページロード直後に一度チェックして、以降3分ごとにチェック
+window.addEventListener("load", () => {
+  checkTimeout(); 
+  setInterval(checkTimeout, CHECK_INTERVAL);
 });
 
 document.getElementById("return-start").addEventListener("click", async () => {
