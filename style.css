@@ -237,8 +237,20 @@ button[data-right="5"] {
 }
 
 #rule-text {
-  white-space: pre-line;  /* \n による改行を反映 */
-  text-align: left;       /* 左寄せ */
-  font-family: monospace; /* 表を揃えたい場合は等幅フォント */
+  white-space: pre-line;
+  text-align: left;
+  font-family: monospace;
   margin: 10px;
+  position: fixed;    /* 画面下に固定 */
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  display: none;      /* 最初は非表示 */
+  max-height: 40%;    /* 高さ制限、スクロール可能にする */
+  overflow-y: auto;
+  z-index: 999;
 }
