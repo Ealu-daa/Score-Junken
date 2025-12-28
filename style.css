@@ -16,6 +16,7 @@ body {
   width: 95%;          /* スマホで少し余白を残す */
   max-width: 700px;    /* PCでも広がりすぎない */
   margin: 0 auto;      /* 中央に配置 */
+
 }
 /* ===== タイトル ===== */
 h1 {
@@ -192,6 +193,8 @@ button[data-right="5"] {
     font-family: sans-serif;
     text-align: center;
     z-index: 1000;
+
+    padding-bottom: 200px;
   }
 
 /* ===== レート ===== */
@@ -269,10 +272,4 @@ button[data-right="5"] {
   overflow-y: auto;
   z-index: 999;
   font-size: 15px;
-}
-
-@media (max-width: 480px) {
-  #game-area {
-    padding-bottom: 200px;
-  }
 }
