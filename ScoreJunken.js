@@ -635,13 +635,15 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
   const data = docSnap.data();
   if (!data) return;
 
+  console.log(roomId);
+
   const p = data.player1;
   const c = data.player2;
 
   // 両プレイヤーが手を出したら
   if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
 
-    console.log("進行")
+    
 
     const pResult = judgeLeft(p.left, c.left);
     const cResult = -pResult;
