@@ -381,25 +381,6 @@ async function assignPlayer() {
   });
 }
 
-const gameRef = doc(db, "games", roomId);
-
-onSnapshot(gameRef, (docSnap) => {
-  const data = docSnap.data();
-  if (!data) return;
-
-  // 自分の playerId に応じて相手UIDを更新
-  if (playerId === "player1") {
-    window.opponentUID = data.player2?.uid || null;
-  } else if (playerId === "player2") {
-    window.opponentUID = data.player1?.uid || null;
-  }
-
-  // ここで左下レート表示を更新
-  //updateRateDisplay(window.currentUID, window.opponentUID);
-});
-
-
-
 // ===== 手の選択 =====
 window.chooseHand = async function(handType, value) {
   if (!playerId && window.isOnline) return alert("プレイヤーが未割り当てです");
@@ -612,7 +593,7 @@ function endGameOnline(pScore, cScore) {
       status: "playing"
     });
     document.querySelectorAll(".hands button").forEach(btn => btn.disabled = false);
-    document.getElementById("log").textContent = "左手と右手を選んでください\n";
+    document.getElementById("log").textContent = "左手と右手を選んでください";
     resetBtn.remove();
   };
   document.body.appendChild(resetBtn);
@@ -635,7 +616,7 @@ function resetGame(set = true){
   document.getElementById("pScore").textContent = 0;
   document.getElementById("cScore").textContent = 0;
   document.getElementById("round").textContent = 1;
-  document.getElementById("log").textContent = "左手と右手を選んでください\n";
+  document.getElementById("log").textContent = "左手と右手を選んでください";
 
   if (set === true)
   {
@@ -693,11 +674,11 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
       if (data.round === 0) logEl.textContent = '';
 
       if (playerId === "player1") {
-        logEl.textContent += `ラウンド ${data.round} 結果:\n` +
+        logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
                              `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
                              `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n`;
       } else {
-        logEl.textContent += `ラウンド ${data.round} 結果:\n` +
+        logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
                              `あなた：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n` +
                              `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n`;
       }
