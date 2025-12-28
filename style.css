@@ -226,6 +226,24 @@ button[data-right="5"] {
 #anon-login { background-color: #777; }
 #anon-login:hover { background-color: #555; }
 
+/* ===== スマホ用 ===== */
+@media (max-width: 768px) {
+
+  #google-auth-container {
+    position: static;        /* ← fixed解除 */
+    margin: 12px auto 0;
+    justify-content: center;
+  }
+
+  #google-login,
+  #google-logout,
+  #anon-login {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+}
+
 #rule-text {
   font-family: monospace;
   white-space: pre;      /* 空白・改行をそのまま表示 */
