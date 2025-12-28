@@ -45,17 +45,33 @@ const maxRound = 15;
 let unsubscribe = null; // 前回の onSnapshot を解除するため
 
 
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-const auth = getAuth();                  // ← ここで auth を定義
+const auth = getAuth();
 const provider = new GoogleAuthProvider();
+
+// 認証の永続化を設定（必ず signIn 前に）
+await setPersistence(auth, browserLocalPersistence);
 
 document.getElementById("google-login").addEventListener("click", async () => {
   try {
     const result = await signInWithPopup(auth, provider);
     console.log("ログイン成功（ポップアップ）:", result.user.uid, result.user.displayName);
-  } catch(e) {
-    console.error("ログイン失敗", e);
+  } catch (error) {
+    console.error("ログイン失敗", error);
+  }
+});
+
+onAuthStateChanged(auth, user => {
+  const btn = document.getElementById("google-login");
+  if (user) {
+    console.log("ログイン中:", user.uid, user.displayName);
+    window.currentUID = user.uid;
+    btn.textContent = `Googleでログイン済み: ${user.displayName}`;
+  } else {
+    console.log("未ログイン");
+    window.currentUID = null;
+    btn.textContent = "Googleでログイン";
   }
 });
 
