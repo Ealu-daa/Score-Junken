@@ -179,6 +179,19 @@ button[data-right="5"] {
   min-width: 40px;
 }
 
+/* ===== レート ===== */
+#rate-display {
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 1000;
+}
+
 /* ===== ログ ===== */
 .log {
   margin: 20px auto;

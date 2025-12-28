@@ -832,6 +832,7 @@ async function checkTimeout() {
   const now = Date.now();
 
   for (const roomId of roomIds) {
+    console.log("?")
     const gameRef = doc(db, "games", roomId);
     const gameSnap = await getDoc(gameRef);
     if (!gameSnap.exists()) continue;
