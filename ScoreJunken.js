@@ -123,16 +123,16 @@ function judgeLeft(player, opponent){
 
   数字 | 名前         | 勝   | あいこ | 負   | 役割
   ------------------------------------------------
-   0   | ブロック     | -10*  | -10    | -10   | 逃げ／準備
-   1   | ライト       | +10   |  0     |  0    | 安定
-   2   | ドライブ     | +25   |  0     | -10   | 攻め
-   3   | カウンター   | -15   | -10    | +35   | 読み
-   4   | トリック     |  0    | +25    | -20   | 攪乱
-   5   | リバーサル   | +50   |  0     | -50   | 逆転
+   0   | ブロック     | -10*  | -10   | -10   | 逃げ／準備
+   1   | ライト       | +10   |  0    |  0    | 安定
+   2   | ドライブ     | +25   |  0    | -10   | 攻め
+   3   | カウンター   |  ?    |   ?   |   ?   | 読み
+   4   | トリック     |  0    | +25   | -20   | 攪乱
+   5   | リバーサル   | +50   |  0    | -50   | 逆転
 
   ※ 特殊ルール
-  ・相手がブロックの場合、自分の得点は常に 0
-  ・相手がカウンターの場合、自分の得点は常に 0
+  ・?相手がカウンターの場合、相手の得点と自分の得点を反転させて、自分の得点は常に0
+  ・*相手がブロックの場合、自分の得点は常に 0
   ・*ブロックは1回目：-10,2回目：-20,3回目：-30,4回目以降：使用不可
   ・残り3ラウンドでは：
     ・ライト 勝+15
@@ -174,9 +174,6 @@ function calcScore(leftResult, selfRight, oppRight, blockCount = 0, isEndGame = 
 
     // 3｜カウンター
     case RIGHT.COUNTER: {
-      if (leftResult === 1) return -15;
-      if (leftResult === 0) return -10;
-      if (leftResult === -1) return 35;
       return 0;
     }
 
@@ -481,8 +478,18 @@ function playTurn(playerLeft, playerRight, blockCount){
   if (maxRound - round <= 3)
     nearEndGame = true;
 
-  const pGain = calcScore(pResult, playerRight, cpuR, blockCount, nearEndGame);
-  const cGain = calcScore(cResult, cpuR, playerRight, cpuBlockCount, nearEndGame);
+  let pGain = calcScore(pResult, playerRight, cpuR, blockCount, nearEndGame);
+  let cGain = calcScore(cResult, cpuR, playerRight, cpuBlockCount, nearEndGame);
+
+  if (cpuR === RIGHT.COUNTER) {
+  cGain = pGain; 
+  pGain = 0;
+  }
+
+  if (playerRight === RIGHT.COUNTER) {
+    pGain = cGain;
+    cGain = 0;
+  }
 
   if (playerRight === RIGHT.BLOCK)
     blockCount++;
@@ -647,8 +654,19 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
     const pResult = judgeLeft(p.left, c.left);
     const cResult = -pResult;
 
-    const pGain = calcScore(pResult, p.right, c.right, onlinePBlockCount, onlineEndGame);
-    const cGain = calcScore(cResult, c.right, p.right, c.blockCount, onlineEndGame);
+    let pGain = calcScore(pResult, p.right, c.right, onlinePBlockCount, onlineEndGame);
+    let cGain = calcScore(cResult, c.right, p.right, c.blockCount, onlineEndGame);
+
+    // カウンター特殊処理（反転）
+    if (c.right === 3) {
+      cGain = pGain; 
+      pGain = 0;
+    }
+
+    if (p.right === 3) {
+      pGain = cGain;
+      cGain = 0;
+    }
 
     if (p.right === 0)
       onlinePBlockCount++;
