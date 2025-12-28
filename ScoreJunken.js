@@ -366,7 +366,6 @@ async function assignPlayer() {
   }
 
   await updateDoc(gameRef, {
-    [`${playerId}.uid`]: window.currentUID,
     [`${playerId}.join`]: true
   });
 }
@@ -552,15 +551,6 @@ function endGame(){
 }
 
 function endGameOnline(pScore, cScore) {
-  
-  if(window.currentUID && window.opponentUID){
-  updateRateAfterMatch(window.currentUID, window.opponentUID,
-    (p.score || 0) + pGain, (c.score || 0) + cGain);
-  updateRateDisplay(window.currentUID, window.opponentUID);
-  }
-  
-  
-
   const logEl = document.getElementById("log");
   let winner = "";
   if (pScore > cScore) winner = "あなたの勝ち！🎉";
@@ -812,49 +802,3 @@ document.getElementById("return-start").addEventListener("click", async () => {
 
 //rating
 
-async function getRateOrDefault(uid) {
-  if (!uid) return 1500; // UID自体が null/undefined なら 1500
-  const rateDoc = doc(db, "ratings", uid);
-  const snapshot = await getDoc(rateDoc);
-  if (!snapshot.exists()) {
-    // ドキュメントがなければ作って 1500
-    await setDoc(rateDoc, { rate: 1500 });
-    return 1500;
-  }
-  return snapshot.data().rate || 1500; // rate が undefined の場合も 1500
-}
-
-async function updateRateAfterMatch(uidA, uidB, scoreA, scoreB) {
-  const rateA = await getRateOrDefault(uidA);
-  const rateB = await getRateOrDefault(uidB);
-
-  let S_A, S_B;
-  if(scoreA > scoreB) { S_A = 1; S_B = 0; }
-  else if(scoreA < scoreB) { S_A = 0; S_B = 1; }
-  else { S_A = 0.5; S_B = 0.5; }
-
-  const K = 32;
-  const E_A = 1 / (1 + 10 ** ((rateB - rateA)/400));
-  const E_B = 1 / (1 + 10 ** ((rateA - rateB)/400));
-
-  if(uidA) await updateDoc(doc(db, "ratings", uidA), { rate: Math.round(rateA + K*(S_A-E_A)) });
-  if(uidB) await updateDoc(doc(db, "ratings", uidB), { rate: Math.round(rateB + K*(S_B-E_B)) });
-}
-
-async function updateRateDisplay(myUID, oppUID = null) {
-  // 自分のレート取得
-  const myRate = await getRateOrDefault(myUID);
-  document.getElementById("my-rate").textContent = myRate;
-
-  if(oppUID) {
-    // 相手UIDがあれば表示
-    const oppRate = await getRateOrDefault(oppUID);
-    document.getElementById("opp-rate").textContent = oppRate;
-    document.getElementById("opp-rate-container").style.display = "inline";
-  } else {
-    // CPU戦やオフライン戦なら非表示
-    document.getElementById("opp-rate-container").style.display = "none";
-  }
-}
-
-await updateRateDisplay(window.currentUID);
