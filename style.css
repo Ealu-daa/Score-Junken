@@ -16,7 +16,7 @@ body {
   width: 95%;          /* スマホで少し余白を残す */
   max-width: 700px;    /* PCでも広がりすぎない */
   margin: 0 auto;      /* 中央に配置 */
-
+  padding-bottom: 200px;
 }
 /* ===== タイトル ===== */
 h1 {
