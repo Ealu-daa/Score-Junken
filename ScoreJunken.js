@@ -3,7 +3,7 @@
    ========================= */
 
 window.addEventListener("load", () => {
-  console.log("ver0.2.0");
+  console.log("ver0.3.0");
 });
 
 // ===== Firebase 初期化 =====
@@ -45,7 +45,7 @@ const maxRound = 15;
 let unsubscribe = null; // 前回の onSnapshot を解除するため
 
 
-import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
@@ -54,40 +54,57 @@ const provider = new GoogleAuthProvider();
 await setPersistence(auth, browserLocalPersistence);
 
 const loginBtn = document.getElementById("google-login");
+const anonBtn = document.getElementById("anon-login");
 const logoutBtn = document.getElementById("google-logout");
 
-// ログイン処理
+// Googleログイン
 loginBtn.addEventListener("click", async () => {
   try {
     const result = await signInWithPopup(auth, provider);
-    console.log("ログイン成功:", result.user.uid, result.user.displayName);
+    console.log("Googleログイン成功:", result.user.uid, result.user.displayName);
   } catch (error) {
-    console.error("ログイン失敗", error);
+    console.error("Googleログイン失敗", error);
   }
 });
 
-// ログアウト処理
+// 匿名ログイン
+anonBtn.addEventListener("click", async () => {
+  try {
+    const userCredential = await signInAnonymously(auth);
+    console.log("匿名ログイン成功:", userCredential.user.uid);
+  } catch (error) {
+    console.error("匿名ログイン失敗", error);
+  }
+});
+
+// ログアウト
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
   console.log("ログアウトしました");
 });
 
-// ログイン状態を監視
+// ログイン状態監視
 onAuthStateChanged(auth, user => {
   if(user){
-    console.log("ログイン中:", user.uid, user.displayName);
     window.currentUID = user.uid;
 
-    loginBtn.textContent = `Googleでログイン済み: ${user.displayName}`;
-    loginBtn.disabled = true;
-    logoutBtn.style.display = "inline-block"; // ログアウトボタン表示
+    if(user.isAnonymous){
+      loginBtn.textContent = "匿名ログイン中";
+      anonBtn.style.display = "none"; // 匿名ログインボタン非表示
+    } else {
+      loginBtn.textContent = `Googleでログイン済み: ${user.displayName}`;
+      anonBtn.style.display = "inline-block"; // 匿名ログインボタンは他ユーザー用に表示
+    }
+
+    loginBtn.disabled = true; // ログインボタンは押せなくする
+    logoutBtn.style.display = "inline-block"; // ログアウト表示
   } else {
-    console.log("未ログイン");
     window.currentUID = null;
 
     loginBtn.textContent = "Googleでログイン";
     loginBtn.disabled = false;
-    logoutBtn.style.display = "none"; // ログアウトボタン非表示
+    anonBtn.style.display = "inline-block";
+    logoutBtn.style.display = "none";
   }
 });
 
@@ -830,6 +847,11 @@ document.getElementById("return-start").addEventListener("click", async () => {
     // オンライン退出状態を更新
     const gameRef = doc(db, "games", roomId);
     await updateDoc(gameRef, { [`${playerId}.join`]: false });
+
+    const resetBtn = document.querySelector(".reset-btn"); // クラス名で取得
+    if (resetBtn) {
+      resetBtn.remove();
+}
   }
 
   // ゲームUI非表示、スタート画面表示
@@ -878,3 +900,16 @@ async function updateRateDisplay(myUID, oppUID = null) {
     document.getElementById("opp-rate-container").style.display = "none";
   }
 }
+
+//ルール
+const ruleText = document.getElementById("rule-text");
+const toggleBtn = document.getElementById("toggle-text");
+
+// 表示/非表示切り替え
+toggleBtn.addEventListener("click", () => {
+  if(ruleText.style.display === "none"){
+    ruleText.style.display = "block";
+  } else {
+    ruleText.style.display = "none";
+  }
+});

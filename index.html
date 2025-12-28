@@ -16,9 +16,36 @@
   <h1>スコアジャンケン</h1>
 
   
-  <button id="google-login">Googleでログイン</button>
-  <button id="google-logout" style="display:none;">ログアウト</button>
-  
+  <div id="google-auth-container">
+    <button id="google-logout">ログアウト</button>
+    <button id="google-login">Googleでログイン</button>
+    <button id="anon-login">匿名ログイン</button>
+  </div>
+
+  <p id="rule-text">
+  ラウンド数15
+  [右手アクション定義]
+
+  数字 | 名前         | 勝   | あいこ | 負   | 役割
+  ------------------------------------------------
+  0   | ブロック     | -10*  | -10   | -10   | 逃げ／準備
+  1   | ライト       | +10   |  0    |  0    | 安定
+  2   | ドライブ     | +25   |  0    | -10   | 攻め
+  3   | カウンター   |  ?    |   ?   |   ?   | 読み
+  4   | トリック     |  0    | +25   | -20   | 攪乱
+  5   | リバーサル   | +50   |  0    | -50   | 逆転
+
+  ※ 特殊ルール
+  ・?相手がカウンターの場合、相手の得点と自分の得点を反転させて、自分の得点は常に0
+  ・*相手がブロックの場合、自分の得点は常に 0
+  ・*ブロックは1回目：-10,2回目：-20,3回目：-30,4回目以降：使用不可
+  ・残り3ラウンドでは：
+    ・ライト 勝+15
+    ・トリック あいこ+35
+  ・リバーサルは1試合1回のみ
+  </p>
+
+  <button id="toggle-text">表示/非表示切り替え</button>
 
   <!-- ゲーム画面の左下に固定表示 -->
   <div id="rate-display" style="

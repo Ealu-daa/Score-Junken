@@ -12,6 +12,11 @@ body {
   text-align: center;
 }
 
+.game-area {
+  width: 95%;          /* スマホで少し余白を残す */
+  max-width: 700px;    /* PCでも広がりすぎない */
+  margin: 0 auto;      /* 中央に配置 */
+}
 /* ===== タイトル ===== */
 h1 {
   margin: 20px 0 10px;
@@ -39,12 +44,6 @@ h2 {
   grid-template-columns: 1fr 1fr;
   gap: 16px 24px;
   justify-items: center;
-}
-
-.hands {
-  flex: 1;
-  flex-direction: column;
-  text-align: center;
 }
 
 .hand.left {
@@ -89,22 +88,19 @@ button:active {
   transform: translateY(1px);
 }
 
-.hands button {
-  padding: 10px 16px;
-  margin: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  border: 2px solid #888;
-  border-radius: 6px;
-  transition: 0.15s;
-}
-
 .hands {
   display: flex;
+  flex-wrap: wrap;      /* 小さい画面で自動折り返し */
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   margin: 10px 0;
+}
+
+.hands button {
+  flex: 1 1 40%;       /* 幅は40%まで拡張、折り返し可能 */
+  min-width: 60px;     /* 最小幅確保 */
+  padding: 8px 0;
+  font-size: 14px;
 }
 
 button {
@@ -199,31 +195,50 @@ button[data-right="5"] {
 }
 
 /* ===== スマホ対応 ===== */
-@media (max-width: 600px) {
-  h1 {
-    font-size: 26px;
-  }
-
-  button {
-    min-width: 80px;
-    font-size: 14px;
-  }
+@media (max-width: 480px) {
+  h1 { font-size: 22px; }
+  button { font-size: 12px; padding: 6px 0; min-width: 50px; }
+  .score { font-size: 18px; }
+  .log { font-size: 11px; max-height: 120px; }
 }
 
-#google-login {
-  position: fixed;  /* 画面に固定 */
-  bottom: 20px;     /* 下から20px */
-  right: 20px;      /* 右から20px */
+#google-auth-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 1000;
+}
+
+#google-login, #google-logout, #anon-login {
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #4285F4;  /* Googleブルー */
-  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  z-index: 1000;    /* 他の要素より前面に出す */
+  color: #fff;
 }
 
-#google-login:hover {
-  background-color: #357ae8;
+#google-login { background-color: #4285F4; }
+#google-login:hover { background-color: #357ae8; }
+
+#google-logout { background-color: #db4437; }
+#google-logout:hover { background-color: #c33d2e; }
+
+#anon-login { background-color: #777; }
+#anon-login:hover { background-color: #555; }
+
+@media (max-width: 480px) {
+  #google-login, #google-logout, #anon-login {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+#rule-text {
+  white-space: pre-line;  /* \n による改行を反映 */
+  text-align: left;       /* 左寄せ */
+  font-family: monospace; /* 表を揃えたい場合は等幅フォント */
+  margin: 10px;
 }
