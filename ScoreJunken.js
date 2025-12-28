@@ -642,54 +642,39 @@ function resetGame(set = true){
 
 
 // ===== ラウンド処理（累積スコア更新版） =====
+let lastLoggedRound = 0; // 最後にログを出したラウンド番号
+
 onSnapshot(doc(db, "games", roomId), (docSnap) => {
   const data = docSnap.data();
   if (!data) return;
 
   const p = data.player1;
   const c = data.player2;
-  let logged = false;
 
-  // 両プレイヤーが手を出したらラウンド処理
+  // 両プレイヤーが手を出したら
   if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
 
-    logged = false;
-    
-    //判定
-    if (maxRound - data.round <= 3)
-      onlineEndGame = true;
-
-    // 勝敗判定
     const pResult = judgeLeft(p.left, c.left);
     const cResult = -pResult;
 
     let pGain = calcScore(pResult, p.right, c.right, onlinePBlockCount, onlineEndGame);
     let cGain = calcScore(cResult, c.right, p.right, c.blockCount, onlineEndGame);
-    
-    // カウンター特殊処理（反転）
-    if (c.right === 3) {
-      cGain = pGain; 
-      pGain = 0;
-    }
 
-    if (p.right === 3) {
-      pGain = cGain;
-      cGain = 0;
-    }
+    // カウンター処理
+    if (c.right === 3) { cGain = pGain; pGain = 0; }
+    if (p.right === 3) { pGain = cGain; cGain = 0; }
 
-    if (p.right === 0)
-      onlinePBlockCount++;
+    // ブロック／リバーサル処理
+    if (p.right === 0) onlinePBlockCount++;
+    if (p.right === 5) onlinePReversal = true;
 
-    if (p.right === 5)
-      onlinePReversal = true;
-
+    // Firestore 更新
     updateDoc(gameRef, {
       endGame: onlineEndGame,
       [`${playerId}.blockCount`]: onlinePBlockCount,
       [`${playerId}.reversalUsed`]: onlinePReversal
     });
 
-    // Firestore に累積加算で更新
     updateDoc(doc(db, "games", roomId), {
       "player1.score": (p.score || 0) + pGain,
       "player2.score": (c.score || 0) + cGain,
@@ -700,40 +685,36 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
       "player2.right": null
     });
 
-    // UI更新
+    // --- ログ表示 ---
+    if (lastLoggedRound < data.round) { // まだログ出してないラウンド
       const logEl = document.getElementById("log");
-      if (!logged)
-      {
-        if (playerId === "player1")
-        {
-          logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
-                              `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
-                              `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n\n`;
-          logEl.scrollTop = logEl.scrollHeight;
-          
-          document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
-          logged = true;
-        }
-        else
-        {
-          logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
-                              `あなた：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n` +
-                              `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n\n`;
-          logEl.scrollTop = logEl.scrollHeight;
+      
+      // 最初の案内を消す
+      if (data.round === 0) logEl.textContent = '';
 
-          document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
-          logged = true;
-        }
+      if (playerId === "player1") {
+        logEl.textContent += `ラウンド ${data.round} 結果:\n` +
+                             `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
+                             `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n\n`;
+      } else {
+        logEl.textContent += `ラウンド ${data.round} 結果:\n` +
+                             `あなた：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n` +
+                             `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n\n`;
       }
 
-      document.getElementById("round").textContent = data.round + 1;
-      document.getElementById("pScore").textContent = (p.score || 0) + pGain;
-      document.getElementById("cScore").textContent = (c.score || 0) + cGain;
+      logEl.scrollTop = logEl.scrollHeight;
+      document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+      lastLoggedRound = data.round; // 更新
+    }
 
-      if (data.round + 1 > maxRound) {
-        endGameOnline((p.score || 0) + pGain, (c.score || 0) + cGain);
-      }
-    
+    // スコア・ラウンド更新
+    document.getElementById("round").textContent = data.round + 1;
+    document.getElementById("pScore").textContent = (p.score || 0) + pGain;
+    document.getElementById("cScore").textContent = (c.score || 0) + cGain;
+
+    if (data.round + 1 > maxRound) {
+      endGameOnline((p.score || 0) + pGain, (c.score || 0) + cGain);
+    }
   }
 });
 
