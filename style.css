@@ -20,7 +20,7 @@ body {
 }
 /* ===== タイトル ===== */
 h1 {
-  margin: 20px 0 10px;
+  margin: 60px 0 10px;
   font-size: 32px;
   letter-spacing: 2px;
 }
@@ -326,5 +326,9 @@ button[data-right="5"] {
     width: 95%;
     padding: 8px 10px;
     font-size: 12px;
+  }
+
+  #game-area:not([style*="display: none"]) ~ #google-auth-container {
+    display: none !important;
   }
 }
