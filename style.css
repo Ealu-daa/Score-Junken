@@ -198,7 +198,7 @@ button[data-right="5"] {
 }
 
 .game-area #google-auth-container {
-  display: none;
+  display: none !important;
 }
 
 #google-auth-container {
