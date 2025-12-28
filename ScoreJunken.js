@@ -2,10 +2,6 @@
    Score Junken Core Logic
    ========================= */
 
-window.addEventListener("load", () => {
-  console.log("ver0.3.0");
-});
-
 // ===== Firebase 初期化 =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
@@ -106,6 +102,43 @@ onAuthStateChanged(auth, user => {
     anonBtn.style.display = "inline-block";
     logoutBtn.style.display = "none";
   }
+});
+
+//ロード時
+const TIMEOUT_LIMIT = 3 * 60 * 1000; // 3分
+const CHECK_INTERVAL = 10 * 1000;    // 10秒監視
+
+async function checkTimeout() {
+  const now = Date.now();
+
+  for (const rid of roomIds) {
+    const gameRef = doc(db, "games", rid);
+    const snap = await getDoc(gameRef);
+    if (!snap.exists()) continue;
+
+    const data = snap.data();
+
+    for (const pid of ["player1", "player2"]) {
+      const p = data[pid];
+      if (!p?.join || !p?.lastActive || !p.lastActive.toMillis) continue;
+
+      const diff = now - p.lastActive.toMillis();
+      console.log(`${pid}@${rid}: ${Math.floor(diff/1000)}秒前`);
+
+      if (diff > TIMEOUT_LIMIT) {
+        await updateDoc(gameRef, {
+          [`${pid}.join`]: false
+        });
+        console.log(`${pid}@${rid} timeout → 退出`);
+      }
+    }
+  }
+}
+
+window.addEventListener("load", () => {
+  checkTimeout();
+  setInterval(checkTimeout, CHECK_INTERVAL);
+  console.log("ver0.3.0");
 });
 
 // ===== 左手・右手 定義 =====
@@ -826,39 +859,9 @@ roomIds.forEach(roomId => {
   });
 });
 
-const CHECK_INTERVAL = 3 * 60 * 1000; // 3分
 
-async function checkTimeout() {
-  const now = Date.now();
-  console.log("???")
 
-  for (const roomId of roomIds) {
-    const gameRef = doc(db, "games", roomId);
-    const gameSnap = await getDoc(gameRef);
-    if (!gameSnap.exists()) continue;
 
-    const data = gameSnap.data();
-
-    for (const pid of ["player1", "player2"]) {
-      if (data[pid]?.lastActive) {
-        const last = data[pid].lastActive.toMillis();
-        const diff = now - last;
-        console.log(`${pid} in ${roomId}, 最終アクティブ: ${diff}ms前`);
-
-        if (diff > CHECK_INTERVAL && data[pid].join) {
-          await updateDoc(gameRef, { [`${pid}.join`]: false });
-          console.log(`${pid} in ${roomId} はタイムアウトで退出扱い`);
-        }
-      }
-    }
-  }
-}
-
-// ページロード直後に一度チェックして、以降3分ごとにチェック
-window.addEventListener("load", () => {
-  checkTimeout(); 
-  setInterval(checkTimeout, CHECK_INTERVAL);
-});
 
 document.getElementById("return-start").addEventListener("click", async () => {
   if (window.isOnline && playerId && roomId) {
