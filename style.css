@@ -312,6 +312,21 @@ button[data-right="5"] {
     margin-bottom: 6px;
   }
 
+  /* ===== スコア & ログ固定表示 ===== */
+  #score-log {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: sans-serif;
+    text-align: center;
+    z-index: 1000;
+  }
+
   /* ===== スコア ===== */
   .score {
     font-size: 18px;
