@@ -99,6 +99,16 @@ let round = 1;
 let selectedLeft = null;
 let selectedRight = null;
 
+let nearEndGame = false;
+let cpuBlockCount = 0;
+let cpuReversalUsed = false;
+let blockCount = 0;
+let reversalUsed = false;
+
+let onlineEndGame = false;
+let onlinePBlockCount = 0;
+let onlinePReversal = false;
+
 // ===== 勝敗判定 (左手) =====
 function judgeLeft(player, opponent){
   if(player === opponent) return 0;
@@ -459,11 +469,7 @@ window.chooseHand = async function(handType, value) {
 }
 
 // ===== 1ターン進行 =====
-let nearEndGame = false;
-let cpuBlockCount = 0;
-let cpuReversalUsed = false;
-let blockCount = 0;
-let reversalUsed = false;
+
 
 function playTurn(playerLeft, playerRight, blockCount){
   const cpuL = cpuLeft(history);
@@ -474,6 +480,9 @@ function playTurn(playerLeft, playerRight, blockCount){
 
   if (maxRound - round <= 3)
     nearEndGame = true;
+
+  const pGain = calcScore(pResult, playerRight, cpuR, blockCount, nearEndGame);
+  const cGain = calcScore(cResult, cpuR, playerRight, cpuBlockCount, nearEndGame);
 
   if (playerRight === RIGHT.BLOCK)
     blockCount++;
@@ -486,9 +495,6 @@ function playTurn(playerLeft, playerRight, blockCount){
 
   if (cpuR === RIGHT.REVERSAL)
     cpuReversalUsed = true;
-
-  const pGain = calcScore(pResult, playerRight, cpuR, blockCount, nearEndGame);
-  const cGain = calcScore(cResult, cpuR, playerRight, cpuBlockCount, nearEndGame);
 
   playerScore += pGain;
   cpuScore += cGain;
@@ -621,9 +627,7 @@ function resetGame(set = true){
 }
 
 
-let onlineEndGame = false;
-let onlinePBlockCount = 0;
-let onlinePReversal = false;
+
 
 // ===== ラウンド処理（累積スコア更新版） =====
 onSnapshot(doc(db, "games", roomId), (docSnap) => {
@@ -639,6 +643,13 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
     if (maxRound - data.round <= 3)
       onlineEndGame = true;
 
+    // 勝敗判定
+    const pResult = judgeLeft(p.left, c.left);
+    const cResult = -pResult;
+
+    const pGain = calcScore(pResult, p.right, c.right, onlinePBlockCount, onlineEndGame);
+    const cGain = calcScore(cResult, c.right, p.right, c.blockCount, onlineEndGame);
+
     if (p.right === 0)
       onlinePBlockCount++;
 
@@ -650,13 +661,6 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
       [`${playerId}.blockCount`]: onlinePBlockCount,
       [`${playerId}.reversalUsed`]: onlinePReversal
     });
-
-    // 勝敗判定
-    const pResult = judgeLeft(p.left, c.left);
-    const cResult = -pResult;
-
-    const pGain = calcScore(pResult, p.right, c.right, onlinePBlockCount, onlineEndGame);
-    const cGain = calcScore(cResult, c.right, p.right, c.blockCount, onlineEndGame);
 
     // Firestore に累積加算で更新
     updateDoc(doc(db, "games", roomId), {
