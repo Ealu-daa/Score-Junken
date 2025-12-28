@@ -326,8 +326,8 @@ async function checkAndInitRoom() {
   if (!docSnap.exists()) {
     // まだ部屋がなければ新規作成
     await setDoc(gameRef, {
-      player1: { join: false, left: null, right: null, score: 0, blockCount: 0,reversalUsed: false },
-      player2: { join: false, left: null, right: null, score: 0, blockCount: 0,reversalUsed: false },
+      player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp()},
+      player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp()},
       round: 1,
       status: "playing"
     });
@@ -345,10 +345,10 @@ async function checkAndInitRoom() {
   const p1Empty = !data.player1?.join;
   const p2Empty = !data.player2?.join;
 
-  if (p1Empty || p2Empty) {
+  if (p1Empty && p2Empty) {
     await setDoc(gameRef, {
-      player1: { join: false, left: null, right: null, score: 0 },
-      player2: { join: false, left: null, right: null, score: 0 },
+      player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp()},
+      player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp()},
       round: 1,
       status: "playing"
     });
@@ -673,12 +673,6 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
     if (p.right === 0) onlinePBlockCount++;
     if (p.right === 5) onlinePReversal = true;
 
-    // Firestore 更新
-    updateDoc(gameRef, {
-      endGame: onlineEndGame,
-      [`${playerId}.blockCount`]: onlinePBlockCount,
-      [`${playerId}.reversalUsed`]: onlinePReversal
-    });
 
     updateDoc(doc(db, "games", roomId), {
       "player1.score": (p.score || 0) + pGain,
