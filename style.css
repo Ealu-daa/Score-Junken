@@ -278,7 +278,7 @@ body.in-game #google-auth-container {
 
   h1 {
     font-size: 18px;
-    margin: 8px 0;
+    margin: 30px 0;
   }
 
   h2 {
@@ -327,7 +327,7 @@ body.in-game #google-auth-container {
     padding: 8px 10px;
     font-size: 12px;
   }
-  
+
     body.in-game #google-auth-container {
     display: none !important;
   }
