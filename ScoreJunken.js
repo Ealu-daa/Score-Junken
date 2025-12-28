@@ -45,7 +45,10 @@ const maxRound = 15;
 let unsubscribe = null; // 前回の onSnapshot を解除するため
 
 
-import { signInWithPopup } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+const auth = getAuth();                  // ← ここで auth を定義
+const provider = new GoogleAuthProvider();
 
 document.getElementById("google-login").addEventListener("click", async () => {
   try {
