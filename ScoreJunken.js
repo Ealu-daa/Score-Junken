@@ -648,7 +648,7 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
 
   const p = data.player1;
   const c = data.player2;
-  const logged = false;
+  let logged = false;
 
   // 両プレイヤーが手を出したらラウンド処理
   if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
