@@ -179,6 +179,21 @@ button[data-right="5"] {
   min-width: 40px;
 }
 
+/* ===== スコアログ ===== */
+#score-log {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: sans-serif;
+    text-align: center;
+    z-index: 1000;
+  }
+
 /* ===== レート ===== */
 #rate-display {
   position: fixed;
@@ -313,19 +328,7 @@ button[data-right="5"] {
   }
 
   /* ===== スコア & ログ固定表示 ===== */
-  #score-log {
-    position: fixed;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.6);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-family: sans-serif;
-    text-align: center;
-    z-index: 1000;
-  }
+  
 
   /* ===== スコア ===== */
   .score {
@@ -364,4 +367,10 @@ button[data-right="5"] {
     font-size: 12px;
     padding: 6px 8px;
   }
+
+  @media (max-width: 480px) {
+  #game-area {
+    padding-bottom: 200px;
+  }
+}
 }
