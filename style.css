@@ -327,6 +327,9 @@ body.in-game #google-auth-container {
     padding: 8px 10px;
     font-size: 12px;
   }
-
+  
+    body.in-game #google-auth-container {
+    display: none !important;
+  }
 
 }
