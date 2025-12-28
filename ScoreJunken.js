@@ -755,8 +755,17 @@ async function joinRoom(selectedRoomId) {
 
       // スコア・ラウンド更新
       document.getElementById("round").textContent = data.round + 1;
-      document.getElementById("pScore").textContent = (p.score || 0) + pGain;
-      document.getElementById("cScore").textContent = (c.score || 0) + cGain;
+
+      if (playerId === "player1")
+      {
+        document.getElementById("pScore").textContent = (p.score || 0) + pGain;
+        document.getElementById("cScore").textContent = (c.score || 0) + cGain;
+      }
+      else
+      {
+        document.getElementById("pScore").textContent = (c.score || 0) + cGain;
+        document.getElementById("cScore").textContent = (p.score || 0) + pGain;
+      }
 
       if (data.round + 1 > maxRound) {
         endGameOnline((p.score || 0) + pGain, (c.score || 0) + cGain);
