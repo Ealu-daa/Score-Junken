@@ -241,28 +241,33 @@ const RIGHT_SCORE = {
 };
 
 // 特殊ルール込みで期待値計算
-function calcEV(right, leftResult, oppRight, round, maxRound, blockCount){
+function calcEV(right, leftResult, oppRight, round, maxRound, blockCount) {
   const p = estimateLeftProb(leftResult);
   let s = { ...RIGHT_SCORE[right] };
 
   // 残り3ラウンドの強化
-  if(maxRound - round <= 3){
-    if(right === RIGHT.LIGHT) s.win += 15;
-    if(right === RIGHT.TRICK) s.draw += 35;
+  if (maxRound - round <= 3) {
+    if (right === RIGHT.LIGHT) s.win += 15;
+    if (right === RIGHT.TRICK) s.draw += 35;
   }
 
-  // ブロックの使用回数増加反映
-  if(right === RIGHT.BLOCK){
-    if(blockCount === 1) s.win = s.draw = s.lose = -20;
-    if(blockCount === 2) s.win = s.draw = s.lose = -30;
-    if(blockCount >= 3) return -Infinity; // 使用不可
+  // ブロックの使用回数反映
+  if (right === RIGHT.BLOCK) {
+    if (blockCount === 1) s.win = s.draw = s.lose = -20;
+    if (blockCount === 2) s.win = s.draw = s.lose = -30;
+    if (blockCount >= 3) return -Infinity; // 使用不可
   }
 
   // 相手がブロックの場合、自分の得点は常に0
-  if(oppRight === RIGHT.BLOCK) return 0;
+  if (oppRight === RIGHT.BLOCK) return 0;
 
-  // 相手がカウンターの場合、自分が勝っても得点は0
-  if(oppRight === RIGHT.COUNTER) s.win = 0;
+  // 相手がカウンターの場合の処理
+  if (oppRight === RIGHT.COUNTER) {
+    // 勝ちは 0 に
+    s.win = 0;
+    // 負けは相手にプラス → 自分は 0 に見えるが、期待値計算では反転
+    s.lose = -s.lose;
+  }
 
   return p.win  * s.win +
          p.draw * s.draw +
