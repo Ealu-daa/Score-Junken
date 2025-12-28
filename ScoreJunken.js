@@ -605,7 +605,10 @@ function resetGame(){
   document.getElementById("log").textContent = "左手と右手を選んでください";
 
   document.querySelectorAll(".hands button").forEach(btn => btn.disabled=false);
-  document.querySelector(".reset-btn").remove();
+  const resetBtn = document.querySelector(".reset-btn");
+  if (resetBtn) {
+    resetBtn.remove();
+}
 }
 
 let onlineEndGame = false;
