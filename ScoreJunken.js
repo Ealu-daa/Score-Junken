@@ -702,7 +702,7 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
 
     // UI更新
       const logEl = document.getElementById("log");
-      if (logged)
+      if (!logged)
       {
         if (playerId === "player1")
         {
