@@ -314,8 +314,8 @@ async function checkAndInitRoom() {
   if (!docSnap.exists()) {
     // まだ部屋がなければ新規作成
     await setDoc(gameRef, {
-      player1: { join: false, left: null, right: null, score: 0 },
-      player2: { join: false, left: null, right: null, score: 0 },
+      player1: { join: false, left: null, right: null, score: 0, blockCount: 0,reversalUsed: false },
+      player2: { join: false, left: null, right: null, score: 0, blockCount: 0,reversalUsed: false },
       round: 1,
       status: "playing"
     });
@@ -324,6 +324,10 @@ async function checkAndInitRoom() {
   }
 
   const data = docSnap.data() || {};
+
+  onlineEndGame = false;
+  onlinePBlockCount = 0;
+  onlinePReversal = false;
 
   // 誰もいなければ初期化
   const p1Empty = !data.player1?.join;
@@ -598,6 +602,11 @@ function resetGame(set = true){
   history = [];
   selectedLeft = null;
   selectedRight = null;
+  nearEndGame = false;
+  cpuBlockCount = 0;
+  cpuReversalUsed = false;
+  blockCount = 0;
+  reversalUsed = false;
 
   document.getElementById("pScore").textContent = 0;
   document.getElementById("cScore").textContent = 0;
