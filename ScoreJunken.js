@@ -500,7 +500,7 @@ function playTurn(playerLeft, playerRight, blockCount){
 
 // ===== UI補助 =====
 function handName(v){ return ["グー","チョキ","パー"][v]; }
-function rightName(v){ return {1:"ライト",2:"ドライブ",3:"カウンター"}[v]; }
+function rightName(v){ return {0:"ブロック",1:"ライト",2:"ドライブ",3:"カウンター",4:"トリック",5:"リバーサル"}[v]; }
 function format(n){ return n>0?"+"+n:n.toString(); }
 
 function highlight(groupSelector,index){

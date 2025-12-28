@@ -148,7 +148,7 @@ button:active {
 
 /* ===== 右手ごとの色 ===== */
 button[data-right="0"] {
-  border: 1px solid #303030;
+  border: 1px solid #dadada;
 }
 
 button[data-right="1"] {
