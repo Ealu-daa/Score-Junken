@@ -455,7 +455,7 @@ window.chooseHand = async function(handType, value) {
 }
 
 // ===== 1ターン進行 =====
-let endGame = false;
+let nearEndGame = false;
 let cpuBlockCount = 0;
 let cpuReversalUsed = false;
 let blockCount = 0;
@@ -469,7 +469,7 @@ function playTurn(playerLeft, playerRight, blockCount){
   const cResult = -pResult;
 
   if (maxRound - round <= 3)
-    endGame = true;
+    nearEndGame = true;
 
   if (playerRight === RIGHT.BLOCK)
     blockCount++;
@@ -483,8 +483,8 @@ function playTurn(playerLeft, playerRight, blockCount){
   if (cpuR === RIGHT.REVERSAL)
     cpuReversalUsed = true;
 
-  const pGain = calcScore(pResult, playerRight, cpuR, blockCount, endGame);
-  const cGain = calcScore(cResult, cpuR, playerRight, cpuBlockCount, endGame);
+  const pGain = calcScore(pResult, playerRight, cpuR, blockCount, nearEndGame);
+  const cGain = calcScore(cResult, cpuR, playerRight, cpuBlockCount, nearEndGame);
 
   playerScore += pGain;
   cpuScore += cGain;
