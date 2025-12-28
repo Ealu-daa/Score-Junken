@@ -578,7 +578,16 @@ function endGame(){
   document.body.appendChild(resetBtn);
 }
 
-function endGameOnline(pScore, cScore) {
+async function endGameOnline(pScore, cScore) {
+
+  if(window.currentUID && window.opponentUID){
+    // 勝敗に応じてレートを計算・更新
+    await updateRateAfterMatch(window.currentUID, window.opponentUID, pScore, cScore);
+
+    // 更新したレートを表示
+    await updateRateDisplay(window.currentUID, window.opponentUID);
+  }
+
   const logEl = document.getElementById("log");
   let winner = "";
   if (pScore > cScore) winner = "あなたの勝ち！🎉";
