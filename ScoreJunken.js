@@ -2,6 +2,13 @@
    Score Junken Core Logic
    ========================= */
 
+  window.addEventListener("load", async () => {
+  console.log("ver0.3.0");
+  
+  checkTimeout();
+  setInterval(checkTimeout, CHECK_INTERVAL);
+});
+
 // ===== Firebase 初期化 =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
@@ -104,10 +111,6 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-async function initAuth() {
-  await setPersistence(auth, browserLocalPersistence);
-}
-
 //ロード時
 const roomIds = ["room001", "room002", "room003"];
 
@@ -142,13 +145,7 @@ async function checkTimeout() {
   }
 }
 
-window.addEventListener("load", async () => {
-  console.log("ver0.3.0");
 
-  await initAuth();     // ← ここで await
-  checkTimeout();
-  setInterval(checkTimeout, CHECK_INTERVAL);
-});
 
 // ===== 左手・右手 定義 =====
 const HAND = { ROCK:0, SCISSORS:1, PAPER:2 };
