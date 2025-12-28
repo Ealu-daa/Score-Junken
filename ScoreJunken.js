@@ -699,41 +699,7 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
   }
 });
 
-window.addEventListener("load", () => {
-  setInterval(async () => {
-    if (!roomId) return;
 
-    const gameRef = doc(db, "games", roomId);
-    const gameSnap = await getDoc(gameRef);
-    if (!gameSnap.exists()) return;
-
-    const data = gameSnap.data();
-    const now = Date.now();
-
-    ["player1", "player2"].forEach(pid => {
-      if (data[pid]?.lastActive) {
-        const last = data[pid].lastActive.toMillis();
-        if (now - last > 3 * 60 * 1000 && data[pid].join) {
-          updateDoc(gameRef, { [`${pid}.join`]: false });
-          console.log(`${pid} はタイムアウトで退出扱い`);
-        }
-      }
-    });
-
-  }, 3 * 60 * 1000); // 3分ごと
-});
-
-document.getElementById("return-start").addEventListener("click", async () => {
-  if (window.isOnline && playerId && roomId) {
-    // オンライン退出状態を更新
-    const gameRef = doc(db, "games", roomId);
-    await updateDoc(gameRef, { [`${playerId}.join`]: false });
-  }
-
-  // ゲームUI非表示、スタート画面表示
-  document.getElementById("game-area").style.display = "none";
-  document.getElementById("start-screen").style.display = "flex";
-});
 
 //スタート画面
 const startScreen = document.getElementById("start-screen");
@@ -804,6 +770,44 @@ roomIds.forEach(roomId => {
 
     console.log(playerCount); // 確認用
   });
+});
+
+const CHECK_INTERVAL = 3 * 60 * 1000; // 3分
+
+window.addEventListener("load", () => {
+  setInterval(async () => {
+    const now = Date.now();
+
+    for (const roomId of roomIds) {
+      const gameRef = doc(db, "games", roomId);
+      const gameSnap = await getDoc(gameRef);
+      if (!gameSnap.exists()) continue;
+
+      const data = gameSnap.data();
+
+      ["player1", "player2"].forEach(pid => {
+        if (data[pid]?.lastActive) {
+          const last = data[pid].lastActive.toMillis();
+          if (now - last > CHECK_INTERVAL && data[pid].join) {
+            updateDoc(gameRef, { [`${pid}.join`]: false });
+            console.log(`${pid} in ${roomId} はタイムアウトで退出扱い`);
+          }
+        }
+      });
+    }
+  }, CHECK_INTERVAL);
+});
+
+document.getElementById("return-start").addEventListener("click", async () => {
+  if (window.isOnline && playerId && roomId) {
+    // オンライン退出状態を更新
+    const gameRef = doc(db, "games", roomId);
+    await updateDoc(gameRef, { [`${playerId}.join`]: false });
+  }
+
+  // ゲームUI非表示、スタート画面表示
+  document.getElementById("game-area").style.display = "none";
+  document.getElementById("start-screen").style.display = "flex";
 });
 
 //rating
