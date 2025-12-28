@@ -105,11 +105,14 @@ onAuthStateChanged(auth, user => {
 });
 
 //ロード時
+const roomIds = ["room001", "room002", "room003"];
+
 const TIMEOUT_LIMIT = 3 * 60 * 1000; // 3分
 const CHECK_INTERVAL = 10 * 1000;    // 10秒監視
 
 async function checkTimeout() {
   const now = Date.now();
+   console.log("checkTimeout 呼ばれた", new Date().toLocaleTimeString());
 
   for (const rid of roomIds) {
     const gameRef = doc(db, "games", rid);
@@ -837,7 +840,7 @@ document.getElementById("online-btn-room003").addEventListener("click", async ()
 // ルームごとのプレイヤー人数を保存するオブジェクト
 const playerCount = {}; // 空オブジェクトで初期化
 
-const roomIds = ["room001", "room002", "room003"];
+
 
 roomIds.forEach(roomId => {
   const roomRef = doc(db, "games", roomId);
