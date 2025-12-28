@@ -648,9 +648,13 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
 
   const p = data.player1;
   const c = data.player2;
+  const logged = false;
 
   // 両プレイヤーが手を出したらラウンド処理
   if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
+
+    logged = false;
+    
     //判定
     if (maxRound - data.round <= 3)
       onlineEndGame = true;
@@ -661,7 +665,7 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
 
     let pGain = calcScore(pResult, p.right, c.right, onlinePBlockCount, onlineEndGame);
     let cGain = calcScore(cResult, c.right, p.right, c.blockCount, onlineEndGame);
-
+    
     // カウンター特殊処理（反転）
     if (c.right === 3) {
       cGain = pGain; 
@@ -698,19 +702,28 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
 
     // UI更新
       const logEl = document.getElementById("log");
-      if (playerId === "player1")
+      if (logged)
       {
-        logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
-                            `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
-                            `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n\n`;
-        logEl.scrollTop = logEl.scrollHeight;
-      }
-      else
-      {
-        logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
-                            `あなた：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n` +
-                            `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n\n`;
-        logEl.scrollTop = logEl.scrollHeight;
+        if (playerId === "player1")
+        {
+          logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
+                              `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
+                              `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n\n`;
+          logEl.scrollTop = logEl.scrollHeight;
+          
+          document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+          logged = true;
+        }
+        else
+        {
+          logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
+                              `あなた：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n` +
+                              `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n\n`;
+          logEl.scrollTop = logEl.scrollHeight;
+
+          document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+          logged = true;
+        }
       }
 
       document.getElementById("round").textContent = data.round + 1;
