@@ -345,7 +345,7 @@ async function checkAndInitRoom() {
   const p1Empty = !data.player1?.join;
   const p2Empty = !data.player2?.join;
 
-  if (p1Empty && p2Empty) {
+  if (p1Empty || p2Empty) {
     await setDoc(gameRef, {
       player1: { join: false, left: null, right: null, score: 0 },
       player2: { join: false, left: null, right: null, score: 0 },
