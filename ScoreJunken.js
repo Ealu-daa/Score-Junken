@@ -830,9 +830,9 @@ const CHECK_INTERVAL = 3 * 60 * 1000; // 3分
 
 async function checkTimeout() {
   const now = Date.now();
+  console.log("???")
 
   for (const roomId of roomIds) {
-    console.log("?")
     const gameRef = doc(db, "games", roomId);
     const gameSnap = await getDoc(gameRef);
     if (!gameSnap.exists()) continue;
