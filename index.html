@@ -22,26 +22,33 @@
     <button id="anon-login">匿名ログイン</button>
   </div>
 
-  <p id="rule-text">
-  ラウンド数15
-  [右手アクション定義]
+  <table id="rule-text" style="margin:20px auto; border-collapse: collapse; text-align:center;">
+    <caption>ラウンド数15 [右手アクション定義]</caption>
+    <thead>
+      <tr>
+        <th>数字</th>
+        <th>名前</th>
+        <th>勝</th>
+        <th>あいこ</th>
+        <th>負</th>
+        <th>役割</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td>ブロック</td><td>-10*</td><td>-10</td><td>-10</td><td>逃げ／準備</td></tr>
+      <tr><td>1</td><td>ライト</td><td>+10</td><td>0</td><td>0</td><td>安定</td></tr>
+      <tr><td>2</td><td>ドライブ</td><td>+25</td><td>0</td><td>-10</td><td>攻め</td></tr>
+      <tr><td>3</td><td>カウンター</td><td>?</td><td>?</td><td>?</td><td>読み</td></tr>
+      <tr><td>4</td><td>トリック</td><td>0</td><td>+25</td><td>-20</td><td>攪乱</td></tr>
+      <tr><td>5</td><td>リバーサル</td><td>+50</td><td>0</td><td>-50</td><td>逆転</td></tr>
+    </tbody>
+  </table>
 
-  数字 | 名前         | 勝   | あいこ | 負   | 役割
-  ------------------------------------------------
-  0   | ブロック     | -10*  | -10   | -10   | 逃げ／準備
-  1   | ライト       | +10   |  0    |  0    | 安定
-  2   | ドライブ     | +25   |  0    | -10   | 攻め
-  3   | カウンター   |  ?    |   ?   |   ?   | 読み
-  4   | トリック     |  0    | +25   | -20   | 攪乱
-  5   | リバーサル   | +50   |  0    | -50   | 逆転
-
-  ※ 特殊ルール
-  ・?相手がカウンターの場合、相手の得点と自分の得点を反転させて、自分の得点は常に0
-  ・*相手がブロックの場合、自分の得点は常に 0
-  ・*ブロックは1回目：-10,2回目：-20,3回目：-30,4回目以降：使用不可
-  ・残り3ラウンドでは：
-    ・ライト 勝+15
-    ・トリック あいこ+35
+  <p>※ 特殊ルール<br>
+  ・?相手がカウンターの場合、相手の得点と自分の得点を反転させて、自分の得点は常に0<br>
+  ・*相手がブロックの場合、自分の得点は常に 0<br>
+  ・*ブロックは1回目：-10,2回目：-20,3回目：-30,4回目以降：使用不可<br>
+  ・残り3ラウンドでは：ライト 勝+15 / トリック あいこ+35<br>
   ・リバーサルは1試合1回のみ
   </p>
 
@@ -78,6 +85,7 @@
       <div>オンライン対戦</div>
         <button id="online-btn-room001">room001</button>
         <button id="online-btn-room002">room002</button>
+        <button id="online-btn-room003">room003</button>
       </div>
   </div>
 

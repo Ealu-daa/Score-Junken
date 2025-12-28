@@ -784,10 +784,18 @@ document.getElementById("online-btn-room002").addEventListener("click", async ()
   }
 });
 
+document.getElementById("online-btn-room003").addEventListener("click", async () => {
+  if (playerCount.room003 < 2) {
+    await joinRoom("room003"); // Firestore初期化・onSnapshot設定など
+    startScreen.style.display = "none";
+    gameArea.style.display = "block";
+  }
+});
+
 // ルームごとのプレイヤー人数を保存するオブジェクト
 const playerCount = {}; // 空オブジェクトで初期化
 
-const roomIds = ["room001", "room002"];
+const roomIds = ["room001", "room002", "room003"];
 
 roomIds.forEach(roomId => {
   const roomRef = doc(db, "games", roomId);
