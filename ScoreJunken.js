@@ -591,7 +591,7 @@ function endGameOnline(pScore, cScore) {
 }
 
 // ===== ゲームリセット =====
-function resetGame(){
+function resetGame(set = true){
   round = 1;
   playerScore = 0;
   cpuScore = 0;
@@ -604,12 +604,13 @@ function resetGame(){
   document.getElementById("round").textContent = 1;
   document.getElementById("log").textContent = "左手と右手を選んでください";
 
-  document.querySelectorAll(".hands button").forEach(btn => btn.disabled=false);
-  const resetBtn = document.querySelector(".reset-btn");
-  if (resetBtn) {
-    resetBtn.remove();
+  if (set === true)
+  {
+    document.querySelectorAll(".hands button").forEach(btn => btn.disabled=false);
+    document.querySelector(".reset-btn").remove();
+  }
 }
-}
+
 
 let onlineEndGame = false;
 let onlinePBlockCount = 0;
@@ -703,7 +704,7 @@ document.getElementById("cpu-btn").addEventListener("click", () => {
   // CPU戦モードフラグ
   window.isOnline = false;
 
-  resetGame();
+  resetGame(false);
   console.log("対CPU")
 });
 
