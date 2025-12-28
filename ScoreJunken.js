@@ -42,6 +42,8 @@ let playerId = null; // "player1" or "player2"
 let roomId = "room001";
 const maxRound = 15;
 
+let unsubscribe = null; // 前回の onSnapshot を解除するため
+
 /*
 import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
@@ -631,80 +633,6 @@ function resetGame(set = true){
 // ===== ラウンド処理（累積スコア更新版） =====
 let lastLoggedRound = 0; // 最後にログを出したラウンド番号
 
-onSnapshot(doc(db, "games", roomId), (docSnap) => {
-  const data = docSnap.data();
-  if (!data) return;
-
-  console.log(roomId);
-
-  const p = data.player1;
-  const c = data.player2;
-
-  // 両プレイヤーが手を出したら
-  if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
-
-    
-
-    const pResult = judgeLeft(p.left, c.left);
-    const cResult = -pResult;
-
-    let pGain = calcScore(pResult, p.right, c.right, onlinePBlockCount, onlineEndGame);
-    let cGain = calcScore(cResult, c.right, p.right, c.blockCount, onlineEndGame);
-
-    // カウンター処理
-    if (c.right === 3) { cGain = pGain; pGain = 0; }
-    if (p.right === 3) { pGain = cGain; cGain = 0; }
-
-    // ブロック／リバーサル処理
-    if (p.right === 0) onlinePBlockCount++;
-    if (p.right === 5) onlinePReversal = true;
-
-
-    updateDoc(doc(db, "games", roomId), {
-      "player1.score": (p.score || 0) + pGain,
-      "player2.score": (c.score || 0) + cGain,
-      "round": data.round + 1,
-      "player1.left": null,
-      "player1.right": null,
-      "player2.left": null,
-      "player2.right": null
-    });
-
-    // --- ログ表示 ---
-    if (lastLoggedRound < data.round) { // まだログ出してないラウンド
-      const logEl = document.getElementById("log");
-      
-      // 最初の案内を消す
-      if (data.round === 0) logEl.textContent = '';
-
-      if (playerId === "player1") {
-        logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
-                             `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
-                             `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n`;
-      } else {
-        logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
-                             `あなた：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n` +
-                             `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n`;
-      }
-
-      logEl.scrollTop = logEl.scrollHeight;
-      document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
-      lastLoggedRound = data.round; // 更新
-    }
-
-    // スコア・ラウンド更新
-    document.getElementById("round").textContent = data.round + 1;
-    document.getElementById("pScore").textContent = (p.score || 0) + pGain;
-    document.getElementById("cScore").textContent = (c.score || 0) + cGain;
-
-    if (data.round + 1 > maxRound) {
-      endGameOnline((p.score || 0) + pGain, (c.score || 0) + cGain);
-    }
-  }
-});
-
-
-
 //スタート画面
 const startScreen = document.getElementById("start-screen");
 const gameArea = document.getElementById("game-area");
@@ -719,35 +647,108 @@ document.getElementById("cpu-btn").addEventListener("click", () => {
   console.log("対CPU")
 });
 
+
+async function joinRoom(selectedRoomId) {
+  // もし前の onSnapshot があれば解除
+  if (unsubscribe) unsubscribe();
+
+  roomId = selectedRoomId;
+  window.isOnline = true;
+
+  await checkAndInitRoom();
+  await assignPlayer();
+
+  // onSnapshot を roomId に合わせて設定
+  const gameRef = doc(db, "games", roomId);
+  unsubscribe = onSnapshot(gameRef, (docSnap) => {
+    const data = docSnap.data();
+    if (!data) return;
+
+    console.log(roomId);
+
+    const p = data.player1;
+    const c = data.player2;
+
+    // 両プレイヤーが手を出したら
+    if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
+
+      
+
+      const pResult = judgeLeft(p.left, c.left);
+      const cResult = -pResult;
+
+      let pGain = calcScore(pResult, p.right, c.right, onlinePBlockCount, onlineEndGame);
+      let cGain = calcScore(cResult, c.right, p.right, c.blockCount, onlineEndGame);
+
+      // カウンター処理
+      if (c.right === 3) { cGain = pGain; pGain = 0; }
+      if (p.right === 3) { pGain = cGain; cGain = 0; }
+
+      // ブロック／リバーサル処理
+      if (p.right === 0) onlinePBlockCount++;
+      if (p.right === 5) onlinePReversal = true;
+
+
+      updateDoc(doc(db, "games", roomId), {
+        "player1.score": (p.score || 0) + pGain,
+        "player2.score": (c.score || 0) + cGain,
+        "round": data.round + 1,
+        "player1.left": null,
+        "player1.right": null,
+        "player2.left": null,
+        "player2.right": null
+      });
+
+      // --- ログ表示 ---
+      if (lastLoggedRound < data.round) { // まだログ出してないラウンド
+        const logEl = document.getElementById("log");
+        
+        // 最初の案内を消す
+        if (data.round === 0) logEl.textContent = '';
+
+        if (playerId === "player1") {
+          logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
+                              `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
+                              `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n`;
+        } else {
+          logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
+                              `あなた：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n` +
+                              `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n`;
+        }
+
+        logEl.scrollTop = logEl.scrollHeight;
+        document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+        lastLoggedRound = data.round; // 更新
+      }
+
+      // スコア・ラウンド更新
+      document.getElementById("round").textContent = data.round + 1;
+      document.getElementById("pScore").textContent = (p.score || 0) + pGain;
+      document.getElementById("cScore").textContent = (c.score || 0) + cGain;
+
+      if (data.round + 1 > maxRound) {
+        endGameOnline((p.score || 0) + pGain, (c.score || 0) + cGain);
+      }
+    }
+    
+  });
+
+  console.log(selectedRoomId + " に参加しました");
+}
+
 document.getElementById("online-btn-room001").addEventListener("click", async () => {
-  if (playerCount.room001 < 2)
-  {
+  if (playerCount.room001 < 2) {
+    await joinRoom("room001"); // Firestore初期化・onSnapshot設定など
     startScreen.style.display = "none";
     gameArea.style.display = "block";
-    // オンライン戦モードフラグ
-    roomId = "room001"
-    window.isOnline = true;
-
-    await checkAndInitRoom();
-    await assignPlayer();
-    //await updateRateDisplay(window.currentUID, window.opponentUID);
-    console.log("対人")
   }
 });
 
 document.getElementById("online-btn-room002").addEventListener("click", async () => {
-  if(playerCount.room002 < 2)
-  {
+  if (playerCount.room002 < 2) {
+    await joinRoom("room002"); // Firestore初期化・onSnapshot設定など
     startScreen.style.display = "none";
     gameArea.style.display = "block";
-    // オンライン戦モードフラグ
-    roomId = "room002"
-    window.isOnline = true;
-    //await updateRateDisplay(window.currentUID, window.opponentUID);
-
-    await checkAndInitRoom();
-    await assignPlayer();
-    console.log("対人")
   }
 });
 
