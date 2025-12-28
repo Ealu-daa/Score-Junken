@@ -68,40 +68,12 @@ h2 {
   margin-bottom: 12px;
 }
 
-button {
-  min-width: 90px;
-  padding: 12px 16px;
-  font-size: 16px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-  color: #fff;
-  cursor: pointer;
-  transition: transform 0.1s ease, background 0.2s ease;
-}
-
-button:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(145deg, #3a3a3a, #222);
-}
-
-button:active {
-  transform: translateY(1px);
-}
-
 .hands {
   display: flex;
   flex-wrap: wrap;      /* 小さい画面で自動折り返し */
   justify-content: center;
   gap: 8px;
   margin: 10px 0;
-}
-
-.hands button {
-  flex: 1 1 40%;       /* 幅は40%まで拡張、折り返し可能 */
-  min-width: 60px;     /* 最小幅確保 */
-  padding: 8px 0;
-  font-size: 14px;
 }
 
 button {
@@ -277,7 +249,7 @@ button[data-right="5"] {
 /* =========================
    📱 スマホUI最適化まとめ
    ========================= */
-@media (max-width: 480px) {
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
 
   /* ===== 全体スケールダウン ===== */
   body {
