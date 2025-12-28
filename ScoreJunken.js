@@ -44,7 +44,7 @@ const maxRound = 15;
 
 let unsubscribe = null; // 前回の onSnapshot を解除するため
 
-/*
+
 import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const auth = getAuth();
@@ -68,9 +68,8 @@ window.addEventListener("load", async () => {
     console.error("ログイン失敗", error);
   }
 });
-*/
 
-/*
+
 async function getRate(uid) {
   const rateDoc = doc(db, "ratings", uid);
   const snapshot = await getDoc(rateDoc);
@@ -80,7 +79,7 @@ async function getRate(uid) {
   }
   return snapshot.data().rate;
 }
-*/
+
 
 // ===== 左手・右手 定義 =====
 const HAND = { ROCK:0, SCISSORS:1, PAPER:2 };
@@ -378,7 +377,7 @@ async function assignPlayer() {
   }
 
   await updateDoc(gameRef, {
-    //[`${playerId}.uid`]: window.currentUID,
+    [`${playerId}.uid`]: window.currentUID,
     [`${playerId}.join`]: true
   });
 }
@@ -564,13 +563,13 @@ function endGame(){
 }
 
 function endGameOnline(pScore, cScore) {
-  /*
+  
   if(window.currentUID && window.opponentUID){
   updateRateAfterMatch(window.currentUID, window.opponentUID,
     (p.score || 0) + pGain, (c.score || 0) + cGain);
   updateRateDisplay(window.currentUID, window.opponentUID);
   }
-  */
+  
   
 
   const logEl = document.getElementById("log");
@@ -823,7 +822,7 @@ document.getElementById("return-start").addEventListener("click", async () => {
 });
 
 //rating
-/*
+
 async function getRateOrDefault(uid) {
   if (!uid) return 1500; // UID自体が null/undefined なら 1500
   const rateDoc = doc(db, "ratings", uid);
@@ -872,4 +871,3 @@ async function updateRateDisplay(myUID, oppUID = null) {
 }
 
 await updateRateDisplay(window.currentUID);
-*/
