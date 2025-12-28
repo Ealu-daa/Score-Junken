@@ -874,17 +874,18 @@ document.getElementById("return-start").addEventListener("click", async () => {
     // オンライン退出状態を更新
     const gameRef = doc(db, "games", roomId);
     await updateDoc(gameRef, { [`${playerId}.join`]: false });
-    document.body.classList.remove("in-game");   // ゲーム開始
-
+  
     const resetBtn = document.querySelector(".reset-btn"); // クラス名で取得
     if (resetBtn) {
       resetBtn.remove();
-}
+    }
   }
 
   // ゲームUI非表示、スタート画面表示
   document.getElementById("game-area").style.display = "none";
   document.getElementById("start-screen").style.display = "flex";
+
+  document.body.classList.remove("in-game");   // ゲーム開始
 });
 
 
