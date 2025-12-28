@@ -45,33 +45,49 @@ const maxRound = 15;
 let unsubscribe = null; // 前回の onSnapshot を解除するため
 
 
-import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
-// 認証の永続化を設定（必ず signIn 前に）
+// 認証の永続化
 await setPersistence(auth, browserLocalPersistence);
 
-document.getElementById("google-login").addEventListener("click", async () => {
+const loginBtn = document.getElementById("google-login");
+const logoutBtn = document.getElementById("google-logout");
+
+// ログイン処理
+loginBtn.addEventListener("click", async () => {
   try {
     const result = await signInWithPopup(auth, provider);
-    console.log("ログイン成功（ポップアップ）:", result.user.uid, result.user.displayName);
+    console.log("ログイン成功:", result.user.uid, result.user.displayName);
   } catch (error) {
     console.error("ログイン失敗", error);
   }
 });
 
+// ログアウト処理
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+  console.log("ログアウトしました");
+});
+
+// ログイン状態を監視
 onAuthStateChanged(auth, user => {
-  const btn = document.getElementById("google-login");
-  if (user) {
+  if(user){
     console.log("ログイン中:", user.uid, user.displayName);
     window.currentUID = user.uid;
-    btn.textContent = `Googleでログイン済み: ${user.displayName}`;
+
+    loginBtn.textContent = `Googleでログイン済み: ${user.displayName}`;
+    loginBtn.disabled = true;
+    logoutBtn.style.display = "inline-block"; // ログアウトボタン表示
   } else {
     console.log("未ログイン");
     window.currentUID = null;
-    btn.textContent = "Googleでログイン";
+
+    loginBtn.textContent = "Googleでログイン";
+    loginBtn.disabled = false;
+    logoutBtn.style.display = "none"; // ログアウトボタン非表示
   }
 });
 
@@ -371,8 +387,15 @@ async function assignPlayer() {
   }
 
   await updateDoc(gameRef, {
+    [`${playerId}.uid`]: window.currentUID,
     [`${playerId}.join`]: true
   });
+
+  if (playerId === "player1") {
+    window.opponentUID = data.player2?.uid || null;
+  } else if (playerId === "player2") {
+    window.opponentUID = data.player1?.uid || null;
+  }
 }
 
 // ===== 手の選択 =====
@@ -805,5 +828,44 @@ document.getElementById("return-start").addEventListener("click", async () => {
   document.getElementById("start-screen").style.display = "flex";
 });
 
-//rating
 
+// ===rating===
+async function getRateOrDefault(uid) {
+  if (!uid) return 1500; // UIDがない場合
+  const rateDoc = doc(db, "ratings", uid);
+  const snapshot = await getDoc(rateDoc);
+  if (!snapshot.exists()) {
+    // ドキュメントが無ければ作って初期値1500
+    await setDoc(rateDoc, { rate: 1500 });
+    return 1500;
+  }
+  return snapshot.data().rate || 1500;
+}
+
+async function updateRateAfterMatch(uidA, uidB, scoreA, scoreB) {
+  const rateA = await getRateOrDefault(uidA);
+  const rateB = await getRateOrDefault(uidB);
+
+  let S_A = scoreA > scoreB ? 1 : scoreA < scoreB ? 0 : 0.5;
+  let S_B = scoreB > scoreA ? 1 : scoreB < scoreA ? 0 : 0.5;
+
+  const K = 32;
+  const E_A = 1 / (1 + 10 ** ((rateB - rateA)/400));
+  const E_B = 1 / (1 + 10 ** ((rateA - rateB)/400));
+
+  if(uidA) await updateDoc(doc(db, "ratings", uidA), { rate: Math.round(rateA + K*(S_A-E_A)) });
+  if(uidB) await updateDoc(doc(db, "ratings", uidB), { rate: Math.round(rateB + K*(S_B-E_B)) });
+}
+
+async function updateRateDisplay(myUID, oppUID = null) {
+  const myRate = await getRateOrDefault(myUID);
+  document.getElementById("my-rate").textContent = myRate;
+
+  if (oppUID) {
+    const oppRate = await getRateOrDefault(oppUID);
+    document.getElementById("opp-rate").textContent = oppRate;
+    document.getElementById("opp-rate-container").style.display = "inline";
+  } else {
+    document.getElementById("opp-rate-container").style.display = "none";
+  }
+}
