@@ -707,6 +707,7 @@ const gameArea = document.getElementById("game-area");
 document.getElementById("cpu-btn").addEventListener("click", () => {
   startScreen.style.display = "none";
   gameArea.style.display = "block";
+  document.body.classList.add("in-game"); // スタート画面
   // CPU戦モードフラグ
   window.isOnline = false;
 
@@ -817,6 +818,7 @@ document.getElementById("online-btn-room001").addEventListener("click", async ()
     await joinRoom("room001"); // Firestore初期化・onSnapshot設定など
     startScreen.style.display = "none";
     gameArea.style.display = "block";
+    document.body.classList.add("in-game"); // スタート画面
   }
 });
 
@@ -825,6 +827,7 @@ document.getElementById("online-btn-room002").addEventListener("click", async ()
     await joinRoom("room002"); // Firestore初期化・onSnapshot設定など
     startScreen.style.display = "none";
     gameArea.style.display = "block";
+    document.body.classList.add("in-game"); // スタート画面
   }
 });
 
@@ -833,6 +836,7 @@ document.getElementById("online-btn-room003").addEventListener("click", async ()
     await joinRoom("room003"); // Firestore初期化・onSnapshot設定など
     startScreen.style.display = "none";
     gameArea.style.display = "block";
+    document.body.classList.add("in-game"); // スタート画面
   }
 });
 
@@ -862,7 +866,7 @@ roomIds.forEach(roomId => {
 });
 
 
-
+document.body.classList.remove("in-game");   // ゲーム開始
 
 
 document.getElementById("return-start").addEventListener("click", async () => {
@@ -870,6 +874,7 @@ document.getElementById("return-start").addEventListener("click", async () => {
     // オンライン退出状態を更新
     const gameRef = doc(db, "games", roomId);
     await updateDoc(gameRef, { [`${playerId}.join`]: false });
+    document.body.classList.remove("in-game");   // ゲーム開始
 
     const resetBtn = document.querySelector(".reset-btn"); // クラス名で取得
     if (resetBtn) {
