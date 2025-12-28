@@ -50,19 +50,20 @@ import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } fr
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
+// ログインボタン
 document.getElementById("google-login").addEventListener("click", () => {
-  signInWithRedirect(auth, provider); // ポップアップではなくリダイレクト
+  console.log("リダイレクト開始");
+  signInWithRedirect(auth, provider);
 });
 
+// リダイレクト後に結果確認
 window.addEventListener("load", async () => {
   try {
     const result = await getRedirectResult(auth);
     if (result) {
-      const user = result.user;
-      console.log("ログイン成功", user.uid, user.displayName);
-      window.currentUID = user.uid;
-      // 必要ならUI更新
-      document.getElementById("google-login").textContent = `こんにちは、${user.displayName}`;
+      console.log("ログイン成功:", result.user.uid, result.user.displayName);
+    } else {
+      console.log("まだログインしていない or リダイレクト結果なし");
     }
   } catch (error) {
     console.error("ログイン失敗", error);
