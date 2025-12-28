@@ -721,6 +721,8 @@ setInterval(async () => {
   });
 }, 3 * 60 * 1000); // 3分ごと
 
+setInterval();
+
 document.getElementById("return-start").addEventListener("click", async () => {
   if (window.isOnline && playerId && roomId) {
     // オンライン退出状態を更新
