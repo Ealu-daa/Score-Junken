@@ -907,7 +907,8 @@ const toggleBtn = document.getElementById("toggle-text");
 
 // 表示/非表示切り替え
 toggleBtn.addEventListener("click", () => {
-  if(ruleText.style.display === "none"){
+  const isHidden = window.getComputedStyle(ruleText).display === "none";
+  if(isHidden){
     ruleText.style.display = "block";
   } else {
     ruleText.style.display = "none";
