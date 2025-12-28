@@ -141,8 +141,8 @@ function judgeLeft(player, opponent){
 */
 function calcScore(leftResult, selfRight, oppRight, blockCount = 0, isEndGame = false) {
 
-  // 相手がブロック or カウンター → 自分の得点は常に0
-  if (oppRight === RIGHT.BLOCK || oppRight === RIGHT.COUNTER) {
+  // 相手がブロック → 自分の得点は常に0
+  if (oppRight === RIGHT.BLOCK) {
     return 0;
   }
 
