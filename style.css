@@ -273,90 +273,66 @@ button[data-right="5"] {
   z-index: 999;
   font-size: 15px;
 }
+
+/* =========================
+   📱 スマホUI最適化まとめ
+   ========================= */
 @media (max-width: 480px) {
 
+  /* ===== 全体スケールダウン ===== */
   body {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   h1 {
-    font-size: 22px;
-    margin: 12px 0 6px;
+    font-size: 18px;
+    margin: 8px 0;
   }
 
   h2 {
     font-size: 14px;
-    margin-top: 16px;
+    margin: 6px 0;
   }
 
-  /* ===== ボタン全体 ===== */
-  button {
-    font-size: 14px;
-    padding: 10px 12px;
-    min-width: 64px;
-    border-radius: 12px;
-  }
-
-  /* ===== 手札エリア ===== */
+  /* ===== 手エリアを縦配置 ===== */
   .hand-area {
     flex-direction: column;
     gap: 16px;
+    margin-top: 10px;
   }
 
-  .right-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
+  /* ===== 手の画像を縮小 ===== */
   .hand-item img {
-    height: 48px;
+    height: 36px;
     margin-bottom: 6px;
   }
 
-  /* ===== 選択ボタン ===== */
-  .hands {
-    gap: 6px;
+  /* ===== ボタン全体を縮小 ===== */
+  button {
+    min-width: 56px;
+    padding: 6px 8px;
+    font-size: 12px;
+    border-radius: 6px;
   }
 
   .hands button {
-    flex: 1 1 45%;
-    font-size: 14px;
-    padding: 10px 0;
+    min-width: 50px;
+    padding: 6px 0;
+    font-size: 11px;
   }
 
-  /* ===== スコア ===== */
-  .score {
-    font-size: 18px;
-    margin-top: 16px;
+  /* ===== 右手グリッドを詰める ===== */
+  .right-grid {
+    gap: 10px 12px;
   }
 
-  /* ===== ログ ===== */
-  .log {
-    font-size: 12px;
-    max-height: 140px;
-    padding: 10px;
-  }
-
-  /* ===== ルール表示 ===== */
-  #rule-text {
-    font-size: 13px;
-    bottom: 10px;
-    left: 6px;
-    right: 6px;
-    max-height: 50%;
-  }
-
-  /* ===== Googleログイン ===== */
-  #google-auth-container {
-    bottom: 8px;
-    right: 8px;
-    gap: 6px;
-  }
-
-  #google-login,
-  #google-logout,
-  #anon-login {
-    padding: 6px 10px;
+  /* ===== スコア＆ログを fixed 解除 ===== */
+  #score-log {
+    position: static;     /* ← 被り防止の最重要ポイント */
+    transform: none;
+    margin: 10px auto;
+    width: 95%;
+    padding: 8px 10px;
     font-size: 12px;
   }
 }
