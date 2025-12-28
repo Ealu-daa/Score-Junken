@@ -193,7 +193,7 @@ function calcScore(leftResult, selfRight, oppRight, blockCount = 0, isEndGame = 
     }
 
     // 6｜コズミック
-    case RIGHT.REVERSAL: {
+    case RIGHT.COSMIC: {
       if (leftResult === 1) return 9999;
       if (leftResult === -1) return -9999;
       return 0;
@@ -780,24 +780,31 @@ const CHECK_INTERVAL = 3 * 60 * 1000; // 3分
 
 window.addEventListener("load", () => {
   setInterval(async () => {
-    const now = Date.now();
+    try {
+      const now = Date.now();
 
-    for (const roomId of roomIds) {
-      const gameRef = doc(db, "games", roomId);
-      const gameSnap = await getDoc(gameRef);
-      if (!gameSnap.exists()) continue;
+      for (const roomId of roomIds) {
+        const gameRef = doc(db, "games", roomId);
+        const gameSnap = await getDoc(gameRef);
+        if (!gameSnap.exists()) continue;
 
-      const data = gameSnap.data();
+        const data = gameSnap.data();
 
-      ["player1", "player2"].forEach(pid => {
-        if (data[pid]?.lastActive) {
-          const last = data[pid].lastActive.toMillis();
-          if (now - last > CHECK_INTERVAL && data[pid].join) {
-            updateDoc(gameRef, { [`${pid}.join`]: false });
-            console.log(`${pid} in ${roomId} はタイムアウトで退出扱い`);
+        for (const pid of ["player1", "player2"]) {
+          if (data[pid]?.lastActive) {
+            const last = data[pid].lastActive.toMillis();
+            const diff = now - last;
+            console.log(pid, roomId, diff); // デバッグ用
+
+            if (diff > CHECK_INTERVAL && data[pid].join) {
+              await updateDoc(gameRef, { [`${pid}.join`]: false });
+              console.log(`${pid} in ${roomId} はタイムアウトで退出扱い`);
+            }
           }
         }
-      });
+      }
+    } catch (err) {
+      console.error("タイムアウトチェックでエラー:", err);
     }
   }, CHECK_INTERVAL);
 });
