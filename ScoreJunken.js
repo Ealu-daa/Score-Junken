@@ -45,25 +45,27 @@ const maxRound = 15;
 let unsubscribe = null; // 前回の onSnapshot を解除するため
 
 
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
-// ログインボタン
+// ローカルに永続化
+await setPersistence(auth, browserLocalPersistence);
+
 document.getElementById("google-login").addEventListener("click", () => {
-  console.log("リダイレクト開始");
   signInWithRedirect(auth, provider);
 });
 
-// リダイレクト後に結果確認
 window.addEventListener("load", async () => {
   try {
     const result = await getRedirectResult(auth);
     if (result) {
-      console.log("ログイン成功:", result.user.uid, result.user.displayName);
-    } else {
-      console.log("まだログインしていない or リダイレクト結果なし");
+      const user = result.user;
+      console.log("ログイン成功", user.uid, user.displayName);
+      window.currentUID = user.uid;
+      // 必要ならUI更新
+      document.getElementById("google-login").textContent = `こんにちは、${user.displayName}`;
     }
   } catch (error) {
     console.error("ログイン失敗", error);
