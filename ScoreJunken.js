@@ -697,19 +697,30 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
     });
 
     // UI更新
-    const logEl = document.getElementById("log");
-    logEl.textContent += `ラウンド ${data.round} 結果:\n` +
-                         `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
-                         `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n\n`;
-    logEl.scrollTop = logEl.scrollHeight;
+      const logEl = document.getElementById("log");
+      if (playerId === "player1")
+      {
+        logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
+                            `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
+                            `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n\n`;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+      else
+      {
+        logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
+                            `あなた：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n` +
+                            `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n\n`;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
 
-    document.getElementById("round").textContent = data.round + 1;
-    document.getElementById("pScore").textContent = (p.score || 0) + pGain;
-    document.getElementById("cScore").textContent = (c.score || 0) + cGain;
+      document.getElementById("round").textContent = data.round + 1;
+      document.getElementById("pScore").textContent = (p.score || 0) + pGain;
+      document.getElementById("cScore").textContent = (c.score || 0) + cGain;
 
-    if (data.round + 1 > maxRound) {
-      endGameOnline((p.score || 0) + pGain, (c.score || 0) + cGain);
-    }
+      if (data.round + 1 > maxRound) {
+        endGameOnline((p.score || 0) + pGain, (c.score || 0) + cGain);
+      }
+    
   }
 });
 
