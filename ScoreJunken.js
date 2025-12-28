@@ -45,39 +45,28 @@ const maxRound = 15;
 let unsubscribe = null; // 前回の onSnapshot を解除するため
 
 
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
-// ローカルに永続化
+// 永続化を設定（認証開始前に必須）
 await setPersistence(auth, browserLocalPersistence);
 
 document.getElementById("google-login").addEventListener("click", () => {
   signInWithRedirect(auth, provider);
 });
 
-// リダイレクト後に結果確認
-window.addEventListener("load", async () => {
-  try {
-    const result = await getRedirectResult(auth);
-    if (result) {
-      console.log("ログイン成功:", result.user.uid, result.user.displayName);
-    } else {
-      console.log("まだログインしていない or リダイレクト結果なし");
-    }
-  } catch (error) {
-    console.error("ログイン失敗", error);
-  }
-});
-
-auth.onAuthStateChanged(user => {
-  if(user){
+// ログイン状態を監視
+onAuthStateChanged(auth, user => {
+  if (user) {
     console.log("ログイン中:", user.uid, user.displayName);
     window.currentUID = user.uid;
     document.getElementById("google-login").textContent = `こんにちは、${user.displayName}`;
   } else {
     console.log("未ログイン");
+    window.currentUID = null;
+    document.getElementById("google-login").textContent = "Googleでログイン";
   }
 });
 
