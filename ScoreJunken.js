@@ -3,7 +3,7 @@
    ========================= */
 
 window.addEventListener("load", () => {
-  console.log("ver0.1.6");
+  console.log("ver0.2.0");
 });
 
 // ===== Firebase 初期化 =====
@@ -699,29 +699,29 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
   }
 });
 
-setInterval(async () => {
-  if (!roomId) return;
+window.addEventListener("load", () => {
+  setInterval(async () => {
+    if (!roomId) return;
 
-  const gameRef = doc(db, "games", roomId);
-  const gameSnap = await getDoc(gameRef);
-  if (!gameSnap.exists()) return;
+    const gameRef = doc(db, "games", roomId);
+    const gameSnap = await getDoc(gameRef);
+    if (!gameSnap.exists()) return;
 
-  const data = gameSnap.data();
-  const now = Date.now();
+    const data = gameSnap.data();
+    const now = Date.now();
 
-  // 3分以上更新されてないプレイヤーを離脱扱い
-  ["player1", "player2"].forEach(pid => {
-    if (data[pid]?.lastActive) {
-      const last = data[pid].lastActive.toMillis(); 
-      if (now - last > 3 * 60 * 1000 && data[pid].join) {
-        updateDoc(gameRef, { [`${pid}.join`]: false });
-        console.log(`${pid} はタイムアウトで退出扱い`);
+    ["player1", "player2"].forEach(pid => {
+      if (data[pid]?.lastActive) {
+        const last = data[pid].lastActive.toMillis();
+        if (now - last > 3 * 60 * 1000 && data[pid].join) {
+          updateDoc(gameRef, { [`${pid}.join`]: false });
+          console.log(`${pid} はタイムアウトで退出扱い`);
+        }
       }
-    }
-  });
-}, 3 * 60 * 1000); // 3分ごと
+    });
 
-setInterval();
+  }, 3 * 60 * 1000); // 3分ごと
+});
 
 document.getElementById("return-start").addEventListener("click", async () => {
   if (window.isOnline && playerId && roomId) {
