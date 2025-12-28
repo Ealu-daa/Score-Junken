@@ -242,7 +242,7 @@ button[data-right="5"] {
   font-family: monospace;
   margin: 10px;
   position: fixed;    /* 画面下に固定 */
-  bottom: 10px;
+  bottom: 30px;
   left: 10px;
   right: 10px;
   background: rgba(0,0,0,0.8);
@@ -253,4 +253,6 @@ button[data-right="5"] {
   max-height: 40%;    /* 高さ制限、スクロール可能にする */
   overflow-y: auto;
   z-index: 999;
+
+  font-size: 15px;
 }
