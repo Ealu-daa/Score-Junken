@@ -823,8 +823,6 @@ async function getRateOrDefault(uid) {
   return snapshot.data().rate || 1500; // rate が undefined の場合も 1500
 }
 
-getRate();
-
 async function updateRateAfterMatch(uidA, uidB, scoreA, scoreB) {
   const rateA = await getRateOrDefault(uidA);
   const rateB = await getRateOrDefault(uidB);
