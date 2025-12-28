@@ -403,6 +403,11 @@ onSnapshot(gameRef, (docSnap) => {
 window.chooseHand = async function(handType, value) {
   if (!playerId && window.isOnline) return alert("プレイヤーが未割り当てです");
 
+  //アクティブタイムスタンプ更新
+  updateDoc(doc(db, "games", roomId), {
+  [`${playerId}.lastActive`]: serverTimestamp()
+  });
+
   // ボタンハイライト
   if(handType === "left") {
     selectedLeft = value;
@@ -606,7 +611,7 @@ function endGameOnline(pScore, cScore) {
       status: "playing"
     });
     document.querySelectorAll(".hands button").forEach(btn => btn.disabled = false);
-    document.getElementById("log").textContent = "左手と右手を選んでください";
+    document.getElementById("log").textContent = "左手と右手を選んでください\n";
     resetBtn.remove();
   };
   document.body.appendChild(resetBtn);
@@ -629,7 +634,7 @@ function resetGame(set = true){
   document.getElementById("pScore").textContent = 0;
   document.getElementById("cScore").textContent = 0;
   document.getElementById("round").textContent = 1;
-  document.getElementById("log").textContent = "左手と右手を選んでください";
+  document.getElementById("log").textContent = "左手と右手を選んでください\n";
 
   if (set === true)
   {
@@ -695,11 +700,11 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
       if (playerId === "player1") {
         logEl.textContent += `ラウンド ${data.round} 結果:\n` +
                              `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
-                             `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n\n`;
+                             `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n`;
       } else {
         logEl.textContent += `ラウンド ${data.round} 結果:\n` +
                              `あなた：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n` +
-                             `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n\n`;
+                             `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n`;
       }
 
       logEl.scrollTop = logEl.scrollHeight;
@@ -718,21 +723,38 @@ onSnapshot(doc(db, "games", roomId), (docSnap) => {
   }
 });
 
-window.addEventListener("beforeunload", async (event) => {
-  if (!playerId) return;
-  if (window.isOnline === false) return;
+setInterval(async () => {
+  if (!roomId) return;
 
   const gameRef = doc(db, "games", roomId);
+  const gameSnap = await getDoc(gameRef);
+  if (!gameSnap.exists()) return;
 
-  try {
-    // 非同期処理ですが、ブラウザ終了時に完全に反映される保証はありません
-    await updateDoc(gameRef, {
-      [`${playerId}.join`]: false
-    });
-    console.log(`${playerId} が退出しました`);
-  } catch (err) {
-    console.error("退出時の更新に失敗", err);
+  const data = gameSnap.data();
+  const now = Date.now();
+
+  // 3分以上更新されてないプレイヤーを離脱扱い
+  ["player1", "player2"].forEach(pid => {
+    if (data[pid]?.lastActive) {
+      const last = data[pid].lastActive.toMillis(); 
+      if (now - last > 3 * 60 * 1000 && data[pid].join) {
+        updateDoc(gameRef, { [`${pid}.join`]: false });
+        console.log(`${pid} はタイムアウトで退出扱い`);
+      }
+    }
+  });
+}, 3 * 60 * 1000); // 3分ごと
+
+document.getElementById("return-start").addEventListener("click", async () => {
+  if (window.isOnline && playerId && roomId) {
+    // オンライン退出状態を更新
+    const gameRef = doc(db, "games", roomId);
+    await updateDoc(gameRef, { [`${playerId}.join`]: false });
   }
+
+  // ゲームUI非表示、スタート画面表示
+  document.getElementById("game-area").style.display = "none";
+  document.getElementById("start-screen").style.display = "flex";
 });
 
 //スタート画面
