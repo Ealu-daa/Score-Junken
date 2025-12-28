@@ -104,6 +104,10 @@ onAuthStateChanged(auth, user => {
   }
 });
 
+async function initAuth() {
+  await setPersistence(auth, browserLocalPersistence);
+}
+
 //ロード時
 const roomIds = ["room001", "room002", "room003"];
 
@@ -138,10 +142,12 @@ async function checkTimeout() {
   }
 }
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
+  console.log("ver0.3.0");
+
+  await initAuth();     // ← ここで await
   checkTimeout();
   setInterval(checkTimeout, CHECK_INTERVAL);
-  console.log("ver0.3.0");
 });
 
 // ===== 左手・右手 定義 =====
