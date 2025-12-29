@@ -653,9 +653,10 @@ function endGame(){
   document.querySelectorAll(".hands button").forEach(btn => btn.disabled=true);
 }
 
-async function endGameOnline(pScore, cScore) {
+async function endGameOnline(pScore, cScore, myUID, oppUID) {
 
   const logEl = document.getElementById("log");
+
   let winner = "";
   if (pScore > cScore) winner = "あなたの勝ち！";
   else if (pScore < cScore) winner = "相手の勝ち！";
@@ -664,20 +665,26 @@ async function endGameOnline(pScore, cScore) {
   logEl.textContent += `=== ゲーム終了 ===\n${winner}\n`;
   logEl.scrollTop = logEl.scrollHeight;
 
-  if(window.currentUID && window.opponentUID){
-    const logEl = document.getElementById("log");
-    // 勝敗に応じてレートを計算・更新
-    const rateResult = await updateRateAfterMatch(window.currentUID, window.opponentUID, pScore, cScore);
+  // UID が両方ある場合のみ
+  if (myUID && oppUID) {
+
+    const rateResult = await updateRateAfterMatch(
+      myUID,
+      oppUID,
+      pScore,
+      cScore
+    );
 
     logEl.textContent +=
       `\nレート\n` +
-      `あなた：${rateResult.A.before} → ${rateResult.A.after} (${rateResult.A.diff >= 0 ? "+" : ""}${rateResult.A.diff})\n` +
-      `相手：${rateResult.B.before} → ${rateResult.B.after} (${rateResult.B.diff >= 0 ? "+" : ""}${rateResult.B.diff})\n`;
+      `あなた：${rateResult.A.before} → ${rateResult.A.after} ` +
+      `(${rateResult.A.diff >= 0 ? "+" : ""}${rateResult.A.diff})\n` +
+      `相手：${rateResult.B.before} → ${rateResult.B.after} ` +
+      `(${rateResult.B.diff >= 0 ? "+" : ""}${rateResult.B.diff})\n`;
 
     logEl.scrollTop = logEl.scrollHeight;
 
-    // 更新したレートを表示
-    await updateRateDisplay(window.currentUID, window.opponentUID);
+    await updateRateDisplay(myUID, oppUID);
   }
 
   document.querySelectorAll(".hands button").forEach(btn => btn.disabled = true);
@@ -839,15 +846,25 @@ async function joinRoom(selectedRoomId) {
       }
 
       // スコア・ラウンド更新
-      document.getElementById("round").textContent = data.round + 1;
+      if (maxRound > round)
+        document.getElementById("round").textContent = maxRound;
+      else
+        document.getElementById("round").textContent = data.round + 1;
       document.getElementById("pScore").textContent = (playerId === "player1" ? p.score : c.score) + meGain;
       document.getElementById("cScore").textContent = (playerId === "player1" ? c.score : p.score) + otherGain;
+
+      const myUID =
+        playerId === "player1" ? data.player1.uid : data.player2.uid;
+      const oppUID =
+        playerId === "player1" ? data.player2.uid : data.player1.uid;
 
       // ゲーム終了判定
       if (data.round + 1 > maxRound) {
         endGameOnline(
           (playerId === "player1" ? p.score : c.score) + meGain,
-          (playerId === "player1" ? c.score : p.score) + otherGain
+          (playerId === "player1" ? c.score : p.score) + otherGain,
+          myUID,
+          oppUID
         );
       }
     }
