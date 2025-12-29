@@ -923,7 +923,7 @@ document.getElementById("updateNameBtn").addEventListener("click", async () => {
   const inputName = document.getElementById("nameInput").value.trim();
   if (!inputName) return alert("名前を入力してください");
 
-  const uid = currentUID; // ここにプレイヤーの UID を入れる
+  const uid = window.currentUID; // ここにプレイヤーの UID を入れる
   if (!uid) return alert("ログインしてください");
 
   const userDoc = doc(db, "ratings", uid);
@@ -1006,4 +1006,4 @@ toggleBtn.addEventListener("click", () => {
   }
 });
 
-updateRateDisplay(currentUID);
+updateRateDisplay(window.currentUID);
