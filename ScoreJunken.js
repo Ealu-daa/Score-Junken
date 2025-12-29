@@ -665,6 +665,7 @@ async function endGameOnline(pScore, cScore) {
   logEl.scrollTop = logEl.scrollHeight;
 
   if(window.currentUID && window.opponentUID){
+    const logEl = document.getElementById("log");
     // 勝敗に応じてレートを計算・更新
     const rateResult = await updateRateAfterMatch(window.currentUID, window.opponentUID, pScore, cScore);
 
