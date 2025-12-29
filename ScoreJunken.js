@@ -653,7 +653,7 @@ function endGame(){
   document.querySelectorAll(".hands button").forEach(btn => btn.disabled=true);
 }
 
-async function endGameOnline(pScore, cScore, myUID, oppUID) {
+async function endGameOnline(pScore, cScore, myUID, oppUID, rateResult) {
 
   const logEl = document.getElementById("log");
 
@@ -663,50 +663,22 @@ async function endGameOnline(pScore, cScore, myUID, oppUID) {
   else winner = "引き分け！";
 
   logEl.textContent += `=== ゲーム終了 ===\n${winner}\n`;
-  logEl.scrollTop = logEl.scrollHeight;
 
-  // myUID / oppUID が取れている前提
-  if (myUID && oppUID) {
+  // レート表示（両プレイヤー共通）
+  if (rateResult) {
+    const isP1 = playerId === "player1";
+    const me    = isP1 ? rateResult.A : rateResult.B;
+    const other = isP1 ? rateResult.B : rateResult.A;
 
-    // ===== player1 だけがレート計算・保存 =====
-    if (playerId === "player1" && !data.rateResult) {
+    logEl.textContent +=
+      `\nレート\n` +
+      `あなた：${me.before} → ${me.after} (${me.diff >= 0 ? "+" : ""}${me.diff})\n` +
+      `相手：${other.before} → ${other.after} (${other.diff >= 0 ? "+" : ""}${other.diff})\n`;
 
-      const rateResult = await updateRateAfterMatch(
-        myUID,
-        oppUID,
-        pScore,
-        cScore
-      );
-
-      await updateDoc(gameRef, {
-        rateResult: {
-          A: rateResult.A,
-          B: rateResult.B
-        }
-      });
-    }
-
-    // ===== 両プレイヤー共通：表示処理 =====
-    if (data.rateResult) {
-
-      const isP1 = playerId === "player1";
-      const me    = isP1 ? data.rateResult.A : data.rateResult.B;
-      const other = isP1 ? data.rateResult.B : data.rateResult.A;
-
-      logEl.textContent +=
-        `\nレート\n` +
-        `あなた：${me.before} → ${me.after} ` +
-        `(${me.diff >= 0 ? "+" : ""}${me.diff})\n` +
-        `相手：${other.before} → ${other.after} ` +
-        `(${other.diff >= 0 ? "+" : ""}${other.diff})\n`;
-
-      logEl.scrollTop = logEl.scrollHeight;
-
-      await updateRateDisplay(myUID, oppUID);
-    }
+    await updateRateDisplay(myUID, oppUID);
   }
 
-
+  logEl.scrollTop = logEl.scrollHeight;
   document.querySelectorAll(".hands button").forEach(btn => btn.disabled = true);
 }
 
@@ -880,11 +852,31 @@ async function joinRoom(selectedRoomId) {
 
       // ゲーム終了判定
       if (data.round + 1 > maxRound) {
+
+        const myUID  = playerId === "player1" ? p.uid : c.uid;
+        const oppUID = playerId === "player1" ? c.uid : p.uid;
+
+        // player1 だけが計算＆保存
+        if (playerId === "player1" && !data.rateResult) {
+          const rateResult = await updateRateAfterMatch(
+            p.uid,
+            c.uid,
+            p.score + meGain,
+            c.score + otherGain
+          );
+
+          await updateDoc(gameRef, {
+            rateResult
+          });
+        }
+
+        // 両者：表示
         endGameOnline(
-          (playerId === "player1" ? p.score : c.score) + meGain,
-          (playerId === "player1" ? c.score : p.score) + otherGain,
+          p.score + meGain,
+          c.score + otherGain,
           myUID,
-          oppUID
+          oppUID,
+          data.rateResult
         );
       }
     }
