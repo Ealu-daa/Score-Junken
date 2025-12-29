@@ -390,14 +390,37 @@ async function checkAndInitRoom() {
   const gameRef = doc(db, "games", roomId);
   const docSnap = await getDoc(gameRef);
 
-  if (!docSnap.exists()) {
-    // まだ部屋がなければ新規作成
-    await setDoc(gameRef, {
-      player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
-      player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
-      round: 1,
-      status: "waiting"
-    });
+    if (!docSnap.exists()) {
+      // まだ部屋がなければ新規作成
+      await setDoc(gameRef, {
+        player1: {
+          uid: null,
+          join: false,
+          left: null,
+          right: null,
+          score: 0,
+          blockCount: 0,
+          reversalUsed: false,
+          lastActive: serverTimestamp()
+        },
+        player2: {
+          uid: null,
+          join: false,
+          left: null,
+          right: null,
+          score: 0,
+          blockCount: 0,
+          reversalUsed: false,
+          lastActive: serverTimestamp()
+        },
+
+        round: 1,
+        status: "waiting",
+
+        // ★ 追加
+        rateResult: null,     // レート結果リセット
+        createdAt: serverTimestamp()
+      });
     console.log("新規ルーム作成");
     return;
   }
@@ -414,11 +437,34 @@ async function checkAndInitRoom() {
 
   if (p1Empty && p2Empty) {
     await setDoc(gameRef, {
-      player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
-      player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
-      round: 1,
-      status: "waiting"
-    });
+        player1: {
+          uid: null,
+          join: false,
+          left: null,
+          right: null,
+          score: 0,
+          blockCount: 0,
+          reversalUsed: false,
+          lastActive: serverTimestamp()
+        },
+        player2: {
+          uid: null,
+          join: false,
+          left: null,
+          right: null,
+          score: 0,
+          blockCount: 0,
+          reversalUsed: false,
+          lastActive: serverTimestamp()
+        },
+
+        round: 1,
+        status: "waiting",
+
+        // ★ 追加
+        rateResult: null,     // レート結果リセット
+        createdAt: serverTimestamp()
+      });
     console.log("誰もいなかったので部屋を初期化しました");
   }
 }
@@ -853,10 +899,6 @@ async function joinRoom(selectedRoomId) {
       // ゲーム終了判定
       if (data.round + 1 > maxRound) {
 
-        const myUID  = playerId === "player1" ? p.uid : c.uid;
-        const oppUID = playerId === "player1" ? c.uid : p.uid;
-
-        // player1 だけが計算＆保存
         if (playerId === "player1" && !data.rateResult) {
           const rateResult = await updateRateAfterMatch(
             p.uid,
@@ -869,11 +911,20 @@ async function joinRoom(selectedRoomId) {
             rateResult
           });
         }
+      }
 
-        // 両者：表示
+      if (data.rateResult && !window.rateLogged) {
+
+        window.rateLogged = true; // 二重表示防止
+
+        const myUID =
+          playerId === "player1" ? data.player1.uid : data.player2.uid;
+        const oppUID =
+          playerId === "player1" ? data.player2.uid : data.player1.uid;
+
         endGameOnline(
-          p.score + meGain,
-          c.score + otherGain,
+          data.player1.score,
+          data.player2.score,
           myUID,
           oppUID,
           data.rateResult
