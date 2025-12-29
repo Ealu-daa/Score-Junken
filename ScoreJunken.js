@@ -37,7 +37,7 @@ const db = getFirestore(app); // Firestore を使えるようにする
 
 let playerId = null; // "player1" or "player2"
 let roomId = "room001";
-const maxRound = 15;
+const maxRound = 3;
 
 let unsubscribe = null; // 前回の onSnapshot を解除するため
 
@@ -987,12 +987,23 @@ async function updateRateAfterMatch(uidA, uidB, scoreA, scoreB) {
   let S_B = scoreB > scoreA ? 1 : scoreB < scoreA ? 0 : 0.5;
 
   const K = 32;
-  const E_A = 1 / (1 + 10 ** ((rateB - rateA)/400));
-  const E_B = 1 / (1 + 10 ** ((rateA - rateB)/400));
+  const E_A = 1 / (1 + 10 ** ((rateB - rateA) / 400));
+  const E_B = 1 / (1 + 10 ** ((rateA - rateB) / 400));
 
-  if(uidA) await updateDoc(doc(db, "ratings", uidA), { rate: Math.round(rateA + K*(S_A-E_A)) });
-  if(uidB) await updateDoc(doc(db, "ratings", uidB), { rate: Math.round(rateB + K*(S_B-E_B)) });
+  const newRateA = Math.round(rateA + K * (S_A - E_A));
+  const newRateB = Math.round(rateB + K * (S_B - E_B));
 
+  const diffA = newRateA - rateA;
+  const diffB = newRateB - rateB;
+
+  if (uidA) {
+    await updateDoc(doc(db, "ratings", uidA), { rate: newRateA });
+  }
+  if (uidB) {
+    await updateDoc(doc(db, "ratings", uidB), { rate: newRateB });
+  }
+
+  // ★ ここが重要：UI用に返す
   return {
     A: { before: rateA, after: newRateA, diff: diffA },
     B: { before: rateB, after: newRateB, diff: diffB }
