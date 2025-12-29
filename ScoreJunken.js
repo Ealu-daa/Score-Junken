@@ -465,8 +465,8 @@ window.chooseHand = async function(handType, value) {
 
   if (snap.exists()) {
     const data = snap.data();
-    const onlineBlockCount = 0;
-    const onlineReversalUsed = false;
+    let onlineBlockCount = 0;
+    let onlineReversalUsed = false;
 
     if (playerId === "player1")
     {
