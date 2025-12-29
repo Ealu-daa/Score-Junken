@@ -655,14 +655,6 @@ function endGame(){
 
 async function endGameOnline(pScore, cScore) {
 
-  if(window.currentUID && window.opponentUID){
-    // 勝敗に応じてレートを計算・更新
-    await updateRateAfterMatch(window.currentUID, window.opponentUID, pScore, cScore);
-
-    // 更新したレートを表示
-    await updateRateDisplay(window.currentUID, window.opponentUID);
-  }
-
   const logEl = document.getElementById("log");
   let winner = "";
   if (pScore > cScore) winner = "あなたの勝ち！";
@@ -671,6 +663,19 @@ async function endGameOnline(pScore, cScore) {
 
   logEl.textContent += `=== ゲーム終了 ===\n${winner}\n`;
   logEl.scrollTop = logEl.scrollHeight;
+
+  if(window.currentUID && window.opponentUID){
+    // 勝敗に応じてレートを計算・更新
+    const rateResult = await updateRateAfterMatch(window.currentUID, window.opponentUID, pScore, cScore);
+
+    logEl.textContent +=
+      `\nレート\n` +
+      `あなた：${rateResult.A.before} → ${rateResult.A.after} (${rateResult.A.diff >= 0 ? "+" : ""}${rateResult.A.diff})\n` +
+      `相手：${rateResult.B.before} → ${rateResult.B.after} (${rateResult.B.diff >= 0 ? "+" : ""}${rateResult.B.diff})\n`;
+
+    // 更新したレートを表示
+    await updateRateDisplay(window.currentUID, window.opponentUID);
+  }
 
   document.querySelectorAll(".hands button").forEach(btn => btn.disabled = true);
 }
@@ -987,6 +992,11 @@ async function updateRateAfterMatch(uidA, uidB, scoreA, scoreB) {
 
   if(uidA) await updateDoc(doc(db, "ratings", uidA), { rate: Math.round(rateA + K*(S_A-E_A)) });
   if(uidB) await updateDoc(doc(db, "ratings", uidB), { rate: Math.round(rateB + K*(S_B-E_B)) });
+
+  return {
+    A: { before: rateA, after: newRateA, diff: diffA },
+    B: { before: rateB, after: newRateB, diff: diffB }
+  };
 }
 
 async function updateRateDisplay(myUID) {

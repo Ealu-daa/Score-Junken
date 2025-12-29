@@ -332,5 +332,21 @@ body.in-game #google-auth-container {
     body.in-game #google-auth-container {
     display: none !important;
   }
+  
+  #google-auth-container {
+    bottom: 16px;
+    right: 50%;
+    transform: translateX(50%);
+    flex-direction: column;
+    gap: 10px;
+  }
 
+  #google-login,
+  #google-logout,
+  #anon-login {
+    padding: 12px 24px;
+    font-size: 14px;
+    min-width: 200px;
+    border-radius: 8px;
+  }
 }
