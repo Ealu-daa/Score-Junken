@@ -465,16 +465,18 @@ window.chooseHand = async function(handType, value) {
 
   if (snap.exists()) {
     const data = snap.data();
+    const onlineBlockCount = 0;
+    const onlineReversalUsed = false;
 
     if (playerId === "player1")
     {
-      onlinePBlockCount = data.player1.blockCount
-      onlinePReversal = data.player1.reversalUsed
+      onlineBlockCount = data.player1.blockCount
+      onlineReversalUsed = data.player1.reversalUsed
     }
     else
     {
-      onlinePBlockCount = data.player2.blockCount
-      onlinePReversal = data.player2.reversalUsed
+      onlineBlockCount = data.player2.blockCount
+      onlineReversalUsed = data.player2.reversalUsed
     }
 
     // ボタンハイライト
@@ -485,7 +487,7 @@ window.chooseHand = async function(handType, value) {
       //ブロック
       if (value === 0)
       {
-        if (window.isOnline && onlinePBlockCount < 3)
+        if (window.isOnline && onlineBlockCount < 3)
         {
           selectedRight = value;
           highlight(".hands:nth-of-type(2) button", value);
@@ -503,7 +505,7 @@ window.chooseHand = async function(handType, value) {
       //リバーサル
       else if (value === 5)
       {
-        if (window.isOnline && !onlinePReversal)
+        if (window.isOnline && !onlineReversalUsed)
         {
           selectedRight = value;
           highlight(".hands:nth-of-type(2) button", value);
