@@ -390,8 +390,8 @@ async function checkAndInitRoom() {
   if (!docSnap.exists()) {
     // まだ部屋がなければ新規作成
     await setDoc(gameRef, {
-      player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp()},
-      player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp()},
+      player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
+      player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
       round: 1,
       status: "playing"
     });
@@ -411,8 +411,8 @@ async function checkAndInitRoom() {
 
   if (p1Empty && p2Empty) {
     await setDoc(gameRef, {
-      player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp()},
-      player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp()},
+      player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
+      player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
       round: 1,
       status: "playing"
     });
@@ -745,6 +745,17 @@ async function joinRoom(selectedRoomId) {
     // 両プレイヤーが手を出したら
     if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
 
+      if (playerId === "player1")
+      {
+        onlinePBlockCount = p.blockCount
+        onlinePReversal = p.reversalUsed
+      }
+      else
+      {
+        onlinePBlockCount = c.blockCount
+        onlinePReversal = c.reversalUsed
+      }
+
       const pResult = judgeLeft(p.left, c.left);
       const cResult = -pResult;
 
@@ -767,7 +778,9 @@ async function joinRoom(selectedRoomId) {
         "player1.left": null,
         "player1.right": null,
         "player2.left": null,
-        "player2.right": null
+        "player2.right": null,
+        [`${playerId}.blockCount`]: onlinePBlockCount,
+        [`${playerId}.reversalUsed`]: onlinePReversal,
       });
 
       // --- ログ表示 ---
