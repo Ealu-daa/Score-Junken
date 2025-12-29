@@ -463,6 +463,8 @@ window.chooseHand = async function(handType, value) {
   const snap = await getDoc(gameRef);
 
   if (snap.exists()) {
+    const data = snap.data();
+    
     if (playerId === "player1")
     {
       onlinePBlockCount = data.player1.blockCount
