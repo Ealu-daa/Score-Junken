@@ -783,7 +783,6 @@ async function joinRoom(selectedRoomId) {
 
       logEl.scrollTop = logEl.scrollHeight;
       document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
-      lastLoggedRound = data.round;
 
       updateDoc(gameRef, {
         "status": "playing"
