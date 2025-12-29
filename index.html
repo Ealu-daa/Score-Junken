@@ -45,8 +45,8 @@
   <!-- ゲーム画面の左下に固定表示 -->
     <div id="rate-display">
     レート: <span id="my-rate">1500</span>
-    <span id="opp-rate-container">
-      | 相手: <span id="opp-rate">1500</span>
+    <span id="name">
+      | <span id="name">名無し</span>
     </span>
   </div>
 
@@ -72,6 +72,8 @@
     <button id="google-logout">ログアウト</button>
     <button id="google-login">Googleでログイン</button>
     <button id="anon-login">匿名ログイン</button>
+    <input type="text" id="nameInput" placeholder="名前を入力">
+    <button id="updateNameBtn">更新</button>
   </div>
 
   <div id="game-area" style="display: none;">

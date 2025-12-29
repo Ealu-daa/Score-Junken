@@ -919,8 +919,46 @@ document.getElementById("return-start").addEventListener("click", async () => {
   document.body.classList.remove("in-game");   // ゲーム開始
 });
 
+document.getElementById("saveNameBtn").addEventListener("click", async () => {
+  const inputName = document.getElementById("nameInput").value.trim();
+  if (!inputName) return alert("名前を入力してください");
+
+  const uid = currentUID; // ここにプレイヤーの UID を入れる
+  if (!uid) return alert("ログインしてください");
+
+  const userDoc = doc(db, "ratings", uid);
+  const snap = await getDoc(userDoc);
+
+  if (!snap.exists()) {
+    await setDoc(userDoc, { rate: 1500, name: inputName });
+  } else {
+    await updateDoc(userDoc, { name: inputName });
+  }
+
+  alert("名前を保存しました！");
+});
+
 
 // ===rating===
+async function getNameAndRate(uid) {
+  if (!uid) return { name: null, rate: 1500 }; // UIDが無ければデフォルト
+
+  const docRef = doc(db, "ratings", uid);
+  const snap = await getDoc(docRef);
+
+  if (!snap.exists()) {
+    // ドキュメントが無ければ作成して初期値
+    await setDoc(docRef, { name: "名無し", rate: 1500 });
+    return { name: "名無し", rate: 1500 };
+  }
+
+  const data = snap.data();
+  return {
+    name: data.name || "名無し",
+    rate: data.rate || 1500
+  };
+}
+
 async function getRateOrDefault(uid) {
   if (!uid) return 1500; // UIDがない場合
   const rateDoc = doc(db, "ratings", uid);
@@ -948,17 +986,10 @@ async function updateRateAfterMatch(uidA, uidB, scoreA, scoreB) {
   if(uidB) await updateDoc(doc(db, "ratings", uidB), { rate: Math.round(rateB + K*(S_B-E_B)) });
 }
 
-async function updateRateDisplay(myUID, oppUID = null) {
-  const myRate = await getRateOrDefault(myUID);
-  document.getElementById("my-rate").textContent = myRate;
-
-  if (oppUID) {
-    const oppRate = await getRateOrDefault(oppUID);
-    document.getElementById("opp-rate").textContent = oppRate;
-    document.getElementById("opp-rate-container").style.display = "inline";
-  } else {
-    document.getElementById("opp-rate-container").style.display = "none";
-  }
+async function updateRateDisplay(myUID) {
+  const mystats = await getNameAndRate(myUID);
+  document.getElementById("my-rate").textContent = mystats.rate;
+  document.getElementById("name").textContent = mystats.name;
 }
 
 //ルール
@@ -974,3 +1005,5 @@ toggleBtn.addEventListener("click", () => {
     ruleText.style.display = "none";
   }
 });
+
+updateRateDisplay
