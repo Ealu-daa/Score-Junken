@@ -459,6 +459,7 @@ window.chooseHand = async function(handType, value) {
   [`${playerId}.lastActive`]: serverTimestamp()
   });
 
+  const gameRef = doc(db, "games", roomId);
   const snap = await getDoc(gameRef);
 
   if (snap.exists()) {
