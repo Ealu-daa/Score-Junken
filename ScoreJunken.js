@@ -778,11 +778,13 @@ async function joinRoom(selectedRoomId) {
 
       const otherstats = getNameAndRate(c.uid);
 
-      logEl.textContent += `\n${mystats.name}(${mystats.rate}) \nvs \n${otherstats.name}(${otherstats.rate})`
+      logEl.textContent += `\n${mystats.name}(${mystats.rate}) \nvs \n${otherstats.name}(${otherstats.rate})`;
 
       logEl.scrollTop = logEl.scrollHeight;
       document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
       lastLoggedRound = data.round;
+
+      data.status === "playing";
     }
 
 
