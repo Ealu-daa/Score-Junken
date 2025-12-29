@@ -763,9 +763,10 @@ async function joinRoom(selectedRoomId) {
 
   const gameRef = doc(db, "games", roomId);
 
-  unsubscribe = onSnapshot(gameRef, (docSnap) => {
+  unsubscribe = onSnapshot(gameRef, async (docSnap) => { // async を追加
     const data = docSnap.data();
     if (!data) return;
+
 
     const p = data.player1;
     const c = data.player2;
@@ -774,9 +775,9 @@ async function joinRoom(selectedRoomId) {
     {
       const logEl = document.getElementById("log");
 
-      const mystats = getNameAndRate(p.uid);
+      const mystats = await getNameAndRate(p.uid);
 
-      const otherstats = getNameAndRate(c.uid);
+      const otherstats = await getNameAndRate(c.uid);
 
       logEl.textContent += `\n${mystats.name}(${mystats.rate}) \nvs \n${otherstats.name}(${otherstats.rate})`;
 
@@ -784,7 +785,9 @@ async function joinRoom(selectedRoomId) {
       document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
       lastLoggedRound = data.round;
 
-      data.status === "playing";
+      updateDoc(gameRef, {
+        "status": "playing"
+      });
     }
 
 
