@@ -482,6 +482,9 @@ window.chooseHand = async function(handType, value) {
       onlineReversalUsed = data.player2.reversalUsed
     }
 
+    if (data.status === "waiting")
+      return;
+
     // ボタンハイライト
     if(handType === "left") {
       selectedLeft = value;
@@ -648,13 +651,6 @@ function endGame(){
   logEl.scrollTop = logEl.scrollHeight;
 
   document.querySelectorAll(".hands button").forEach(btn => btn.disabled=true);
-
-  // リセットボタン追加
-  const resetBtn = document.createElement("button");
-  resetBtn.textContent="もう一度プレイ";
-  resetBtn.classList.add("reset-btn");
-  resetBtn.onclick=resetGame;
-  document.body.appendChild(resetBtn);
 }
 
 async function endGameOnline(pScore, cScore) {
@@ -677,22 +673,6 @@ async function endGameOnline(pScore, cScore) {
   logEl.scrollTop = logEl.scrollHeight;
 
   document.querySelectorAll(".hands button").forEach(btn => btn.disabled = true);
-
-  // リセットボタン
-  const resetBtn = document.createElement("button");
-  resetBtn.textContent = "もう一度プレイ";
-  resetBtn.onclick = async () => {
-    await setDoc(doc(db, "games", "room001"), {
-      player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
-      player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
-      round: 1,
-      status: "playing"
-    });
-    document.querySelectorAll(".hands button").forEach(btn => btn.disabled = false);
-    document.getElementById("log").textContent = "roomに参加しました";
-    resetBtn.remove();
-  };
-  document.body.appendChild(resetBtn);
 }
 
 // ===== ゲームリセット =====
@@ -787,6 +767,11 @@ async function joinRoom(selectedRoomId) {
       updateDoc(gameRef, {
         "status": "playing"
       });
+    }
+    else if(data.status === "waiting")
+    {
+      const logEl = document.getElementById("log");
+      logEl.textContent += `\nプレイヤーを探しています...`;
     }
 
 
@@ -927,10 +912,8 @@ document.getElementById("return-start").addEventListener("click", async () => {
     const gameRef = doc(db, "games", roomId);
     await updateDoc(gameRef, { [`${playerId}.join`]: false });
   
-    const resetBtn = document.querySelector(".reset-btn"); // クラス名で取得
-    if (resetBtn) {
-      resetBtn.remove();
-    }
+    if (unsubscribe) unsubscribe();
+    location.reload();
   }
 
   // ゲームUI非表示、スタート画面表示
