@@ -12,7 +12,8 @@ import {
   updateDoc,
   onSnapshot,
   getDoc,
-  serverTimestamp
+  serverTimestamp,
+  increment
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -464,7 +465,7 @@ window.chooseHand = async function(handType, value) {
 
   if (snap.exists()) {
     const data = snap.data();
-    
+
     if (playerId === "player1")
     {
       onlinePBlockCount = data.player1.blockCount
@@ -743,7 +744,6 @@ document.getElementById("cpu-btn").addEventListener("click", () => {
 
 async function joinRoom(selectedRoomId) {
   document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
-  // もし前の onSnapshot があれば解除
   if (unsubscribe) unsubscribe();
 
   roomId = selectedRoomId;
@@ -752,103 +752,104 @@ async function joinRoom(selectedRoomId) {
   await checkAndInitRoom();
   await assignPlayer();
 
-  // onSnapshot を roomId に合わせて設定
   const gameRef = doc(db, "games", roomId);
-  unsubscribe = onSnapshot(gameRef, (docSnap) => {
+
+  unsubscribe = onSnapshot(gameRef, async (docSnap) => {
     const data = docSnap.data();
     if (!data) return;
-
-    console.log(roomId);
 
     const p = data.player1;
     const c = data.player2;
 
-    // 両プレイヤーが手を出したら
-    if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
-
-      if (playerId === "player1")
-      {
-        onlinePBlockCount = p.blockCount
-        onlinePReversal = p.reversalUsed
-      }
-      else
-      {
-        onlinePBlockCount = c.blockCount
-        onlinePReversal = c.reversalUsed
-      }
-
-      const pResult = judgeLeft(p.left, c.left);
-      const cResult = -pResult;
-
-      let pGain = calcScore(pResult, p.right, c.right, onlinePBlockCount, onlineEndGame);
-      let cGain = calcScore(cResult, c.right, p.right, c.blockCount, onlineEndGame);
-
-      // カウンター処理
-      if (c.right === 3) { cGain = pGain; pGain = 0; }
-      if (p.right === 3) { pGain = cGain; cGain = 0; }
-
-      // ブロック／リバーサル処理
-      if (p.right === 0) onlinePBlockCount++;
-      if (p.right === 5) onlinePReversal = true;
-
-
-      updateDoc(doc(db, "games", roomId), {
-        "player1.score": (p.score || 0) + pGain,
-        "player2.score": (c.score || 0) + cGain,
-        "round": data.round + 1,
-        "player1.left": null,
-        "player1.right": null,
-        "player2.left": null,
-        "player2.right": null,
-        [`${playerId}.blockCount`]: onlinePBlockCount,
-        [`${playerId}.reversalUsed`]: onlinePReversal,
-      });
-
-      // --- ログ表示 ---
-      if (lastLoggedRound < data.round) { // まだログ出してないラウンド
-        const logEl = document.getElementById("log");
-        
-        // 最初の案内を消す
-        if (data.round === 0) logEl.textContent = '';
-
-        if (playerId === "player1") {
-          logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
-                              `あなた：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
-                              `相手：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n`;
-        } else {
-          logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
-                              `あなた：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n` +
-                              `相手：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n`;
-        }
-
-        logEl.scrollTop = logEl.scrollHeight;
-        document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
-        lastLoggedRound = data.round; // 更新
-      }
-
-      // スコア・ラウンド更新
-      document.getElementById("round").textContent = data.round + 1;
-
-      if (playerId === "player1")
-      {
-        document.getElementById("pScore").textContent = (p.score || 0) + pGain;
-        document.getElementById("cScore").textContent = (c.score || 0) + cGain;
-      }
-      else
-      {
-        document.getElementById("pScore").textContent = (c.score || 0) + cGain;
-        document.getElementById("cScore").textContent = (p.score || 0) + pGain;
-      }
-
-      if (data.round + 1 > maxRound) {
-        endGameOnline((p.score || 0) + pGain, (c.score || 0) + cGain);
-      }
+    // ===== 表示用（全員実行してOK）=====
+    if (playerId === "player1") {
+      onlinePBlockCount = p.blockCount ?? 0;
+      onlinePReversal   = p.reversalUsed ?? false;
+    } else {
+      onlinePBlockCount = c.blockCount ?? 0;
+      onlinePReversal   = c.reversalUsed ?? false;
     }
-    
+
+    // ===== 両者が手を出したか =====
+    if (
+      p.left === null || p.right === null ||
+      c.left === null || c.right === null
+    ) return;
+
+    // 結果計算と Firestore 更新は player1 のみ
+    if (playerId !== "player1") return;
+
+    // ===== 勝敗判定 =====
+    const pResult = judgeLeft(p.left, c.left);
+    const cResult = -pResult;
+
+    let pGain = calcScore(pResult, p.right, c.right, p.blockCount ?? 0, onlineEndGame);
+    let cGain = calcScore(cResult, c.right, p.right, c.blockCount ?? 0, onlineEndGame);
+
+    // カウンター
+    if (c.right === 3) { cGain = pGain; pGain = 0; }
+    if (p.right === 3) { pGain = cGain; cGain = 0; }
+
+    // ===== Firestore 更新内容 =====
+    const updateObj = {
+      "player1.score": (p.score || 0) + pGain,
+      "player2.score": (c.score || 0) + cGain,
+      "round": data.round + 1,
+      "player1.left": null,
+      "player1.right": null,
+      "player2.left": null,
+      "player2.right": null,
+    };
+
+    // ブロック
+    if (p.right === 0) {
+      updateObj["player1.blockCount"] = increment(1);
+    }
+
+    // リバーサル
+    if (p.right === 5) {
+      updateObj["player1.reversalUsed"] = true;
+    }
+
+    await updateDoc(gameRef, updateObj);
+
+    // ===== ログ表示（全員共通でOK）=====
+    if (lastLoggedRound < data.round) {
+      const logEl = document.getElementById("log");
+      if (data.round === 0) logEl.textContent = '';
+
+      logEl.textContent +=
+        `\nラウンド ${data.round} 結果:\n` +
+        `player1：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
+        `player2：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n`;
+
+      logEl.scrollTop = logEl.scrollHeight;
+      document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+      lastLoggedRound = data.round;
+    }
+
+    // ===== UI 更新 =====
+    document.getElementById("round").textContent = data.round + 1;
+
+    if (playerId === "player1") {
+      document.getElementById("pScore").textContent = (p.score || 0) + pGain;
+      document.getElementById("cScore").textContent = (c.score || 0) + cGain;
+    } else {
+      document.getElementById("pScore").textContent = (c.score || 0) + cGain;
+      document.getElementById("cScore").textContent = (p.score || 0) + pGain;
+    }
+
+    if (data.round + 1 > maxRound) {
+      endGameOnline(
+        (p.score || 0) + pGain,
+        (c.score || 0) + cGain
+      );
+    }
   });
 
   console.log(selectedRoomId + " に参加しました");
 }
+
 
 document.getElementById("online-btn-room001").addEventListener("click", async () => {
   if (playerCount.room001 < 2) {
