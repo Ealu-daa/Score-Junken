@@ -465,6 +465,7 @@ window.chooseHand = async function(handType, value) {
 
   if (snap.exists()) {
     const data = snap.data();
+    
     let onlineBlockCount = 0;
     let onlineReversalUsed = false;
 
@@ -500,6 +501,7 @@ window.chooseHand = async function(handType, value) {
         else
         {
           console.log("使用回数を超過しました")
+          return;
         }
       }
       //リバーサル
@@ -518,6 +520,7 @@ window.chooseHand = async function(handType, value) {
         else
         {
           console.log("使用回数を超過しました")
+          return;
         }
       }
       else
