@@ -665,27 +665,47 @@ async function endGameOnline(pScore, cScore, myUID, oppUID) {
   logEl.textContent += `=== ゲーム終了 ===\n${winner}\n`;
   logEl.scrollTop = logEl.scrollHeight;
 
-  // UID が両方ある場合のみ
+  // myUID / oppUID が取れている前提
   if (myUID && oppUID) {
 
-    const rateResult = await updateRateAfterMatch(
-      myUID,
-      oppUID,
-      pScore,
-      cScore
-    );
+    // ===== player1 だけがレート計算・保存 =====
+    if (playerId === "player1" && !data.rateResult) {
 
-    logEl.textContent +=
-      `\nレート\n` +
-      `あなた：${rateResult.A.before} → ${rateResult.A.after} ` +
-      `(${rateResult.A.diff >= 0 ? "+" : ""}${rateResult.A.diff})\n` +
-      `相手：${rateResult.B.before} → ${rateResult.B.after} ` +
-      `(${rateResult.B.diff >= 0 ? "+" : ""}${rateResult.B.diff})\n`;
+      const rateResult = await updateRateAfterMatch(
+        myUID,
+        oppUID,
+        pScore,
+        cScore
+      );
 
-    logEl.scrollTop = logEl.scrollHeight;
+      await updateDoc(gameRef, {
+        rateResult: {
+          A: rateResult.A,
+          B: rateResult.B
+        }
+      });
+    }
 
-    await updateRateDisplay(myUID, oppUID);
+    // ===== 両プレイヤー共通：表示処理 =====
+    if (data.rateResult) {
+
+      const isP1 = playerId === "player1";
+      const me    = isP1 ? data.rateResult.A : data.rateResult.B;
+      const other = isP1 ? data.rateResult.B : data.rateResult.A;
+
+      logEl.textContent +=
+        `\nレート\n` +
+        `あなた：${me.before} → ${me.after} ` +
+        `(${me.diff >= 0 ? "+" : ""}${me.diff})\n` +
+        `相手：${other.before} → ${other.after} ` +
+        `(${other.diff >= 0 ? "+" : ""}${other.diff})\n`;
+
+      logEl.scrollTop = logEl.scrollHeight;
+
+      await updateRateDisplay(myUID, oppUID);
+    }
   }
+
 
   document.querySelectorAll(".hands button").forEach(btn => btn.disabled = true);
 }
