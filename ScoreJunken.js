@@ -396,7 +396,7 @@ async function checkAndInitRoom() {
       player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
       player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
       round: 1,
-      status: "playing"
+      status: "waiting"
     });
     console.log("新規ルーム作成");
     return;
@@ -417,7 +417,7 @@ async function checkAndInitRoom() {
       player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
       player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
       round: 1,
-      status: "playing"
+      status: "waiting"
     });
     console.log("誰もいなかったので部屋を初期化しました");
   }
@@ -770,6 +770,22 @@ async function joinRoom(selectedRoomId) {
     const p = data.player1;
     const c = data.player2;
 
+    if(data.status === "waiting" && p.join === true && c.join === true)
+    {
+      const logEl = document.getElementById("log");
+
+      const mystats = getNameAndRate(p.uid);
+
+      const otherstats = getNameAndRate(c.uid);
+
+      logEl.textContent += `\n${mystats.name}(${mystats.rate}) \nvs \n${otherstats.name}(${otherstats.rate})`
+
+      logEl.scrollTop = logEl.scrollHeight;
+      document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+      lastLoggedRound = data.round;
+    }
+
+
     // 両手が出揃った場合
     if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
 
@@ -816,7 +832,6 @@ async function joinRoom(selectedRoomId) {
       // ログ表示
       if (lastLoggedRound < data.round) {
         const logEl = document.getElementById("log");
-        if (data.round === 0) logEl.textContent = '';
 
         logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
                              `あなた：${handName(me.left)} / ${rightName(me.right)} (${format(meGain)})\n` +
