@@ -768,7 +768,7 @@ async function joinRoom(selectedRoomId) {
         "status": "playing"
       });
     }
-    else if(data.status === "waiting")
+    else if(data.status === "waiting" && !logEl.textContent.includes("プレイヤーを探しています..."))
     {
       const logEl = document.getElementById("log");
       logEl.textContent += `\nプレイヤーを探しています...`;
