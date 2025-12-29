@@ -743,6 +743,7 @@ document.getElementById("cpu-btn").addEventListener("click", () => {
 
 
 async function joinRoom(selectedRoomId) {
+  // 選択状態リセット
   document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
   if (unsubscribe) unsubscribe();
 
@@ -754,106 +755,86 @@ async function joinRoom(selectedRoomId) {
 
   const gameRef = doc(db, "games", roomId);
 
-  unsubscribe = onSnapshot(gameRef, async (docSnap) => {
+  unsubscribe = onSnapshot(gameRef, (docSnap) => {
     const data = docSnap.data();
     if (!data) return;
 
     const p = data.player1;
     const c = data.player2;
 
-    // ===== 表示用（全員実行してOK）=====
-    if (playerId === "player1") {
-      onlinePBlockCount = p.blockCount ?? 0;
-      onlinePReversal   = p.reversalUsed ?? false;
-    } else {
-      onlinePBlockCount = c.blockCount ?? 0;
-      onlinePReversal   = c.reversalUsed ?? false;
-    }
+    // 両手が出揃った場合
+    if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
 
-    // ===== 両者が手を出したか =====
-    if (
-      p.left === null || p.right === null ||
-      c.left === null || c.right === null
-    ) return;
+      // あなた / 相手を決める
+      const me = playerId === "player1" ? p : c;
+      const other = playerId === "player1" ? c : p;
 
-    // 結果計算と Firestore 更新は player1 のみ
-    if (playerId !== "player1") return;
+      // オンライン用カウントを同期
+      onlinePBlockCount = me.blockCount;
+      onlinePReversal = me.reversalUsed;
 
-    // ===== 勝敗判定 =====
-    const pResult = judgeLeft(p.left, c.left);
-    const cResult = -pResult;
+      // スコア計算
+      const pResult = judgeLeft(me.left, other.left);
+      const cResult = -pResult;
 
-    let pGain = calcScore(pResult, p.right, c.right, p.blockCount ?? 0, onlineEndGame);
-    let cGain = calcScore(cResult, c.right, p.right, c.blockCount ?? 0, onlineEndGame);
+      let meGain = calcScore(pResult, me.right, other.right, onlinePBlockCount, onlineEndGame);
+      let otherGain = calcScore(cResult, other.right, me.right, other.blockCount, onlineEndGame);
 
-    // カウンター
-    if (c.right === 3) { cGain = pGain; pGain = 0; }
-    if (p.right === 3) { pGain = cGain; cGain = 0; }
+      // カウンター処理
+      if (other.right === 3) { otherGain = meGain; meGain = 0; }
+      if (me.right === 3) { meGain = otherGain; otherGain = 0; }
 
-    // ===== Firestore 更新内容 =====
-    const updateObj = {
-      "player1.score": (p.score || 0) + pGain,
-      "player2.score": (c.score || 0) + cGain,
-      "round": data.round + 1,
-      "player1.left": null,
-      "player1.right": null,
-      "player2.left": null,
-      "player2.right": null,
-    };
+      // ブロック／リバーサル処理
+      if (me.right === 0) me.blockCount++;
+      if (me.right === 5) me.reversalUsed = true;
+      if (other.right === 0) other.blockCount++;
+      if (other.right === 5) other.reversalUsed = true;
 
-    // ===== ブロック処理 =====
-    if (p.right === 0) {
-      updateObj["player1.blockCount"] = increment(1);
-    }
-    if (c.right === 0) {
-      updateObj["player2.blockCount"] = increment(1);
-    }
+      // Firestore 更新
+      updateDoc(gameRef, {
+        "player1.score": p.score + (playerId === "player1" ? meGain : otherGain),
+        "player2.score": c.score + (playerId === "player1" ? otherGain : meGain),
+        "round": data.round + 1,
+        "player1.left": null,
+        "player1.right": null,
+        "player2.left": null,
+        "player2.right": null,
+        "player1.blockCount": p.blockCount,
+        "player1.reversalUsed": p.reversalUsed,
+        "player2.blockCount": c.blockCount,
+        "player2.reversalUsed": c.reversalUsed,
+      });
 
-    // ===== リバーサル処理 =====
-    if (p.right === 5) {
-      updateObj["player1.reversalUsed"] = true;
-    }
-    if (c.right === 5) {
-      updateObj["player2.reversalUsed"] = true;
-    }
+      // ログ表示
+      if (lastLoggedRound < data.round) {
+        const logEl = document.getElementById("log");
+        if (data.round === 0) logEl.textContent = '';
 
-    await updateDoc(gameRef, updateObj);
+        logEl.textContent += `\nラウンド ${data.round} 結果:\n` +
+                             `あなた：${handName(me.left)} / ${rightName(me.right)} (${format(meGain)})\n` +
+                             `相手：${handName(other.left)} / ${rightName(other.right)} (${format(otherGain)})\n`;
 
-    // ===== ログ表示（全員共通でOK）=====
-    if (lastLoggedRound < data.round) {
-      const logEl = document.getElementById("log");
-      if (data.round === 0) logEl.textContent = '';
+        logEl.scrollTop = logEl.scrollHeight;
+        document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+        lastLoggedRound = data.round;
+      }
 
-      logEl.textContent +=
-        `\nラウンド ${data.round} 結果:\n` +
-        `player1：${handName(p.left)} / ${rightName(p.right)} (${format(pGain)})\n` +
-        `player2：${handName(c.left)} / ${rightName(c.right)} (${format(cGain)})\n`;
+      // スコア・ラウンド更新
+      document.getElementById("round").textContent = data.round + 1;
+      document.getElementById("pScore").textContent = (playerId === "player1" ? p.score : c.score) + meGain;
+      document.getElementById("cScore").textContent = (playerId === "player1" ? c.score : p.score) + otherGain;
 
-      logEl.scrollTop = logEl.scrollHeight;
-      document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
-      lastLoggedRound = data.round;
-    }
-
-    // ===== UI 更新 =====
-    document.getElementById("round").textContent = data.round + 1;
-
-    if (playerId === "player1") {
-      document.getElementById("pScore").textContent = (p.score || 0) + pGain;
-      document.getElementById("cScore").textContent = (c.score || 0) + cGain;
-    } else {
-      document.getElementById("pScore").textContent = (c.score || 0) + cGain;
-      document.getElementById("cScore").textContent = (p.score || 0) + pGain;
-    }
-
-    if (data.round + 1 > maxRound) {
-      endGameOnline(
-        (p.score || 0) + pGain,
-        (c.score || 0) + cGain
-      );
+      // ゲーム終了判定
+      if (data.round + 1 > maxRound) {
+        endGameOnline(
+          (playerId === "player1" ? p.score : c.score) + meGain,
+          (playerId === "player1" ? c.score : p.score) + otherGain
+        );
+      }
     }
   });
 
-  console.log(selectedRoomId + " に参加しました");
+  console.log(`${selectedRoomId} に参加しました`);
 }
 
 
