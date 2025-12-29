@@ -103,6 +103,8 @@ onAuthStateChanged(auth, user => {
     anonBtn.style.display = "inline-block";
     logoutBtn.style.display = "none";
   }
+
+  updateRateDisplay(window.currentUID);
 });
 
 //ロード時
@@ -941,7 +943,7 @@ document.getElementById("updateNameBtn").addEventListener("click", async () => {
 
 // ===rating===
 async function getNameAndRate(uid) {
-  if (!uid) return { name: null, rate: 1500 }; // UIDが無ければデフォルト
+  if (!uid) return { name: "名無し", rate: 1500 }; // UIDが無ければデフォルト
 
   const docRef = doc(db, "ratings", uid);
   const snap = await getDoc(docRef);
@@ -1006,4 +1008,3 @@ toggleBtn.addEventListener("click", () => {
   }
 });
 
-updateRateDisplay(window.currentUID);
