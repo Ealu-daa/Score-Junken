@@ -493,7 +493,7 @@ window.chooseHand = async function(handType, value) {
           selectedRight = value;
           highlight(".hands:nth-of-type(2) button", value);
         }
-        if (!window.isOnline && blockCount < 3)
+        else if (!window.isOnline && blockCount < 3)
         {
           selectedRight = value;
           highlight(".hands:nth-of-type(2) button", value);
@@ -513,7 +513,7 @@ window.chooseHand = async function(handType, value) {
           selectedRight = value;
           highlight(".hands:nth-of-type(2) button", value);
         }
-        if (!window.isOnline && !reversalUsed)
+        else if (!window.isOnline && !reversalUsed)
         {
           selectedRight = value;
           highlight(".hands:nth-of-type(2) button", value);
@@ -521,7 +521,6 @@ window.chooseHand = async function(handType, value) {
         else
         {
           console.log("使用回数を超過しました")
-          console.log(onlineBlockCount)
           return;
         }
       }
