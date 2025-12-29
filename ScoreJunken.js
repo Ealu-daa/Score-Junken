@@ -856,19 +856,22 @@ async function joinRoom(selectedRoomId) {
       if (other.right === 5) other.reversalUsed = true;
 
       // Firestore 更新
-      updateDoc(gameRef, {
-        "player1.score": p.score + (playerId === "player1" ? meGain : otherGain),
-        "player2.score": c.score + (playerId === "player1" ? otherGain : meGain),
-        "round": data.round + 1,
-        "player1.left": null,
-        "player1.right": null,
-        "player2.left": null,
-        "player2.right": null,
-        "player1.blockCount": p.blockCount,
-        "player1.reversalUsed": p.reversalUsed,
-        "player2.blockCount": c.blockCount,
-        "player2.reversalUsed": c.reversalUsed,
-      });
+      if (playerId === "player1")
+      {
+        updateDoc(gameRef, {
+          "player1.score": p.score + (playerId === "player1" ? meGain : otherGain),
+          "player2.score": c.score + (playerId === "player1" ? otherGain : meGain),
+          "round": data.round + 1,
+          "player1.left": null,
+          "player1.right": null,
+          "player2.left": null,
+          "player2.right": null,
+          "player1.blockCount": p.blockCount,
+          "player1.reversalUsed": p.reversalUsed,
+          "player2.blockCount": c.blockCount,
+          "player2.reversalUsed": c.reversalUsed,
+        });
+      }
 
       // ログ表示
       if (lastLoggedRound < data.round) {
