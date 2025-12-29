@@ -501,6 +501,7 @@ window.chooseHand = async function(handType, value) {
         else
         {
           console.log("使用回数を超過しました")
+          console.log(onlineBlockCount)
           return;
         }
       }
@@ -520,6 +521,7 @@ window.chooseHand = async function(handType, value) {
         else
         {
           console.log("使用回数を超過しました")
+          console.log(onlineBlockCount)
           return;
         }
       }
