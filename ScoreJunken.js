@@ -459,71 +459,86 @@ window.chooseHand = async function(handType, value) {
   [`${playerId}.lastActive`]: serverTimestamp()
   });
 
-  // ボタンハイライト
-  if(handType === "left") {
-    selectedLeft = value;
-    highlight(".hands:nth-of-type(1) button", value);
-  } else if(handType === "right") {
-    //ブロック
-    if (value === 0)
+  const snap = await getDoc(gameRef);
+
+  if (snap.exists()) {
+    if (playerId === "player1")
     {
-      if (window.isOnline && onlinePBlockCount < 3)
-      {
-        selectedRight = value;
-        highlight(".hands:nth-of-type(2) button", value);
-      }
-      if (!window.isOnline && blockCount < 3)
-      {
-        selectedRight = value;
-        highlight(".hands:nth-of-type(2) button", value);
-      }
-      else
-      {
-        console.log("使用回数を超過しました")
-      }
-    }
-    //リバーサル
-    else if (value === 5)
-    {
-      if (window.isOnline && !onlinePReversal)
-      {
-        selectedRight = value;
-        highlight(".hands:nth-of-type(2) button", value);
-      }
-      if (!window.isOnline && !reversalUsed)
-      {
-        selectedRight = value;
-        highlight(".hands:nth-of-type(2) button", value);
-      }
-      else
-      {
-        console.log("使用回数を超過しました")
-      }
+      onlinePBlockCount = data.player1.blockCount
+      onlinePReversal = data.player1.reversalUsed
     }
     else
     {
-      selectedRight = value;
-      highlight(".hands:nth-of-type(2) button", value);
+      onlinePBlockCount = data.player2.blockCount
+      onlinePReversal = data.player2.reversalUsed
     }
-  }
 
-  if (window.isOnline) {
-    // オンライン戦: Firestore に送信
-    const gameRef = doc(db, "games", roomId);
-    const updateObj = {};
-    updateObj[`${playerId}.${handType}`] = value;
-    await updateDoc(gameRef, updateObj);
-  } else {
-    // CPU戦: 両手が揃ったらターン進行
-    if (selectedLeft !== null && selectedRight !== null) {
-      const result = playTurn(selectedLeft, selectedRight);
-      updateGameUI(result);
-      // 選択状態リセット
-      selectedLeft = null;
-      selectedRight = null;
-      document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+    // ボタンハイライト
+    if(handType === "left") {
+      selectedLeft = value;
+      highlight(".hands:nth-of-type(1) button", value);
+    } else if(handType === "right") {
+      //ブロック
+      if (value === 0)
+      {
+        if (window.isOnline && onlinePBlockCount < 3)
+        {
+          selectedRight = value;
+          highlight(".hands:nth-of-type(2) button", value);
+        }
+        if (!window.isOnline && blockCount < 3)
+        {
+          selectedRight = value;
+          highlight(".hands:nth-of-type(2) button", value);
+        }
+        else
+        {
+          console.log("使用回数を超過しました")
+        }
+      }
+      //リバーサル
+      else if (value === 5)
+      {
+        if (window.isOnline && !onlinePReversal)
+        {
+          selectedRight = value;
+          highlight(".hands:nth-of-type(2) button", value);
+        }
+        if (!window.isOnline && !reversalUsed)
+        {
+          selectedRight = value;
+          highlight(".hands:nth-of-type(2) button", value);
+        }
+        else
+        {
+          console.log("使用回数を超過しました")
+        }
+      }
+      else
+      {
+        selectedRight = value;
+        highlight(".hands:nth-of-type(2) button", value);
+      }
     }
-  }
+
+    if (window.isOnline) {
+      // オンライン戦: Firestore に送信
+      const gameRef = doc(db, "games", roomId);
+      const updateObj = {};
+      updateObj[`${playerId}.${handType}`] = value;
+      await updateDoc(gameRef, updateObj);
+    } else {
+      // CPU戦: 両手が揃ったらターン進行
+      if (selectedLeft !== null && selectedRight !== null) {
+        const result = playTurn(selectedLeft, selectedRight);
+        updateGameUI(result);
+        // 選択状態リセット
+        selectedLeft = null;
+        selectedRight = null;
+        document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+      }
+    }
+  }  
 }
 
 // ===== 1ターン進行 =====
@@ -656,8 +671,8 @@ async function endGameOnline(pScore, cScore) {
   resetBtn.textContent = "もう一度プレイ";
   resetBtn.onclick = async () => {
     await setDoc(doc(db, "games", "room001"), {
-      player1: { left: null, right: null, score: 0 },
-      player2: { left: null, right: null, score: 0 },
+      player1: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
+      player2: { join: false, left: null, right: null, score: 0, lastActive: serverTimestamp(), blockCount: 0, reversalUsed: false },
       round: 1,
       status: "playing"
     });
@@ -692,6 +707,8 @@ function resetGame(set = true){
   document.getElementById("round").textContent = 1;
   document.getElementById("log").textContent = "左手と右手を選んでください";
 
+  document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+
   if (set === true)
   {
     document.querySelectorAll(".hands button").forEach(btn => btn.disabled=false);
@@ -722,6 +739,7 @@ document.getElementById("cpu-btn").addEventListener("click", () => {
 
 
 async function joinRoom(selectedRoomId) {
+  document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
   // もし前の onSnapshot があれば解除
   if (unsubscribe) unsubscribe();
 
