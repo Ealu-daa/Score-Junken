@@ -673,6 +673,8 @@ async function endGameOnline(pScore, cScore) {
       `あなた：${rateResult.A.before} → ${rateResult.A.after} (${rateResult.A.diff >= 0 ? "+" : ""}${rateResult.A.diff})\n` +
       `相手：${rateResult.B.before} → ${rateResult.B.after} (${rateResult.B.diff >= 0 ? "+" : ""}${rateResult.B.diff})\n`;
 
+    logEl.scrollTop = logEl.scrollHeight;
+
     // 更新したレートを表示
     await updateRateDisplay(window.currentUID, window.opponentUID);
   }
