@@ -516,7 +516,7 @@ window.chooseHand = async function(handType, value) {
   } else {
     // CPU戦: 両手が揃ったらターン進行
     if (selectedLeft !== null && selectedRight !== null) {
-      const result = playTurn(selectedLeft, selectedRight, blockCount);
+      const result = playTurn(selectedLeft, selectedRight);
       updateGameUI(result);
       // 選択状態リセット
       selectedLeft = null;
@@ -529,7 +529,7 @@ window.chooseHand = async function(handType, value) {
 // ===== 1ターン進行 =====
 
 
-function playTurn(playerLeft, playerRight, blockCount){
+function playTurn(playerLeft, playerRight){
   const cpuL = cpuLeft(history);
   const cpuR = cpuRight(history, cpuL, round, maxRound, cpuReversalUsed, cpuBlockCount);
 
@@ -670,17 +670,22 @@ async function endGameOnline(pScore, cScore) {
 
 // ===== ゲームリセット =====
 function resetGame(set = true){
-  round = 1;
   playerScore = 0;
   cpuScore = 0;
-  history = [];
+  istory = [];
+  round = 1;
   selectedLeft = null;
   selectedRight = null;
+
   nearEndGame = false;
   cpuBlockCount = 0;
   cpuReversalUsed = false;
   blockCount = 0;
   reversalUsed = false;
+
+  onlineEndGame = false;
+  onlinePBlockCount = 0;
+  onlinePReversal = false;
 
   document.getElementById("pScore").textContent = 0;
   document.getElementById("cScore").textContent = 0;
@@ -739,8 +744,6 @@ async function joinRoom(selectedRoomId) {
 
     // 両プレイヤーが手を出したら
     if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
-
-      
 
       const pResult = judgeLeft(p.left, c.left);
       const cResult = -pResult;
