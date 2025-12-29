@@ -801,14 +801,20 @@ async function joinRoom(selectedRoomId) {
       "player2.right": null,
     };
 
-    // ブロック
+    // ===== ブロック処理 =====
     if (p.right === 0) {
       updateObj["player1.blockCount"] = increment(1);
     }
+    if (c.right === 0) {
+      updateObj["player2.blockCount"] = increment(1);
+    }
 
-    // リバーサル
+    // ===== リバーサル処理 =====
     if (p.right === 5) {
       updateObj["player1.reversalUsed"] = true;
+    }
+    if (c.right === 5) {
+      updateObj["player2.reversalUsed"] = true;
     }
 
     await updateDoc(gameRef, updateObj);
