@@ -687,7 +687,7 @@ async function endGameOnline(pScore, cScore) {
       status: "playing"
     });
     document.querySelectorAll(".hands button").forEach(btn => btn.disabled = false);
-    document.getElementById("log").textContent = "左手と右手を選んでください";
+    document.getElementById("log").textContent = "roomに参加しました";
     resetBtn.remove();
   };
   document.body.appendChild(resetBtn);
@@ -715,7 +715,7 @@ function resetGame(set = true){
   document.getElementById("pScore").textContent = 0;
   document.getElementById("cScore").textContent = 0;
   document.getElementById("round").textContent = 1;
-  document.getElementById("log").textContent = "左手と右手を選んでください";
+  document.getElementById("log").textContent = "roomに参加しました";
 
   document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
 
@@ -919,7 +919,7 @@ document.getElementById("return-start").addEventListener("click", async () => {
   document.body.classList.remove("in-game");   // ゲーム開始
 });
 
-document.getElementById("saveNameBtn").addEventListener("click", async () => {
+document.getElementById("updateNameBtn").addEventListener("click", async () => {
   const inputName = document.getElementById("nameInput").value.trim();
   if (!inputName) return alert("名前を入力してください");
 
