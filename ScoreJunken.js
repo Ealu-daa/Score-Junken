@@ -1006,4 +1006,4 @@ toggleBtn.addEventListener("click", () => {
   }
 });
 
-updateRateDisplay();
+updateRateDisplay(currentUID);
