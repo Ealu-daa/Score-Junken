@@ -887,10 +887,8 @@ async function joinRoom(selectedRoomId) {
       }
 
       // スコア・ラウンド更新
-      if (maxRound > round)
-        document.getElementById("round").textContent = maxRound;
-      else
-        document.getElementById("round").textContent = data.round + 1;
+
+      document.getElementById("round").textContent = data.round + 1;
       document.getElementById("pScore").textContent = (playerId === "player1" ? p.score : c.score) + meGain;
       document.getElementById("cScore").textContent = (playerId === "player1" ? c.score : p.score) + otherGain;
 
