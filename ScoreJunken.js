@@ -642,9 +642,9 @@ function updateGameUI(result) {
 // ===== ゲーム終了 =====
 function endGame(){
   let winner;
-  if(playerScore>cpuScore) winner="あなたの勝ち！🎉";
-  else if(playerScore<cpuScore) winner="CPUの勝ち！💻";
-  else winner="引き分け！🤝";
+  if(playerScore>cpuScore) winner="あなたの勝ち！";
+  else if(playerScore<cpuScore) winner="CPUの勝ち！";
+  else winner="引き分け！";
 
   const logEl = document.getElementById("log");
   logEl.textContent += `=== ゲーム終了 ===\n${winner}\n`;
@@ -665,9 +665,9 @@ async function endGameOnline(pScore, cScore) {
 
   const logEl = document.getElementById("log");
   let winner = "";
-  if (pScore > cScore) winner = "あなたの勝ち！🎉";
-  else if (pScore < cScore) winner = "相手の勝ち！💻";
-  else winner = "引き分け！🤝";
+  if (pScore > cScore) winner = "あなたの勝ち！";
+  else if (pScore < cScore) winner = "相手の勝ち！";
+  else winner = "引き分け！";
 
   logEl.textContent += `=== ゲーム終了 ===\n${winner}\n`;
   logEl.scrollTop = logEl.scrollHeight;
@@ -751,10 +751,10 @@ async function joinRoom(selectedRoomId) {
     const p = data.player1;
     const c = data.player2;
 
+    const logEl = document.getElementById("log");
+
     if(data.status === "waiting" && p.join === true && c.join === true)
     {
-      const logEl = document.getElementById("log");
-
       const mystats = await getNameAndRate(p.uid);
 
       const otherstats = await getNameAndRate(c.uid);
@@ -770,7 +770,6 @@ async function joinRoom(selectedRoomId) {
     }
     else if(data.status === "waiting" && !logEl.textContent.includes("プレイヤーを探しています..."))
     {
-      const logEl = document.getElementById("log");
       logEl.textContent += `\nプレイヤーを探しています...`;
     }
 
