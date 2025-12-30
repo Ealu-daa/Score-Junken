@@ -539,16 +539,22 @@ window.chooseHand = async function(handType, value) {
       let highlightValue = 0;
       if (value === 0)
         highlightValue = 0;
+
       else if (value === 1)
-        highlightValue = 3;
-      else if (value === 2)
-        highlightValue = 1;
-      else if (value === 3)
-        highlightValue = 4;
-      else if (value === 4)
         highlightValue = 2;
+
+      else if (value === 2)
+        highlightValue = 4;
+
+      else if (value === 3)
+        highlightValue = 1;
+
+      else if (value === 4)
+        highlightValue = 3;
+
       else if (value === 5)
         highlightValue = 5;
+
       //ブロック
       if (value === 0)
       {
