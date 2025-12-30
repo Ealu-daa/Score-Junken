@@ -865,6 +865,8 @@ async function joinRoom(selectedRoomId) {
       if (other.right === 0) other.blockCount++;
       if (other.right === 5) other.reversalUsed = true;
 
+      const currentRound = data.round;
+
       // Firestore 更新
       if (playerId === "player1")
       {
@@ -903,7 +905,7 @@ async function joinRoom(selectedRoomId) {
       document.getElementById("cScore").textContent = (playerId === "player1" ? c.score : p.score) + otherGain;
 
       // ゲーム終了判定
-      if (data.round >= maxRound) {
+      if (currentRound >= maxRound) {
 
         if (playerId === "player1" && !data.rateResult) {
           const rateResult = await updateRateAfterMatch(
@@ -917,6 +919,7 @@ async function joinRoom(selectedRoomId) {
             rateResult
           });
         }
+        return;
       }
 
       if (data.rateResult && !window.rateLogged) {
