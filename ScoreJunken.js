@@ -836,7 +836,6 @@ async function joinRoom(selectedRoomId) {
       logEl.textContent += `\nプレイヤーを探しています...`;
     }
 
-
     // 両手が出揃った場合
     if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
 
