@@ -37,7 +37,7 @@ const db = getFirestore(app); // Firestore を使えるようにする
 
 let playerId = null; // "player1" or "player2"
 let roomId = "room001";
-const maxRound = 3;
+const maxRound = 15;
 
 let unsubscribe = null; // 前回の onSnapshot を解除するため
 
