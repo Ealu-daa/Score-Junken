@@ -605,9 +605,12 @@ window.chooseHand = async function(handType, value) {
         if (window.isOnline) {
           // オンライン戦: Firestore に送信
           const gameRef = doc(db, "games", roomId);
-          const updateObj = {};
-          updateObj[`${playerId}.left`] = selectedLeft;
-          updateObj[`${playerId}.right`] = selectedRight;
+          const updateObj = {
+            [playerId]: {
+              left: selectedLeft,
+              right: selectedRight
+            }
+          };
           await updateDoc(gameRef, updateObj);
         } else {
           // CPU戦: 両手が揃ったらターン進行
