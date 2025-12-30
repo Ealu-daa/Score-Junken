@@ -555,12 +555,12 @@ window.chooseHand = async function(handType, value) {
         if (window.isOnline && onlineBlockCount < 3)
         {
           selectedRight = value;
-          highlight(".hand-right button", value);
+          highlight(".hand-right button", highlightValue);
         }
         else if (!window.isOnline && blockCount < 3)
         {
           selectedRight = value;
-          highlight(".hand-right button", value);
+          highlight(".hand-right button", highlightValue);
         }
         else
         {
@@ -575,12 +575,12 @@ window.chooseHand = async function(handType, value) {
         if (window.isOnline && !onlineReversalUsed)
         {
           selectedRight = value;
-          highlight(".hand-right button", value);
+          highlight(".hand-right button", highlightValue);
         }
         else if (!window.isOnline && !reversalUsed)
         {
           selectedRight = value;
-          highlight(".hand-right button", value);
+          highlight(".hand-right button", highlightValue);
         }
         else
         {
@@ -591,7 +591,7 @@ window.chooseHand = async function(handType, value) {
       else
       {
         selectedRight = value;
-        highlight(".hand-right button", value);
+        highlight(".hand-right button", highlightValue);
       }
     } else if(handType === "confirm") {
         if (window.isOnline) {
