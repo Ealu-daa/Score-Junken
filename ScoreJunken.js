@@ -919,7 +919,7 @@ async function joinRoom(selectedRoomId) {
             rateResult
           });
         }
-        return;
+        
       }
 
       if (data.rateResult && !window.rateLogged) {
@@ -938,6 +938,8 @@ async function joinRoom(selectedRoomId) {
           oppUID,
           data.rateResult
         );
+
+        return;
       }
     }
   });
