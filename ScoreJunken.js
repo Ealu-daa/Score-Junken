@@ -905,7 +905,7 @@ async function joinRoom(selectedRoomId) {
       document.getElementById("cScore").textContent = (playerId === "player1" ? c.score : p.score) + otherGain;
 
       // ゲーム終了判定
-      if (currentRound >= maxRound) {
+      if (currentRound - 1 >= maxRound) {
 
         if (playerId === "player1" && !data.rateResult) {
           const rateResult = await updateRateAfterMatch(
