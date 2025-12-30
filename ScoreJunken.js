@@ -839,6 +839,8 @@ async function joinRoom(selectedRoomId) {
     const data = docSnap.data();
     if (!data) return;
 
+    let meOutouLogged = false;
+    let otherOutouLogged = false;
 
     const p = data.player1;
     const c = data.player2;
@@ -863,6 +865,27 @@ async function joinRoom(selectedRoomId) {
     else if(data.status === "waiting" && !logEl.textContent.includes("プレイヤーを探しています..."))
     {
       logEl.textContent += `\nプレイヤーを探しています...`;
+    }
+
+    //自分が出してないp1
+    if (!meOutouLogged && playerId === "player1" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
+      logEl.textContent += `あなたの応答を待っています`;
+      meOutouLogged = true;
+    }
+    //相手が出してないp2
+    else if (!otherOutouLogged && playerId === "player1" && p.left !== null && p.right !== null && (c.left === null || c.right === null)) {
+      logEl.textContent += `相手の応答を待っています`;
+      otherOutouLogged = true;
+    }
+    //自分が出してないp1
+    else if (!meOutouLogged && playerId === "player2" && p.left !== null && p.right !== null && (c.left === null || c.right === null)) {
+      logEl.textContent += `あなたの応答を待っています`;
+      meOutouLogged = true;
+    }
+    //相手が出してないp2
+    else if (!otherOutouLogged && playerId === "player2" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
+      logEl.textContent += `相手の応答を待っています`;
+      otherOutouLogged = true;
     }
 
     // 両手が出揃った場合
@@ -924,6 +947,9 @@ async function joinRoom(selectedRoomId) {
         logEl.scrollTop = logEl.scrollHeight;
         document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
         lastLoggedRound = data.round;
+
+        meOutouLogged = false;
+        otherOutouLogged = false;
       }
 
       // スコア・ラウンド更新
