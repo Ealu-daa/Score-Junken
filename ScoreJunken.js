@@ -704,12 +704,22 @@ async function endGameOnline(pScore, cScore, myUID, oppUID, rateResult) {
   const logEl = document.getElementById("log");
 
   let winner = "";
-  if (pScore > cScore) winner = "あなたの勝ち！";
-  else if (pScore < cScore) winner = "相手の勝ち！";
-  else winner = "引き分け！";
+  if (playerId === "player1")
+  {
+    if (pScore > cScore) winner = "あなたの勝ち！";
+    else if (pScore < cScore) winner = "相手の勝ち！";
+    else winner = "引き分け！";
 
-  logEl.textContent += `=== ゲーム終了 ===\n${winner}\n`;
+    logEl.textContent += `=== ゲーム終了 ===\n${winner}\n`;
+  }
+  if (playerId === "player2")
+  {
+    if (cScore > pScore) winner = "あなたの勝ち！";
+    else if (cScore < pScore) winner = "相手の勝ち！";
+    else winner = "引き分け！";
 
+    logEl.textContent += `=== ゲーム終了 ===\n${winner}\n`;
+  }
   // レート表示（両プレイヤー共通）
   if (rateResult) {
     const isP1 = playerId === "player1";
@@ -892,13 +902,8 @@ async function joinRoom(selectedRoomId) {
       document.getElementById("pScore").textContent = (playerId === "player1" ? p.score : c.score) + meGain;
       document.getElementById("cScore").textContent = (playerId === "player1" ? c.score : p.score) + otherGain;
 
-      const myUID =
-        playerId === "player1" ? data.player1.uid : data.player2.uid;
-      const oppUID =
-        playerId === "player1" ? data.player2.uid : data.player1.uid;
-
       // ゲーム終了判定
-      if (data.round + 1 > maxRound) {
+      if (data.round >= maxRound) {
 
         if (playerId === "player1" && !data.rateResult) {
           const rateResult = await updateRateAfterMatch(
