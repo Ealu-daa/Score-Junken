@@ -600,15 +600,17 @@ window.chooseHand = async function(handType, value) {
         highlight(".hand-right button", highlightValue);
       }
     } else if(handType === "confirm") {
+      if (selectedLeft !== null && selectedRight !== null)
+      {
         if (window.isOnline) {
-        // オンライン戦: Firestore に送信
-        const gameRef = doc(db, "games", roomId);
-        const updateObj = {};
-        updateObj[`${playerId}.${handType}`] = value;
-        await updateDoc(gameRef, updateObj);
-      } else {
-        // CPU戦: 両手が揃ったらターン進行
-        if (selectedLeft !== null && selectedRight !== null) {
+          // オンライン戦: Firestore に送信
+          const gameRef = doc(db, "games", roomId);
+          const updateObj = {};
+          updateObj[`${playerId}.left`] = selectedLeft;
+          updateObj[`${playerId}.right`] = selectedRight;
+          await updateDoc(gameRef, updateObj);
+        } else {
+          // CPU戦: 両手が揃ったらターン進行
           const result = playTurn(selectedLeft, selectedRight);
           updateGameUI(result);
           // 選択状態リセット
