@@ -600,6 +600,7 @@ window.chooseHand = async function(handType, value) {
         highlight(".hand-right button", highlightValue);
       }
     } else if(handType === "confirm") {
+      console.log(selectedLeft +","+ selectedRight);
       if (selectedLeft !== null && selectedRight !== null)
       {
         if (window.isOnline) {
@@ -612,6 +613,10 @@ window.chooseHand = async function(handType, value) {
             }
           };
           await updateDoc(gameRef, updateObj);
+
+          selectedLeft = null;
+          selectedRight = null;
+          document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
         } else {
           // CPU戦: 両手が揃ったらターン進行
           const result = playTurn(selectedLeft, selectedRight);
@@ -770,6 +775,7 @@ function resetGame(set = true){
   round = 1;
   selectedLeft = null;
   selectedRight = null;
+
 
   nearEndGame = false;
   cpuBlockCount = 0;
