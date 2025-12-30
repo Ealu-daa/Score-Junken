@@ -607,11 +607,9 @@ window.chooseHand = async function(handType, value) {
           // オンライン戦: Firestore に送信
           const gameRef = doc(db, "games", roomId);
           const updateObj = {
-            [playerId]: {
-              left: selectedLeft,
-              right: selectedRight
-            }
-          };
+          [`${playerId}.left`]: selectedLeft,
+          [`${playerId}.right`]: selectedRight
+        };
           await updateDoc(gameRef, updateObj);
 
           selectedLeft = null;
