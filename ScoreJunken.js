@@ -2,6 +2,8 @@
    Score Junken Core Logic
    ========================= */
 
+console.log("ver0.3.1");
+   
 // ===== Firebase 初期化 =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
@@ -141,7 +143,7 @@ async function checkTimeout() {
   }
 }
 
-console.log("ver0.3.0");
+
 
 checkTimeout();
 setInterval(checkTimeout, CHECK_INTERVAL);
@@ -614,7 +616,6 @@ window.chooseHand = async function(handType, value) {
 
           selectedLeft = null;
           selectedRight = null;
-          document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
         } else {
           // CPU戦: 両手が揃ったらターン進行
           const result = playTurn(selectedLeft, selectedRight);
