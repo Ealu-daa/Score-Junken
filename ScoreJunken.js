@@ -534,7 +534,7 @@ window.chooseHand = async function(handType, value) {
     // ボタンハイライト
     if(handType === "left") {
       selectedLeft = value;
-      highlight(".hands:nth-of-type(1) button", value);
+      highlight(".hand-left button", value);
     } else if(handType === "right") {
       //ブロック
       if (value === 0)
@@ -542,12 +542,12 @@ window.chooseHand = async function(handType, value) {
         if (window.isOnline && onlineBlockCount < 3)
         {
           selectedRight = value;
-          highlight(".hands:nth-of-type(2) button", value);
+          highlight(".hand-right button", value);
         }
         else if (!window.isOnline && blockCount < 3)
         {
           selectedRight = value;
-          highlight(".hands:nth-of-type(2) button", value);
+          highlight(".hand-right button", value);
         }
         else
         {
@@ -562,12 +562,12 @@ window.chooseHand = async function(handType, value) {
         if (window.isOnline && !onlineReversalUsed)
         {
           selectedRight = value;
-          highlight(".hands:nth-of-type(2) button", value);
+          highlight(".hand-right button", value);
         }
         else if (!window.isOnline && !reversalUsed)
         {
           selectedRight = value;
-          highlight(".hands:nth-of-type(2) button", value);
+          highlight(".hand-right button", value);
         }
         else
         {
@@ -578,7 +578,7 @@ window.chooseHand = async function(handType, value) {
       else
       {
         selectedRight = value;
-        highlight(".hands:nth-of-type(2) button", value);
+        highlight(".hand-right button", value);
       }
     } else if(handType === "confirm") {
         if (window.isOnline) {
@@ -742,7 +742,7 @@ async function endGameOnline(pScore, cScore, myUID, oppUID, rateResult) {
 function resetGame(set = true){
   playerScore = 0;
   cpuScore = 0;
-  istory = [];
+  history = [];
   round = 1;
   selectedLeft = null;
   selectedRight = null;
