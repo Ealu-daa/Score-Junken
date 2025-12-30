@@ -102,19 +102,21 @@
       <!-- 右手 -->
       <div class="hand right">
         <h2>右手</h2>
-        <div class="right-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; justify-items: center;">
-          <div class="hand-item"><img src="img/block.png" alt="ブロック"><button data-right="0" onclick="chooseHand('right',0)">ブロック</button></div>
-          <div class="hand-item"><img src="img/counter.png" alt="カウンター"><button data-right="3" onclick="chooseHand('right',3)">カウンター</button></div>
-          <div class="hand-item"><img src="img/light.png" alt="ライト"><button data-right="1" onclick="chooseHand('right',1)">ライト</button></div>
-          <div class="hand-item"><img src="img/trick.png" alt="トリック"><button data-right="4" onclick="chooseHand('right',4)">トリック</button></div>
-          <div class="hand-item"><img src="img/drive.png" alt="ドライブ"><button data-right="2" onclick="chooseHand('right',2)">ドライブ</button></div>
-          <div class="hand-item"><img src="img/reversal.png" alt="リバーサル"><button data-right="5" onclick="chooseHand('right',5)">リバーサル</button></div>
+        <div class="hands">
+          <div class="right-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; justify-items: center;">
+            <div class="hand-item"><img src="img/block.png" alt="ブロック"><button data-right="0" onclick="chooseHand('right',0)">ブロック</button></div>
+            <div class="hand-item"><img src="img/counter.png" alt="カウンター"><button data-right="3" onclick="chooseHand('right',3)">カウンター</button></div>
+            <div class="hand-item"><img src="img/light.png" alt="ライト"><button data-right="1" onclick="chooseHand('right',1)">ライト</button></div>
+            <div class="hand-item"><img src="img/trick.png" alt="トリック"><button data-right="4" onclick="chooseHand('right',4)">トリック</button></div>
+            <div class="hand-item"><img src="img/drive.png" alt="ドライブ"><button data-right="2" onclick="chooseHand('right',2)">ドライブ</button></div>
+            <div class="hand-item"><img src="img/reversal.png" alt="リバーサル"><button data-right="5" onclick="chooseHand('right',5)">リバーサル</button></div>
+          </div>
         </div>
       </div>
 
     </div>
 
-    <button id="confirm-btn" disabled>確定</button>+/**
+    <button onclick="chooseHand('confirm',0)">確定</button>
 
     <!-- スコアとログ（画面下） -->
     <div id="score-log">

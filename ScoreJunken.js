@@ -580,23 +580,23 @@ window.chooseHand = async function(handType, value) {
         selectedRight = value;
         highlight(".hands:nth-of-type(2) button", value);
       }
-    }
-
-    if (window.isOnline) {
-      // オンライン戦: Firestore に送信
-      const gameRef = doc(db, "games", roomId);
-      const updateObj = {};
-      updateObj[`${playerId}.${handType}`] = value;
-      await updateDoc(gameRef, updateObj);
-    } else {
-      // CPU戦: 両手が揃ったらターン進行
-      if (selectedLeft !== null && selectedRight !== null) {
-        const result = playTurn(selectedLeft, selectedRight);
-        updateGameUI(result);
-        // 選択状態リセット
-        selectedLeft = null;
-        selectedRight = null;
-        document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+    } else if(handType === "confirm") {
+        if (window.isOnline) {
+        // オンライン戦: Firestore に送信
+        const gameRef = doc(db, "games", roomId);
+        const updateObj = {};
+        updateObj[`${playerId}.${handType}`] = value;
+        await updateDoc(gameRef, updateObj);
+      } else {
+        // CPU戦: 両手が揃ったらターン進行
+        if (selectedLeft !== null && selectedRight !== null) {
+          const result = playTurn(selectedLeft, selectedRight);
+          updateGameUI(result);
+          // 選択状態リセット
+          selectedLeft = null;
+          selectedRight = null;
+          document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
+        }
       }
     }
   }  
