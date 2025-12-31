@@ -839,7 +839,8 @@ async function joinRoom(selectedRoomId) {
     const data = docSnap.data();
     if (!data) return;
 
-    
+    let meOutouLogged = false;
+    let otherOutouLogged = false;
 
     const p = data.player1;
     const c = data.player2;
@@ -865,7 +866,9 @@ async function joinRoom(selectedRoomId) {
     {
       logEl.textContent += `\nプレイヤーを探しています...`;
     }
-     /*     ///自分が出してないp1出してないp1 (!meOutouLogged && playerId === "player1" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
+
+    //自分が出してないp1
+    if (!meOutouLogged && playerId === "player1" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
       logEl.textContent += `あなたの応答を待っています`;
       meOutouLogged = true;
     }
@@ -884,7 +887,7 @@ async function joinRoom(selectedRoomId) {
       logEl.textContent += `相手の応答を待っています`;
       otherOutouLogged = true;
     }
-     */
+    //応答処理
 
     // 両手が出揃った場合
     if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
@@ -945,6 +948,9 @@ async function joinRoom(selectedRoomId) {
         logEl.scrollTop = logEl.scrollHeight;
         document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
         lastLoggedRound = data.round;
+
+        meOutouLogged = false;
+        otherOutouLogged = false;
       }
 
       // スコア・ラウンド更新
