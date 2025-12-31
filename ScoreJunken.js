@@ -866,9 +866,7 @@ async function joinRoom(selectedRoomId) {
     {
       logEl.textContent += `\nプレイヤーを探しています...`;
     }
-
-    //自分が出してないp1
-    if (!meOutouLogged && playerId === "player1" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
+     /*     ///自分が出してないp1出してないp1 (!meOutouLogged && playerId === "player1" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
       logEl.textContent += `あなたの応答を待っています`;
       meOutouLogged = true;
     }
@@ -887,6 +885,7 @@ async function joinRoom(selectedRoomId) {
       logEl.textContent += `相手の応答を待っています`;
       otherOutouLogged = true;
     }
+     */
 
     // 両手が出揃った場合
     if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
