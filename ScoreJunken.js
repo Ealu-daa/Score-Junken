@@ -841,8 +841,6 @@ async function joinRoom(selectedRoomId) {
     const data = docSnap.data();
     if (!data) return;
 
-    
-
     const p = data.player1;
     const c = data.player2;
 
@@ -1000,7 +998,7 @@ async function joinRoom(selectedRoomId) {
 
 
 document.getElementById("online-btn-room001").addEventListener("click", async () => {
-  if (playerCount.room001 < 2) {
+  if (playerCount.room001 === 0 || (playerCount.room001 === 1 && roomStatus.room001 === "waiting" )) {
     await joinRoom("room001"); // Firestore初期化・onSnapshot設定など
     startScreen.style.display = "none";
     gameArea.style.display = "block";
@@ -1009,7 +1007,7 @@ document.getElementById("online-btn-room001").addEventListener("click", async ()
 });
 
 document.getElementById("online-btn-room002").addEventListener("click", async () => {
-  if (playerCount.room002 < 2) {
+  if (playerCount.room002 === 0 || (playerCount.room002 === 1 && roomStatus.room002 === "waiting" )) {
     await joinRoom("room002"); // Firestore初期化・onSnapshot設定など
     startScreen.style.display = "none";
     gameArea.style.display = "block";
@@ -1018,7 +1016,7 @@ document.getElementById("online-btn-room002").addEventListener("click", async ()
 });
 
 document.getElementById("online-btn-room003").addEventListener("click", async () => {
-  if (playerCount.room003 < 2) {
+  if (playerCount.room003 === 0 || (playerCount.room003 === 1 && roomStatus.room003 === "waiting" )) {
     await joinRoom("room003"); // Firestore初期化・onSnapshot設定など
     startScreen.style.display = "none";
     gameArea.style.display = "block";
@@ -1028,7 +1026,7 @@ document.getElementById("online-btn-room003").addEventListener("click", async ()
 
 // ルームごとのプレイヤー人数を保存するオブジェクト
 const playerCount = {}; // 空オブジェクトで初期化
-
+const roomStatus = {};
 
 
 roomIds.forEach(roomId => {
@@ -1043,9 +1041,17 @@ roomIds.forEach(roomId => {
       (data.player1?.join ? 1 : 0) +
       (data.player2?.join ? 1 : 0);
 
+    //rooomStatus設定
+    roomStatus[roomId] = 
+      data.status;
+
     // ボタンの表示を更新
     const btn = document.getElementById(`online-btn-${roomId}`);
-    if (btn) btn.textContent = `${roomId} ${playerCount[roomId]}/2`;
+    if(playerCount[roomIds] === 1 && roomStatus[roomIds] === "playing")
+      if (btn) btn.textContent = `${roomId} ${playerCount[roomId]}/2 ゲーム進行中なので入ることはできません`;
+    else
+      if (btn) btn.textContent = `${roomId} ${playerCount[roomId]}/2`;
+
 
     console.log(playerCount); // 確認用
   });
