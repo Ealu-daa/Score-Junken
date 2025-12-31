@@ -839,8 +839,7 @@ async function joinRoom(selectedRoomId) {
     const data = docSnap.data();
     if (!data) return;
 
-    let meOutouLogged = false;
-    let otherOutouLogged = false;
+    
 
     const p = data.player1;
     const c = data.player2;
@@ -946,9 +945,6 @@ async function joinRoom(selectedRoomId) {
         logEl.scrollTop = logEl.scrollHeight;
         document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
         lastLoggedRound = data.round;
-
-        meOutouLogged = false;
-        otherOutouLogged = false;
       }
 
       // スコア・ラウンド更新
