@@ -874,17 +874,17 @@ async function joinRoom(selectedRoomId) {
       meOutouLogged = true;
     }
     //相手が出してないp2
-    else if (!otherOutouLogged && playerId === "player1" && p.left !== null && p.right !== null && (c.left === null || c.right === null)) {
+    if (!otherOutouLogged && playerId === "player1" && p.left !== null && p.right !== null && (c.left === null || c.right === null)) {
       logEl.textContent += `\n相手の応答を待っています`;
       otherOutouLogged = true;
     }
     //自分が出してないp1
-    else if (!meOutouLogged && playerId === "player2" && p.left !== null && p.right !== null && (c.left === null || c.right === null)) {
+    if (!meOutouLogged && playerId === "player2" && p.left !== null && p.right !== null && (c.left === null || c.right === null)) {
       logEl.textContent += `\nあなたの応答を待っています`;
       meOutouLogged = true;
     }
     //相手が出してないp2
-    else if (!otherOutouLogged && playerId === "player2" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
+    if (!otherOutouLogged && playerId === "player2" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
       logEl.textContent += `\n相手の応答を待っています`;
       otherOutouLogged = true;
     }
