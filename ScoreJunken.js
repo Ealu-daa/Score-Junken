@@ -821,6 +821,8 @@ document.getElementById("cpu-btn").addEventListener("click", () => {
   console.log("対CPU")
 });
 
+let meOutouLogged = false;
+let otherOutouLogged = false;
 
 async function joinRoom(selectedRoomId) {
   // 選択状態リセット
@@ -839,8 +841,7 @@ async function joinRoom(selectedRoomId) {
     const data = docSnap.data();
     if (!data) return;
 
-    let meOutouLogged = false;
-    let otherOutouLogged = false;
+    
 
     const p = data.player1;
     const c = data.player2;
@@ -869,22 +870,22 @@ async function joinRoom(selectedRoomId) {
 
     //自分が出してないp1
     if (!meOutouLogged && playerId === "player1" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
-      logEl.textContent += `あなたの応答を待っています`;
+      logEl.textContent += `\nあなたの応答を待っています`;
       meOutouLogged = true;
     }
     //相手が出してないp2
     else if (!otherOutouLogged && playerId === "player1" && p.left !== null && p.right !== null && (c.left === null || c.right === null)) {
-      logEl.textContent += `相手の応答を待っています`;
+      logEl.textContent += `\n相手の応答を待っています`;
       otherOutouLogged = true;
     }
     //自分が出してないp1
     else if (!meOutouLogged && playerId === "player2" && p.left !== null && p.right !== null && (c.left === null || c.right === null)) {
-      logEl.textContent += `あなたの応答を待っています`;
+      logEl.textContent += `\nあなたの応答を待っています`;
       meOutouLogged = true;
     }
     //相手が出してないp2
     else if (!otherOutouLogged && playerId === "player2" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
-      logEl.textContent += `相手の応答を待っています`;
+      logEl.textContent += `\n相手の応答を待っています`;
       otherOutouLogged = true;
     }
     //応答処理
