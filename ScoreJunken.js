@@ -530,7 +530,7 @@ window.chooseHand = async function(handType, value) {
       onlineReversalUsed = data.player2.reversalUsed
     }
 
-    if (data.status === "waiting")
+    if (window.isOnline && data.status === "waiting")
       return;
 
     // ボタンハイライト
