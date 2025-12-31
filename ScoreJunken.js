@@ -1047,7 +1047,8 @@ roomIds.forEach(roomId => {
 
     // ボタンの表示を更新
     const btn = document.getElementById(`online-btn-${roomId}`);
-    if(playerCount[roomIds] === 1 && roomStatus[roomIds] === "playing")
+
+    if(playerCount[roomId] === 1 && roomStatus[roomId] === "playing")
       if (btn) btn.textContent = `${roomId} ${playerCount[roomId]}/2 ゲーム進行中なので入ることはできません`;
     else
       if (btn) btn.textContent = `${roomId} ${playerCount[roomId]}/2`;
