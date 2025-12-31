@@ -868,27 +868,20 @@ async function joinRoom(selectedRoomId) {
       logEl.textContent += `\nプレイヤーを探しています...`;
     }
 
-    //自分が出してないp1
-    if (!meOutouLogged && playerId === "player1" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
+    const meo = playerId === "player1" ? p : c;
+    const othero = playerId === "player1" ? c : p;
+
+    if (!meOutouLogged && (meo.left === null || meo.right === null) && othero.left !== null && othero.right !== null) {
       logEl.textContent += `\nあなたの応答を待っています`;
+      logEl.scrollTop = logEl.scrollHeight;
       meOutouLogged = true;
     }
-    //相手が出してないp2
-    if (!otherOutouLogged && playerId === "player1" && p.left !== null && p.right !== null && (c.left === null || c.right === null)) {
+
+    if (!otherOutouLogged && (othero.left === null || othero.right === null) && meo.left !== null && meo.right !== null) {
       logEl.textContent += `\n相手の応答を待っています`;
+      logEl.scrollTop = logEl.scrollHeight;
       otherOutouLogged = true;
     }
-    //自分が出してないp1
-    if (!meOutouLogged && playerId === "player2" && p.left !== null && p.right !== null && (c.left === null || c.right === null)) {
-      logEl.textContent += `\nあなたの応答を待っています`;
-      meOutouLogged = true;
-    }
-    //相手が出してないp2
-    if (!otherOutouLogged && playerId === "player2" && (p.left === null || p.right === null) && c.left !== null && c.right !== null) {
-      logEl.textContent += `\n相手の応答を待っています`;
-      otherOutouLogged = true;
-    }
-    //応答処理
 
     // 両手が出揃った場合
     if (p.left !== null && p.right !== null && c.left !== null && c.right !== null) {
@@ -950,8 +943,7 @@ async function joinRoom(selectedRoomId) {
         document.querySelectorAll(".hands button").forEach(btn => btn.classList.remove("selected"));
         lastLoggedRound = data.round;
 
-        meOutouLogged = false;
-        otherOutouLogged = false;
+        
       }
 
       // スコア・ラウンド更新
@@ -959,6 +951,9 @@ async function joinRoom(selectedRoomId) {
       document.getElementById("round").textContent = data.round + 1;
       document.getElementById("pScore").textContent = (playerId === "player1" ? p.score : c.score) + meGain;
       document.getElementById("cScore").textContent = (playerId === "player1" ? c.score : p.score) + otherGain;
+
+      meOutouLogged = false;
+      otherOutouLogged = false;
 
       // ゲーム終了判定
       if (currentRound  >= maxRound - 1) {
