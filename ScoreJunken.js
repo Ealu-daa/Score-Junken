@@ -1223,7 +1223,7 @@ rankingBtn.addEventListener("click", async () => {
 
     snap.docs.forEach((doc, index) => {
       const row = document.createElement("div");
-      row.textContent = `${index + 1}位  ${doc.data().name}  ${doc.data().rate}`;
+      row.textContent = `${index + 1}位.  ${doc.data().name}  (${doc.data().rate})`;
       row.className = "ranking-row";
       rankingList.appendChild(row);
     });
@@ -1232,11 +1232,26 @@ rankingBtn.addEventListener("click", async () => {
     const uid = auth.currentUser.uid;
     const mySnap = await getDoc(doc(db, "ratings", uid));
 
-    if (mySnap.exists()) {
-      myInfo.textContent = `${mySnap.data().name}  ${mySnap.data().rate}`;
-    } else {
+    if (!mySnap.exists()) {
       myInfo.textContent = "未登録";
+      return;
     }
+
+    const myRate = mySnap.data().rate;
+    const myName = mySnap.data().name;
+
+    // 自分より上の人数
+    const higherQuery = query(
+      collection(db, "ratings"),
+      where("rate", ">", myRate)
+    );
+
+    const higherSnap = await getDocs(higherQuery);
+    const myRank = higherSnap.size + 1;
+
+    // 表示
+    myInfo.textContent =
+      `${myRank}位.  ${myName}  (${myRate})`;
 
     rankingArea.style.display = "block";
   } catch (e) {
