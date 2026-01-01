@@ -15,7 +15,10 @@ import {
   onSnapshot,
   getDoc,
   serverTimestamp,
-  increment
+  collection,
+  orderBy, 
+  limit,
+  query
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -1186,3 +1189,47 @@ toggleBtn.addEventListener("click", () => {
   }
 });
 
+//100位まで読み込む
+export async function getTop100Ranking() {
+  const q = query(
+    collection(db, "ratings"),
+    orderBy("rate", "desc"),
+    limit(100)
+  );
+
+  const snap = await getDocs(q);
+
+  return snap.docs.map((doc, index) => ({
+    rank: index + 1,
+    uid: doc.id,          // ← docIdがuid
+    name: doc.data().name,
+    rate: doc.data().rate
+  }));
+}
+
+//自分のレートを読み込む
+export async function getMyRating() {
+  const auth = getAuth();
+  const uid = auth.currentUser.uid;
+
+  const ref = doc(db, "ratings", uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) return null;
+
+  return {
+    uid,
+    name: snap.data().name,
+    rate: snap.data().rate
+  };
+}
+
+async function loadRanking() {
+  const [top100, me] = await Promise.all([
+    getTop100Ranking(),
+    getMyRating()
+  ]);
+
+  console.log("TOP 100", top100);
+  console.log("ME", me);
+}
