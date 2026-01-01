@@ -183,7 +183,9 @@ button[data-right="5"] {
 }
 
 #rankingArea {
-  text-align: left;
+  width: 320px;
+  margin: 0 auto;   /* 枠を中央 */
+  text-align: left; /* 中身は左 */
 }
 
 /* ===== ログ ===== */
