@@ -1190,49 +1190,49 @@ toggleBtn.addEventListener("click", () => {
   }
 });
 
-//100位まで読み込む
-export async function getTop100Ranking() {
-  const q = query(
-    collection(db, "ratings"),
-    orderBy("rate", "desc"),
-    limit(100)
-  );
+const rankingBtn = document.getElementById("rankingBtn");
+const rankingArea = document.getElementById("rankingArea");
+const rankingList = document.getElementById("rankingList");
+const myInfo = document.getElementById("myInfo");
 
-  const snap = await getDocs(q);
+rankingBtn.addEventListener("click", async () => {
+  rankingBtn.disabled = true;
+  rankingBtn.textContent = "読み込み中...";
 
-  return snap.docs.map((doc, index) => ({
-    rank: index + 1,
-    uid: doc.id,          // ← docIdがuid
-    name: doc.data().name,
-    rate: doc.data().rate
-  }));
-}
+  rankingList.innerHTML = "";
+  myInfo.innerHTML = "";
 
-//自分のレートを読み込む
-export async function getMyRating() {
-  const auth = getAuth();
-  const uid = auth.currentUser.uid;
+  try {
+    // ① TOP100
+    const q = query(
+      collection(db, "ratings"),
+      orderBy("rate", "desc"),
+      limit(100)
+    );
+    const snap = await getDocs(q);
 
-  const ref = doc(db, "ratings", uid);
-  const snap = await getDoc(ref);
+    snap.docs.forEach((doc, index) => {
+      const li = document.createElement("li");
+      li.textContent = `${index + 1}位  ${doc.data().name}  ${doc.data().rate}`;
+      rankingList.appendChild(li);
+    });
 
-  if (!snap.exists()) return null;
+    // ② 自分
+    const uid = auth.currentUser.uid;
+    const mySnap = await getDoc(doc(db, "ratings", uid));
 
-  return {
-    uid,
-    name: snap.data().name,
-    rate: snap.data().rate
-  };
-}
+    if (mySnap.exists()) {
+      myInfo.textContent = `${mySnap.data().name}  ${mySnap.data().rate}`;
+    } else {
+      myInfo.textContent = "未登録";
+    }
 
-async function loadRanking() {
-  const [top100, me] = await Promise.all([
-    getTop100Ranking(),
-    getMyRating()
-  ]);
+    rankingArea.style.display = "block";
+  } catch (e) {
+    alert("ランキング取得に失敗しました");
+    console.error(e);
+  }
 
-  console.log("TOP 100", top100);
-  console.log("ME", me);
-}
-
-loadRanking();
+  rankingBtn.disabled = false;
+  rankingBtn.textContent = "ランキングを見る";
+});
