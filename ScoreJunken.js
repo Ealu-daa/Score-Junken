@@ -1196,21 +1196,21 @@ const rankingList = document.getElementById("rankingList");
 const myInfo = document.getElementById("myInfo");
 
 rankingBtn.addEventListener("click", async () => {
+  if (!auth.currentUser) {
+    alert("ログインしてください");
+    return;
+  }
+
+  if (rankingArea.style.display === "block") {
+    rankingArea.style.display = "none";
+    return;
+  }
+
   rankingBtn.disabled = true;
   rankingBtn.textContent = "読み込み中...";
 
   rankingList.innerHTML = "";
   myInfo.innerHTML = "";
-
-    if (!auth.currentUser) {
-    alert("ログインしてください");
-    return;
-  }
-
-    if (rankingArea.style.display === "block") {
-    rankingArea.style.display = "none";
-    return;
-  }
 
   try {
   // TOP100取得
