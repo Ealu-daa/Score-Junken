@@ -1202,8 +1202,18 @@ rankingBtn.addEventListener("click", async () => {
   rankingList.innerHTML = "";
   myInfo.innerHTML = "";
 
+    if (!auth.currentUser) {
+    alert("ログインしてください");
+    return;
+  }
+
+    if (rankingArea.style.display === "block") {
+    rankingArea.style.display = "none";
+    return;
+  }
+
   try {
-    // ① TOP100
+  // TOP100取得
     const q = query(
       collection(db, "ratings"),
       orderBy("rate", "desc"),
@@ -1212,9 +1222,10 @@ rankingBtn.addEventListener("click", async () => {
     const snap = await getDocs(q);
 
     snap.docs.forEach((doc, index) => {
-      const li = document.createElement("li");
-      li.textContent = `${index + 1}位  ${doc.data().name}  ${doc.data().rate}`;
-      rankingList.appendChild(li);
+      const row = document.createElement("div");
+      row.textContent = `${index + 1}位  ${doc.data().name}  ${doc.data().rate}`;
+      row.className = "ranking-row";
+      rankingList.appendChild(row);
     });
 
     // ② 自分
