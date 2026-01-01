@@ -1233,3 +1233,5 @@ async function loadRanking() {
   console.log("TOP 100", top100);
   console.log("ME", me);
 }
+
+loadRanking();
