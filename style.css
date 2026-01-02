@@ -338,7 +338,7 @@ body.in-game #google-auth-container {
 }
 
 /* =========================
-   📱 スマホUI最適化まとめ
+   スマホUI
    ========================= */
 @media (max-width: 480px), (hover: none) and (pointer: coarse) {
 
@@ -407,7 +407,7 @@ body.in-game #google-auth-container {
   #google-auth-container {
     bottom: 16px;
     right: 0px;
-    transform: translateX(50%);
+    transform: translateX(0%);
     flex-direction: column;
     gap: 10px;
   }
@@ -424,6 +424,8 @@ body.in-game #google-auth-container {
   #rate-display {
     font-size: 13px;
     padding-left: 52px;
+    height: 70px;
+    padding: 12px 12px;
   }
 
   .rank-icon {
