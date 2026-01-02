@@ -424,8 +424,8 @@ body.in-game #google-auth-container {
   #rate-display {
     font-size: 13px;
     padding-left: 52px;
-    height: 85px;
-    padding: 12px 12px;
+    height: 80px;
+    padding: 6px 12px;
   }
 
   .rank-icon {
