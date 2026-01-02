@@ -202,7 +202,7 @@ button[data-right="5"] {
 .rank-icon {
   position: absolute;
   top: -1px;   /* 微調整 */
-  left: -32px;
+  left: 2px;
   width: 80px;
   height: 80px;
   pointer-events: none;
