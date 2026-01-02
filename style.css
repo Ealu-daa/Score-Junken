@@ -172,7 +172,7 @@ button[data-right="5"] {
 /* ===== レート ===== */
 #rate-display {
   position: relative;
-  left: 10px;
+  left: 2px;
   top: 0px;
   height: 120px;
   width: 325px;
@@ -224,6 +224,7 @@ button[data-right="5"] {
   transition: width 0.5s;
 }
 
+/*ランキング*/
 #rankingArea {
   width: 320px;
   margin: 0 auto;   /* 枠を中央 */
@@ -339,7 +340,7 @@ body.in-game #google-auth-container {
 /* =========================
    📱 スマホUI最適化まとめ
    ========================= */
-@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+@media (max-width: 480px), (hover: none) and (pointer: coarse) {
 
   /* ===== 全体スケールダウン ===== */
   body {
@@ -349,7 +350,7 @@ body.in-game #google-auth-container {
 
   h1 {
     font-size: 18px;
-    margin: 20px 0 10px;
+    margin: -10px 0 10px;
   }
 
   h2 {
@@ -418,5 +419,19 @@ body.in-game #google-auth-container {
     font-size: 14px;
     min-width: 200px;
     border-radius: 8px;
+  }
+
+  #rate-display {
+    font-size: 13px;
+    padding-left: 52px;
+  }
+
+  .rank-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .rank-bar {
+    height: 16px;
   }
 }
