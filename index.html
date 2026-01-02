@@ -44,11 +44,15 @@
 
   <!-- ゲーム画面の左下に固定表示 -->
   <div id="rate-display">
-    レート: <span id="my-rate">1500</span>
-    <span id="name">名無し</span>
-    </span>
+    <div class="rate-row">
+      レート: <span id="my-rate">1500</span>
+      <span id="name">名無し</span>
 
-    <img id="rankIcon" class="rank-icon" src="img/rank/5bronze/ABronze.png">
+      <!-- アイコンを専用ラッパーに -->
+      <span class="rank-icon-wrap">
+        <img id="rankIcon" class="rank-icon" src="img/rank/5bronze/ABronze.png">
+      </span>
+    </div>
 
     <div class="rank-bar">
       <div class="bar-fill" id="barFill"></div>
