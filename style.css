@@ -210,8 +210,10 @@ button[data-right="5"] {
 }
 
 .rankrank-icon {
-  width: 33px;
-  height: 33px;
+  width: 40px;      /* 好きなサイズに */
+  height: 40px;
+  position: relative;
+  top: 4px;         /* 下にずらす（数値は微調整） */
 }
 
 /* ===== ログ ===== */
