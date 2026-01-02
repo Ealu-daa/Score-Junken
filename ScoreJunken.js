@@ -1320,7 +1320,7 @@ rankingBtn.addEventListener("click", async () => {
     const higherSnap = await getDocs(higherQuery);
     const myRank = higherSnap.size + 1;
 
-    const band = getRankBand(myRank);
+    const band = getRankBand(myRate);
 
     myInfo.innerHTML = `
       <span class="rankrank-num">${myRank}位</span>
