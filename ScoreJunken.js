@@ -1171,10 +1171,53 @@ async function updateRateAfterMatch(uidA, uidB, scoreA, scoreB) {
   };
 }
 
+const barFill = document.getElementById("barFill");
+const rankLabel = document.getElementById("rankLabel");
+
+// レート帯設定
+const rankBands = [
+  { min: -9999, max: 599, label: "ウッド", color: "#794818ff" },
+  { min: 600, max: 699, label: "ストーンα", color: "#696969ff" },
+  { min: 700, max: 799, label: "ストーンβ", color: "#3a423bff" },
+  { min: 800, max: 899, label: "カーボンα", color: "#141414ff" },
+  { min: 900, max: 999, label: "カーボンβ", color: "#2b2723ff" },
+  { min: 1000, max: 1099, label: "アルミニウムα", color: "#d3d3d3ff" },
+  { min: 1100, max: 1199, label: "アルミニウムβ", color: "#dbbebeff" },
+  { min: 1200, max: 1299, label: "メタルα", color: "#7c7c7cff" },
+  { min: 1300, max: 1399, label: "メタルβ", color: "#dadadaff" },
+  { min: 1400, max: 1499, label: "ブロンズα", color: "#c47a30ff" },
+  { min: 1500, max: 1599, label: "ブロンズβ", color: "#d1ad36ff" },
+  { min: 1600, max: 1699, label: "シルバーα", color: "#d4d4d4ff" },
+  { min: 1700, max: 1799, label: "シルバーβ", color: "#c5d5ddff" },
+  { min: 1800, max: 1899, label: "ゴールドα", color: "#c7aa07ff" },
+  { min: 1900, max: 1999, label: "ゴールドβ", color: "#cbce03ff" },
+  { min: 2000, max: 2049, label: "ダイヤモンドα", color: "#2e9fa3ff" },
+  { min: 2050, max: 2099, label: "ダイヤモンドβ", color: "#2942caff" },
+  { min: 2100, max: 2149, label: "アストラα", color: "#34df2eff" },
+  { min: 2150, max: 2199, label: "アストラβ", color: "#a4d433ff" },
+  { min: 2200, max: 2249, label: "ギャラクシーα", color: "#cab7cfff" },
+  { min: 2250, max: 2299, label: "ギャラクシーβ", color: "#afa9c9ff" },
+  { min: 2300, max: 2349, label: "コズミックα", color: "#b13fcdff" },
+  { min: 2350, max: 2399, label: "コズミックβ", color: "#45005aff" },
+  { min: 2400, max: 9999, label: "エターナル", color: "#fffecfff" },
+  // ...必要な帯を追加
+];
+
+function updateBar(playerRating) {
+  let band = rankBands.find(b => playerRating >= b.min && playerRating <= b.max);
+  if (!band) return;
+
+  let progress = (playerRating - band.min) / (band.max - band.min);
+  barFill.style.width = `${progress * 100}%`;
+  barFill.style.backgroundColor = band.color;
+  rankLabel.textContent = band.label;
+}
+
 async function updateRateDisplay(myUID) {
   const mystats = await getNameAndRate(myUID);
   document.getElementById("my-rate").textContent = mystats.rate;
   document.getElementById("name").textContent = mystats.name;
+  updateBar(mystats.rate);
 }
 
 //ルール

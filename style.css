@@ -182,6 +182,22 @@ button[data-right="5"] {
   z-index: 1000;
 }
 
+.rank-bar {
+  width: 300px;
+  height: 20px;
+  background-color: #444; /* バーの背景 */
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0%; /* ここをJSで変える */
+  background-color: #cd7f32; /* 初期色ブロンズ */
+  transition: width 0.5s;
+}
+
 #rankingArea {
   width: 320px;
   margin: 0 auto;   /* 枠を中央 */
