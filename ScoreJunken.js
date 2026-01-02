@@ -1204,6 +1204,10 @@ const rankBands = [
   // ...必要な帯を追加
 ];
 
+function getRankBand(rate) {
+  return rankBands.find(band => rate >= band.min && rate <= band.max);
+}
+
 function updateBar(playerRating) {
   let band = rankBands.find(b => playerRating >= b.min && playerRating <= b.max);
   if (!band) return;
@@ -1282,7 +1286,17 @@ rankingBtn.addEventListener("click", async () => {
       if (rank > 100) return;
 
       const row = document.createElement("div");
-      row.textContent = `${rank}位. ${doc.data().name} (${rate})`;
+      row.className = "ranking-row";
+
+      const band = getRankBand(rate);
+
+      row.innerHTML = `
+        <span class="rank-num">${rank}位</span>
+        <span class="rank-name">${doc.data().name}</span>
+        <span class="rank-rate">(${rate})</span>
+        <img class="rank-icon" src="${band.icon}">
+      `;
+
       rankingList.appendChild(row);
     });
 
@@ -1306,7 +1320,17 @@ rankingBtn.addEventListener("click", async () => {
     const higherSnap = await getDocs(higherQuery);
     const myRank = higherSnap.size + 1;
 
-    myInfo.textContent = `${myRank}位. ${myName} (${myRate})`;
+    const band = getRankBand(myRank);
+
+    myInfo.innerHTML = `
+      <div class="ranking-row my-row">
+        <span class="rank-num">${myRank}位</span>
+        <span class="rank-name">${myName}</span>
+        <span class="rank-rate">(${myRate})</span>
+        <img class="rank-icon" src="${band.icon}">
+      </div>
+    `;
+
     rankingArea.style.display = "block";
 
   } catch (e) {
