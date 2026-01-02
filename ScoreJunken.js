@@ -1259,22 +1259,34 @@ rankingBtn.addEventListener("click", async () => {
   myInfo.innerHTML = "";
 
   try {
-  // TOP100取得
+    // ===== TOP100 =====
     const q = query(
       collection(db, "ratings"),
       orderBy("rate", "desc"),
-      limit(100)
+      limit(100) // 同率対策
     );
+
     const snap = await getDocs(q);
 
+    let lastRate = null;
+    let rank = 0;
+
     snap.docs.forEach((doc, index) => {
+      const rate = doc.data().rate;
+
+      if (rate !== lastRate) {
+        rank = index + 1;
+        lastRate = rate;
+      }
+
+      if (rank > 100) return;
+
       const row = document.createElement("div");
-      row.textContent = `${index + 1}位.  ${doc.data().name}  (${doc.data().rate})`;
-      row.className = "ranking-row";
+      row.textContent = `${rank}位. ${doc.data().name} (${rate})`;
       rankingList.appendChild(row);
     });
 
-    // ② 自分
+    // ===== 自分 =====
     const uid = auth.currentUser.uid;
     const mySnap = await getDoc(doc(db, "ratings", uid));
 
@@ -1286,7 +1298,6 @@ rankingBtn.addEventListener("click", async () => {
     const myRate = mySnap.data().rate;
     const myName = mySnap.data().name;
 
-    // 自分より上の人数
     const higherQuery = query(
       collection(db, "ratings"),
       where("rate", ">", myRate)
@@ -1295,16 +1306,14 @@ rankingBtn.addEventListener("click", async () => {
     const higherSnap = await getDocs(higherQuery);
     const myRank = higherSnap.size + 1;
 
-    // 表示
-    myInfo.textContent =
-      `${myRank}位.  ${myName}  (${myRate})`;
-
+    myInfo.textContent = `${myRank}位. ${myName} (${myRate})`;
     rankingArea.style.display = "block";
+
   } catch (e) {
     alert("ランキング取得に失敗しました");
     console.error(e);
+  } finally {
+    rankingBtn.disabled = false;
+    rankingBtn.textContent = "ランキングを見る";
   }
-
-  rankingBtn.disabled = false;
-  rankingBtn.textContent = "ランキングを見る";
 });
