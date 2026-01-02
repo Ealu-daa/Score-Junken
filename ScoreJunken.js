@@ -1147,7 +1147,7 @@ async function updateRateAfterMatch(uidA, uidB, scoreA, scoreB) {
   let S_A = scoreA > scoreB ? 1 : scoreA < scoreB ? 0 : 0.5;
   let S_B = scoreB > scoreA ? 1 : scoreB < scoreA ? 0 : 0.5;
 
-  const K = 32;
+  const K = 18;
   const E_A = 1 / (1 + 10 ** ((rateB - rateA) / 400));
   const E_B = 1 / (1 + 10 ** ((rateA - rateB) / 400));
 
