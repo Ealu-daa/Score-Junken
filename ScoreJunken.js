@@ -1291,10 +1291,14 @@ rankingBtn.addEventListener("click", async () => {
       const band = getRankBand(rate);
 
       row.innerHTML = `
-        <span class="rankrank-num">${rank}位</span>
-        <span class="rankrank-name">${doc.data().name}</span>
-        <span class="rankrank-rate">(${rate})</span>
-        <img class="rankrank-icon" src="${band.icon}">
+        <div class="rankrow">
+          <span class="rankrank-num">${rank}位</span>
+          <span class="rankrank-name">${doc.data().name}</span>
+          <span class="rankrank-rate">(${rate})</span>
+          <span class="rank-icon-wrap">
+            <img class="rankrank-icon" src="${band.icon}">
+          </span>
+        </div>
       `;
 
       rankingList.appendChild(row);
@@ -1323,10 +1327,14 @@ rankingBtn.addEventListener("click", async () => {
     const band = getRankBand(myRate);
 
     myInfo.innerHTML = `
-      <span class="rankrank-num">${myRank}位</span>
-      <span class="rankrank-name">${myName}</span>
-      <span class="rankrank-rate">(${myRate})</span>
-      <img class="rankrank-icon" src="${band.icon}">
+      <div class="rankrow">
+        <span class="rankrank-num">${myRank}位</span>
+        <span class="rankrank-name">${myName}</span>
+        <span class="rankrank-rate">(${myRate})</span>
+        <span class="rank-icon-wrap">
+          <img class="rankrank-icon" src="${band.icon}">
+        </span>
+      </div>
     `;
 
     rankingArea.style.display = "block";
