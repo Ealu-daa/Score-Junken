@@ -406,7 +406,7 @@ body.in-game #google-auth-container {
   
   #google-auth-container {
     bottom: 16px;
-    right: 50%;
+    right: 0px;
     transform: translateX(50%);
     flex-direction: column;
     gap: 10px;
