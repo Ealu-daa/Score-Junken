@@ -174,9 +174,12 @@ button[data-right="5"] {
   position: relative;
   left: 10px;
   top: 50px;
+  height: 120px;
+  width: 325px;
+  width: 100px;
   background: rgba(0,0,0,0.6);
   color: #fff;
-  padding: 8px 12px;
+  padding: 24px 12px;
   border-radius: 8px;
   font-size: 14px;
   z-index: 1000;
@@ -199,10 +202,10 @@ button[data-right="5"] {
 /* 左上に浮かせる */
 .rank-icon {
   position: absolute;
-  top: -6px;   /* 微調整 */
-  left: -6px;
-  width: 42px;
-  height: 42px;
+  top: -1px;   /* 微調整 */
+  left: -32px;
+  width: 80px;
+  height: 80px;
   pointer-events: none;
 }
 
