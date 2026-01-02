@@ -209,28 +209,9 @@ button[data-right="5"] {
   text-align: left; /* 中身は左 */
 }
 
-.ranking-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.rank-icon {
-  width: 22px;
-  height: 22px;
-}
-
-.rank-label {
-  margin-left: auto;
-  opacity: 0.8;
-  font-size: 12px;
-}
-
-.my-row {
-  background: rgba(255,255,255,0.06);
-  padding: 6px 8px;
-  border-radius: 6px;
+.rankrank-icon {
+  width: 44px;
+  height: 44px;
 }
 
 /* ===== ログ ===== */
