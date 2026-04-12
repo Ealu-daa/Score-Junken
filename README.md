@@ -19,3 +19,5 @@
     ・ライト 勝+15
     ・トリック あいこ+35
   ・リバーサルは1試合1回のみ
+
+  https://ealu-daa.github.io/Score-Junken/
